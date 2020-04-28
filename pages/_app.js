@@ -66,7 +66,7 @@ class MyApp extends App {
       <Provider store={store}>
         <div>
           <Head>
-            <title>Monitoring SP2020 BPS Kab. Kolaka</title>
+            <title>SIKECE</title>
             <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             <link rel='shortcut icon' type='image/x-icon' href='/static/favicon.ico' />
           </Head>

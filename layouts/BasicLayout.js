@@ -20,7 +20,7 @@ export default class BasicLayout extends React.Component {
             {this.props.children}
           </Content>
           <Footer style={{ textAlign: "center" }}>
-            BPS Kab. Kolaka ©{new Date().getFullYear()}
+            BPS Kab. Buton ©{new Date().getFullYear()}
           </Footer>
         </Layout>
       </Layout>

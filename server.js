@@ -7,20 +7,20 @@ process.on('uncaughtException', function (err) {
 
 });
 
-//SIPEDE Server
+//SIKECE Server
 const express = require('express')
 const http = require('http')
 const next = require('next')
 const socketServer = require('socket.io')
 
 //modul mongodb utk koneksi mongo db database
-const url = 'mongodb://127.0.0.1:27017/sp2020';
+const url = 'mongodb://127.0.0.1:27017/sikece';
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
 let runServer = () => {
-  const port = 82
+  const port = 80
   const dev = process.env.NODE_ENV !== 'production'
   const app = next({ dev })
   const handle = app.getRequestHandler()
