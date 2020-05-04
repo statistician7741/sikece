@@ -4,7 +4,7 @@ import BasicLayout from "../layouts/BasicLayout";
 
 import dynamic from 'next/dynamic';
 
-const Penilaian = dynamic(() => import("../component/Upload.component"));
+const TableMaster = dynamic(() => import("../component/TableMaster.component"));
 
 class Index extends React.Component {
   static async getInitialProps({ req, res }) {
@@ -14,7 +14,7 @@ class Index extends React.Component {
   render() {
     return (
       <BasicLayout>
-        <Penilaian {...this.props} />
+        <TableMaster {...this.props} />
       </BasicLayout>
     )
   }

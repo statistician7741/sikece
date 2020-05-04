@@ -1,6 +1,5 @@
 import { Col, Collapse, Row, Progress, Select, Typography, Button } from 'antd'
 import moment from 'moment';
-moment.locale('id');
 import columns from './Penilaian.table.columns.component';
 const { Option } = Select;
 
