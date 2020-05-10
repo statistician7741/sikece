@@ -4,3 +4,4 @@
 /public/static/output/qr_img
 /public/static/output/rekap_spd
 .next
+package-lock.json
