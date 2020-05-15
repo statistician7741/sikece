@@ -1,10 +1,10 @@
 import React from 'react'
 import { connect } from 'react-redux';
-import BasicLayout from "../layouts/BasicLayout";
+import BasicLayout from "../../layouts/sikece/BasicLayout";
 
 import dynamic from 'next/dynamic';
+const IndexComponent = dynamic(() => import("../../component/sikece/entri_data/index.Component"));
 
-const Penilaian = dynamic(() => import("../component/Upload.component"));
 
 class Index extends React.Component {
   static async getInitialProps({ req, res }) {
@@ -14,7 +14,7 @@ class Index extends React.Component {
   render() {
     return (
       <BasicLayout>
-        <Penilaian {...this.props} />
+        <IndexComponent />
       </BasicLayout>
     )
   }

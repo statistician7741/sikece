@@ -2,7 +2,8 @@ import App, { Container } from 'next/app'
 import Head from 'next/head'
 import { initStore } from '../redux/store'
 import io from "socket.io-client";
-import { Icon, message, notification } from 'antd'
+import { message, notification } from 'antd'
+import { DisconnectOutlined } from '@ant-design/icons'
 import { Provider } from 'react-redux'
 import React from 'react'
 import { setSocket } from '../redux/actions/socket.action'
@@ -41,7 +42,7 @@ class MyApp extends App {
     notification.open({
       message: 'Koneksi terputus',
       description: 'Koneksi ke server terputus, mohon periksa internet Anda.',
-      icon: <Icon type="disconnect" />,
+      icon: <DisconnectOutlined />,
       duration: 0
     });
   };
