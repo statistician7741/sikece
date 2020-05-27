@@ -1,7 +1,8 @@
-import { Row, Col, Input, AutoComplete, Cascader } from 'antd';
+import { Row, Col, Input, AutoComplete, Cascader, Divider, Space, Button } from 'antd';
 const { TextArea } = Input;
-import BasicForm from './BasicForm.Tabel.Component'
-import InputForm from './InputForm.Tabel.Component'
+import BasicForm from './Lainnya/BasicForm.Tabel.Component'
+import InputForm from '../../General/InputForm.Component'
+import Hot from '../../General/HandsOnTableExample.component'
 
 export default class EditorTabel_Tabel extends React.Component {
     render() {
@@ -35,7 +36,7 @@ export default class EditorTabel_Tabel extends React.Component {
                 </InputForm>
                 <InputForm xs={19} name='Nomor' isWajib={true}>
                     <Input
-                        placeholder="nomor tabel"
+                        placeholder="Nomor tabel"
                         style={{ width: "30%" }}
                     />
                 </InputForm>
@@ -44,7 +45,7 @@ export default class EditorTabel_Tabel extends React.Component {
                         allowClear
                         dropdownMatchSelectWidth={false}
                         dropdownStyle={{ width: 500 }}
-                        placeholder="judul tabel"
+                        placeholder="Judul tabel"
                         style={{ width: "100%" }}
                     >
                         <TextArea
@@ -57,7 +58,7 @@ export default class EditorTabel_Tabel extends React.Component {
                         allowClear
                         dropdownMatchSelectWidth={false}
                         dropdownStyle={{ width: 500 }}
-                        placeholder="sumber data"
+                        placeholder="Sumber data"
                         style={{ width: "100%" }}
                     >
                         <TextArea
@@ -78,6 +79,39 @@ export default class EditorTabel_Tabel extends React.Component {
                         />
                     </AutoComplete>
                 </InputForm>
+                <Row>
+                    <Col xs={24} md={24}>
+                        <Divider orientation="left" plain>Preview</Divider>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} md={24}>
+                        1.1 Luas Wilayah di Kecamatan Pasarwajo (Hektar), 2019
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} md={24}>
+                        <Hot />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} md={24}>
+                        Sumber: Desa/Kelurahan
+                    </Col>
+                </Row>
+                <Row gutter={[0,8]}>
+                    <Col xs={24} md={24}>
+                        Keterangan: -
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={24} md={24}>
+                        <Space>
+                            <Button type="primary">Buat Tabel</Button>
+                            <Button>Batal</Button>
+                        </Space>
+                    </Col>
+                </Row>
             </Col>
         )
     }

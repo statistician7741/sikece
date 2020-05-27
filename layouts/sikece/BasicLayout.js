@@ -3,11 +3,11 @@ const { Content, Footer, Header } = Layout;
 import Link from "next/link";
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
-import { menu } from '../../config/env.config'
+import { menu, kab, alamat } from '../../config/env.config'
 
 import "./BasicLayout.less"
 
-const LinkTo = ({url, name}) => (
+const LinkTo = ({ url, name }) => (
   <Link href={`${url}`}><a>{name}</a></Link>
 );
 
@@ -29,12 +29,12 @@ export default class BasicLayout extends React.Component {
         <Header>
           <Link href="/"><a><img className="logo" src={`/static/logo.png`} /></a></Link>
           <Menu theme="dark" mode="horizontal" defaultSelectedKeys={[this.props.router.asPath]}>
-            {menu.map(m=>m.user_type.includes(user_type)?<Menu.Item key={m.key}><LinkTo url={m.key} name={m.name} /></Menu.Item>:null)}
+            {menu.map(m => m.user_type.includes(user_type) ? <Menu.Item key={m.key}><LinkTo url={m.key} name={m.name} /></Menu.Item> : null)}
             <span className="right">
               <Dropdown overlay={userMenu} trigger={['click']}>
                 <span className={`action account`}>
                   <Avatar className={'avatar'} icon={<UserOutlined />} />
-                {user_type} 1
+                  {user_type} 1
               </span>
               </Dropdown>
             </span>
@@ -51,8 +51,8 @@ export default class BasicLayout extends React.Component {
           {this.props.children}
         </Content>
         <Footer style={{ textAlign: "center" }}>
-          <div>BPS Kabupaten Buton ©{new Date().getFullYear()}</div>
-          <div>Jl. Protokol Kel. Saragi Kec. Pasarwajo Kab. Buton; e-Mail: bps7401@bps.go.id</div>
+          <div>BPS Kabupaten {kab} ©{new Date().getFullYear()}</div>
+          <div>{alamat}</div>
         </Footer>
       </Layout>
     );

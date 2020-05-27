@@ -34,7 +34,7 @@ const tabs = [{
 
 export default class IndexMasterTabel extends React.Component {
     state = {
-        activeKey: "Tabel"
+        activeKey: "Desa/Kelurahan"
     }
 
     onChangeTab = (key) => this.setState({ activeKey: key })

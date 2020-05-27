@@ -1,12 +1,8 @@
-import { Col, Collapse, Row, Progress, Select, Typography, Button } from 'antd'
-import moment from 'moment';
-
 import dynamic from 'next/dynamic';
 
 const HotTable = dynamic(() => import('@handsontable/react'), {
     ssr: false
 })
-// import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.css';
 
 export default class Penilaian extends React.Component {
@@ -22,10 +18,10 @@ export default class Penilaian extends React.Component {
         ],
         nestedHeaders: [
             ['Kelurahan/Desa',
-            { label: 'SMP', colspan: 2 },
-            'Madrasah Tsanawiyah',
-            'Jumlah'],
-            ['','Negeri', 'Swasta','',''],
+                { label: 'SMP', colspan: 2 },
+                'Madrasah Tsanawiyah',
+                'Jumlah'],
+            ['', 'Negeri', 'Swasta', '', ''],
             ['(1)', '(2)', '(3)', '(4)', '(5)']
         ],
         data: [
@@ -42,17 +38,14 @@ export default class Penilaian extends React.Component {
     render() {
         const { nestedHeaders, data } = this.state
         return (
-            <React.Fragment>
-                <div>
-                    <HotTable
-                        settings={{
-                            licenseKey: 'non-commercial-and-evaluation'
-                        }}
-                        data={data}
-                        colHeaders={true}
-                        nestedHeaders={nestedHeaders} />
-                </div>
-            </React.Fragment>
+            <HotTable
+                settings={{
+                    licenseKey: 'non-commercial-and-evaluation'
+                }}
+                height="auto"
+                data={data}
+                colHeaders={true}
+                nestedHeaders={nestedHeaders} />
         )
     }
 }

@@ -1,6 +1,7 @@
-import { Row, Col, Button, List, Skeleton } from 'antd';
+import { Row, Col, Button, List, Skeleton, Divider } from 'antd';
 import { PlusOutlined } from '@ant-design/icons'
-import BasicForm from './BasicForm.Tabel.Component'
+import BasicForm from './Lainnya/BasicForm.Tabel.Component'
+import { Fragment } from 'react';
 
 export default class LihatTabel_Tabel extends React.Component {
     render() {
@@ -8,10 +9,10 @@ export default class LihatTabel_Tabel extends React.Component {
         const { loadDataKec } = this.props
         return (
             <Col xs={xs} md={md}>
-                <Row gutter={[64, 16]}>
+                <Row gutter={[64, 0]}>
                     <Col xs={24} md={16}>
                         <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Lihat Tabel</strong></Col>
+                            <Col xs={24}><strong>Daftar Tabel</strong></Col>
                         </Row>
                         <Row>
                             <Col xs={24}>
@@ -24,26 +25,30 @@ export default class LihatTabel_Tabel extends React.Component {
                         <Row><Col><Button type="primary"><PlusOutlined /> Tambah</Button></Col></Row>
                     </Col>
                 </Row>
-                {babs.map(b => <>
+                {babs.map(b => <Fragment key={b.nomor}>
                     <Row>
-                        <Col span={12}><strong>Bab {b.nomor} {b.name}</strong></Col>
+                        <Col xs={24}><Divider orientation="left" plain>Bab {b.nomor} {b.name}</Divider></Col>
                     </Row>
-                    <List
-                        loading={false}
-                        itemLayout="horizontal"
-                        dataSource={tabels.filter(t => (t.bab === b.name))}
-                        renderItem={tabel => (<List.Item
-                            actions={[<a key="list-loadmore-edit">edit</a>, <a key="list-loadmore-more">hapus</a>]}
-                        >
-                            <Skeleton title={false} loading={false} active>
-                                <List.Item.Meta
-                                    title={<span>{tabel.nomor} {tabel.judul}, {tabel.tahun}</span>}
-                                />
-                            </Skeleton>
-                        </List.Item>)
-                        }
-                    />
-                </>)}
+                    <Row>
+                        <Col xs={24}>
+                            <List
+                                loading={false}
+                                itemLayout="horizontal"
+                                dataSource={tabels.filter(t => (t.bab === b.name))}
+                                renderItem={tabel => (<List.Item
+                                    actions={[<a key="list-loadmore-edit">edit</a>, <a key="list-loadmore-more">hapus</a>]}
+                                >
+                                    <Skeleton title={false} loading={false} active>
+                                        <List.Item.Meta
+                                            title={<span>{tabel.nomor} {tabel.judul}, {tabel.tahun}</span>}
+                                        />
+                                    </Skeleton>
+                                </List.Item>)
+                                }
+                            />
+                        </Col>
+                    </Row>
+                </Fragment>)}
             </Col>
         )
     }

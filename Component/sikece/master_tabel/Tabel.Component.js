@@ -21,12 +21,17 @@ export default class Tabel extends React.Component {
         kecData: [
             {
                 value: 'buton',
-                label: 'Buton',
+                label: '[7401] Buton',
                 isLeaf: false,
             },
             {
                 value: 'buteng',
-                label: 'Buton Tengah',
+                label: '[7414] Buton Tengah',
+                isLeaf: false,
+            },
+            {
+                value: 'busel',
+                label: '[7415] Buton Selatan',
                 isLeaf: false,
             },
         ],
@@ -83,12 +88,16 @@ export default class Tabel extends React.Component {
             targetOption.loading = false;
             targetOption.children = [
                 {
-                    label: `Kec 1`,
+                    label: `[060] Kec 1`,
                     value: 'kec1',
                 },
                 {
-                    label: `Kec 2`,
+                    label: `[050] Kec 2`,
                     value: 'kec2',
+                },
+                {
+                    label: `[051] Kec 3`,
+                    value: 'kec3',
                 },
             ];
             this.setState({
@@ -127,7 +136,7 @@ export default class Tabel extends React.Component {
     render() {
         const { babs, tabels, kecData, indikators } = this.state
         return (
-            <Row>
+            <Row gutter={[20,0]}>
                 <LihatTabel xs={24} md={14} bab babs={babs} tabels={tabels} kecData={kecData} loadDataKec={this.loadDataKec} />
                 <EditorTabel xs={24} md={10} kecData={kecData} loadDataKec={this.loadDataKec} indikators={indikators} loadDataIndikators={this.loadDataIndikators} cascaderFilter={this.cascaderFilter} />
             </Row>
