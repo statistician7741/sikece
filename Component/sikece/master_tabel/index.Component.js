@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
-import { Tabs } from 'antd';
+import { Tabs, PageHeader } from 'antd';
+import Router from 'next/router'
 
 const { TabPane } = Tabs;
 
@@ -22,6 +23,9 @@ const tabs = [{
     name: 'Bab',
     Component: dynamic(() => import("./Bab.Component"))
 }, {
+    name: 'Subjek',
+    Component: dynamic(() => import("./Subjek.Component"))
+}, {
     name: 'Kabupaten',
     Component: dynamic(() => import("./Kabupaten.Component"))
 }, {
@@ -33,20 +37,28 @@ const tabs = [{
 }]
 
 export default class IndexMasterTabel extends React.Component {
-    state = {
-        activeKey: "Desa/Kelurahan"
+    onChangeTab = (key) => {
+        this.setState({ activeKey: key }, () => {
+            Router.push({
+                pathname: '/sikece/master_tabel',
+                query: { tab: key },
+            })
+        })
     }
 
-    onChangeTab = (key) => this.setState({ activeKey: key })
-
     render() {
-        const { activeKey } = this.state;
+        const { router } = this.props;
         return (
-            <Tabs defaultActiveKey={activeKey} onChange={this.onChangeTab} animated={false}>
-                {tabs.map(t => <TabPane tab={`${t.name}`} key={`${t.name}`}>
-                    {<t.Component />}
-                </TabPane>)}
-            </Tabs>
+            <PageHeader
+                className="site-page-header"
+                title="Master Tabel"
+            >
+                <Tabs defaultActiveKey={router.query.tab} onChange={this.onChangeTab} animated={false}>
+                    {tabs.map(t => <TabPane tab={`${t.name}`} key={`${t.name}`}>
+                        {<t.Component />}
+                    </TabPane>)}
+                </Tabs>
+            </PageHeader>
         )
     }
 }

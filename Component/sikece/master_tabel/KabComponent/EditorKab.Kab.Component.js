@@ -1,7 +1,7 @@
 import { Row, Col, Input, AutoComplete, Space, Button } from 'antd';
 const { TextArea } = Input;
-import InputForm from '../../General/InputForm.Component'
-import Hot from '../../General/Hot.Component'
+import InputForm from '../../general/InputForm.Component'
+import Hot from '../../general/Hot.Component'
 import { Fragment } from 'react';
 
 export default class LihatTabel_Tabel extends React.Component {

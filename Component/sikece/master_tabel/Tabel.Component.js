@@ -137,8 +137,8 @@ export default class Tabel extends React.Component {
         const { babs, tabels, kecData, indikators } = this.state
         return (
             <Row gutter={[20,0]}>
-                <LihatTabel xs={24} md={14} bab babs={babs} tabels={tabels} kecData={kecData} loadDataKec={this.loadDataKec} />
-                <EditorTabel xs={24} md={10} kecData={kecData} loadDataKec={this.loadDataKec} indikators={indikators} loadDataIndikators={this.loadDataIndikators} cascaderFilter={this.cascaderFilter} />
+                <LihatTabel xs={24} md={12} bab babs={babs} tabels={tabels} kecData={kecData} loadDataKec={this.loadDataKec} />
+                <EditorTabel xs={24} md={12} kecData={kecData} loadDataKec={this.loadDataKec} indikators={indikators} loadDataIndikators={this.loadDataIndikators} cascaderFilter={this.cascaderFilter} />
             </Row>
         )
     }

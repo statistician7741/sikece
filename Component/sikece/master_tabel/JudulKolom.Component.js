@@ -1,13 +1,19 @@
+import { Row } from "antd"
 import dynamic from 'next/dynamic';
 
-export default class JudulKolom extends React.Component {
+const LihatKolom = dynamic(() => import("./KolomComponent/LihatKolom.Kolom.Component"));
+const EditorKolom = dynamic(() => import("./KolomComponent/EditorKolom.Kolom.Component"));
+
+export default class Kolom extends React.Component {
     state = {
-        data: "JudulKolom"
     }
 
     render() {
         return (
-            <div>Judul Kolom</div>
+            <Row gutter={[20, 0]}>
+                <LihatKolom xs={24} md={10} />
+                <EditorKolom xs={24} md={14} />
+            </Row>
         )
     }
 }

@@ -14,7 +14,7 @@ class Index extends React.Component {
   render() {
     return (
       <BasicLayout {...this.props}>
-        <IndexComponent />
+        <IndexComponent {...this.props} />
       </BasicLayout>
     )
   }

@@ -6,42 +6,35 @@ import InputForm from '../../general/InputForm.Component'
 
 export default class LihatTabel_Tabel extends React.Component {
     state = {
-        kecData: [{
-            _id: '7401.060',
-            name: 'Pasar Wajo',
-            ket: 'Kecamatan pertama di Buton, didirikan tahun 1980'
-        }, {
-            _id: '7401.050',
-            name: 'Lasalimu',
-            ket: '-'
-        }, {
-            _id: '7401.051',
-            name: 'Lasalimu Selatan',
-            ket: 'Termasuk Kecamatan di Buton, didirikan tahun 2017. Kecamatan ini baru dimekarkan.'
-        },]
+        
     }
     render() {
-        const { xs, md, kabData } = this.props
+        const { xs, md, kabData, desaKelData, kecData } = this.props
         const { onClickTambah } = this.props
-        const { kecData } = this.state
 
         const kabColumns = [{
             title: 'Kode',
             dataIndex: '_id',
             key: '_id',
-            width: 30,
+            width: 90,
             sorter: (a, b) => a._id - b._id
         }, {
-            title: 'Kecamatan',
+            title: 'Desa/Kel',
             dataIndex: 'name',
             width: 150,
             sorter: (a, b) => {
                 return a.name.localeCompare(b.name)
             }
         }, {
+            title: 'Klasifikasi',
+            dataIndex: 'klasifikasi',
+            width: 150,
+            sorter: (a, b) => {
+                return a.klasifikasi.localeCompare(b.klasifikasi)
+            }
+        }, {
             title: 'Keterangan',
             dataIndex: 'ket',
-            width: 300
         }, {
             title: 'pilihan',
             dataIndex: 'pilihan',
@@ -50,7 +43,7 @@ export default class LihatTabel_Tabel extends React.Component {
             render: (text, record) => <span>
                 <a>Edit</a>
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus Kecamatan ini?`}>
+                <Popconfirm title={`Hapus Desa/Kelurahan ini?`}>
                     <a disabled={record.isSudahDibayar}>Hapus</a>
                 </Popconfirm>
             </span>
@@ -61,12 +54,18 @@ export default class LihatTabel_Tabel extends React.Component {
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={16}>
                         <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Daftar Kecamatan</strong></Col>
+                            <Col xs={24}><strong>Daftar Desa/Kelurahan</strong></Col>
                         </Row>
                         <InputForm xs={19} name='Kabupaten' isWajib={false} left>
                             <Select defaultValue={kabData[0]._id} style={{ width: 200 }}>
                                 {kabData.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
                                 <Option value="all_kab" key="all_kab">[----] Semua</Option>
+                            </Select>
+                        </InputForm>
+                        <InputForm xs={19} name='Kecamatan' isWajib={false} left>
+                            <Select defaultValue={kecData[0]._id} style={{ width: 200 }}>
+                                {kecData.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
+                                <Option value="all_kec" key="all_kec">[----] Semua</Option>
                             </Select>
                         </InputForm>
                     </Col>
@@ -88,8 +87,9 @@ export default class LihatTabel_Tabel extends React.Component {
                 <Row gutter={[64, 0]}>
                     <Col xs={24}>
                         <Table
+                            scroll={{ x: 1000 }}
                             columns={kabColumns}
-                            dataSource={kecData}
+                            dataSource={desaKelData}
                             pagination={false}
                             rowKey="_id"
                         />

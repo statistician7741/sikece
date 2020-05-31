@@ -7,15 +7,15 @@ import InputForm from '../../general/InputForm.Component'
 export default class LihatTabel_Tabel extends React.Component {
     state = {
         kecData: [{
-            _id: '7401.060',
+            _id: '060',
             name: 'Pasar Wajo',
             ket: 'Kecamatan pertama di Buton, didirikan tahun 1980'
         }, {
-            _id: '7401.050',
+            _id: '050',
             name: 'Lasalimu',
             ket: '-'
         }, {
-            _id: '7401.051',
+            _id: '051',
             name: 'Lasalimu Selatan',
             ket: 'Termasuk Kecamatan di Buton, didirikan tahun 2017. Kecamatan ini baru dimekarkan.'
         },]
@@ -29,7 +29,7 @@ export default class LihatTabel_Tabel extends React.Component {
             title: 'Kode',
             dataIndex: '_id',
             key: '_id',
-            width: 30,
+            width: 90,
             sorter: (a, b) => a._id - b._id
         }, {
             title: 'Kecamatan',
@@ -41,7 +41,6 @@ export default class LihatTabel_Tabel extends React.Component {
         }, {
             title: 'Keterangan',
             dataIndex: 'ket',
-            width: 300
         }, {
             title: 'pilihan',
             dataIndex: 'pilihan',
@@ -88,6 +87,7 @@ export default class LihatTabel_Tabel extends React.Component {
                 <Row gutter={[64, 0]}>
                     <Col xs={24}>
                         <Table
+                            scroll={{ x: 1000 }}
                             columns={kabColumns}
                             dataSource={kecData}
                             pagination={false}

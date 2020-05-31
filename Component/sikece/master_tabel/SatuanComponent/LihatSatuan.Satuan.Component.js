@@ -1,36 +1,21 @@
-import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm } from 'antd';
+import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm, Select, Typography } from 'antd';
+const { Option } = Select;
+const { Text } = Typography;
 import { PlusOutlined } from '@ant-design/icons'
+import InputForm from '../../general/InputForm.Component'
 
-export default class LihatTabel_Tabel extends React.Component {
+export default class LihatSatuan_Satuan extends React.Component {
     state = {
-        kabData: [{
-            _id: '7401',
-            name: 'Buton',
-            ket: 'Kabupaten pertama di Buton, didirikan tahun 1980'
-        }, {
-            _id: '7414',
-            name: 'Buton Tengah',
-            ket: '-'
-        }, {
-            _id: '7415',
-            name: 'Buton Selatan',
-            ket: 'Kabupaten pertama di Buton, didirikan tahun 1980. Kabupaten ini baru dimekarkan.'
-        },]
+        
     }
     render() {
-        const { xs, md } = this.props
+        const { xs, md, kabData, satuanData, kecData } = this.props
         const { onClickTambah } = this.props
-        const { kabData } = this.state
 
         const kabColumns = [{
-            title: 'Kode',
-            dataIndex: '_id',
-            key: '_id',
-            width: 90,
-            sorter: (a, b) => a._id - b._id
-        }, {
-            title: 'Kabupaten',
+            title: 'Satuan',
             dataIndex: 'name',
+            width: 150,
             sorter: (a, b) => {
                 return a.name.localeCompare(b.name)
             }
@@ -45,7 +30,7 @@ export default class LihatTabel_Tabel extends React.Component {
             render: (text, record) => <span>
                 <a>Edit</a>
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus Kabupaten ini?`}>
+                <Popconfirm title={`Hapus Satuan ini?`}>
                     <a disabled={record.isSudahDibayar}>Hapus</a>
                 </Popconfirm>
             </span>
@@ -56,7 +41,7 @@ export default class LihatTabel_Tabel extends React.Component {
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={16}>
                         <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Daftar Kabupaten</strong></Col>
+                            <Col xs={24}><strong>Daftar Satuan</strong></Col>
                         </Row>
                     </Col>
                     <Col xs={24} md={8}>
@@ -79,7 +64,7 @@ export default class LihatTabel_Tabel extends React.Component {
                         <Table
                             scroll={{ x: 1000 }}
                             columns={kabColumns}
-                            dataSource={kabData}
+                            dataSource={satuanData}
                             pagination={false}
                             rowKey="_id"
                         />

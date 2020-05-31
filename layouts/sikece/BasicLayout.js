@@ -42,8 +42,7 @@ export default class BasicLayout extends React.Component {
         </Header>
         <Content
           style={{
-            margin: "10px 16px",
-            padding: 10,
+            margin: "10px 10px",
             background: "#fff",
             minHeight: 280
           }}

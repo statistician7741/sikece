@@ -75,10 +75,10 @@ class MyApp extends App {
           </Head>
           <Component
             {...pageProps}
-            showSuccessMessage = {this.showSuccessMessage}
-            showErrorMessage = {this.showErrorMessage}
-            showInfoMessage = {this.showInfoMessage}
-            showWarningMessage = {this.showWarningMessage}
+            showSuccessMessage={this.showSuccessMessage}
+            showErrorMessage={this.showErrorMessage}
+            showInfoMessage={this.showInfoMessage}
+            showWarningMessage={this.showWarningMessage}
           />
         </div>
       </Provider>

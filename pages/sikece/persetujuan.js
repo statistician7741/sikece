@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import BasicLayout from "../../layouts/sikece/BasicLayout";
 
 import dynamic from 'next/dynamic';
-const IndexComponent = dynamic(() => import("../../component/sikece/approval/index.Component"));
+const IndexComponent = dynamic(() => import("../../component/sikece/persetujuan/index.Component"));
 
 
 class Index extends React.Component {
