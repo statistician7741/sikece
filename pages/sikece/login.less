@@ -1,0 +1,84 @@
+@import "~antd/lib/style/themes/default.less";
+// @import "localFont.less";
+
+.login_main {
+  width: 328px;
+  margin: 0 auto;
+}
+
+.login_content {
+  padding: 32px 0;
+  flex: 1;
+}
+
+@media (min-width: @screen-md-min) {
+  .login_container {
+    background-image: url('/static/login-bg.svg');
+    background-repeat: no-repeat;
+    background-position: center 110px;
+    min-height: 88vh;
+  }
+  .login_content {
+    padding: 112px 0 24px 0;
+  }
+}
+
+.login_top {
+  text-align: center;
+}
+
+.login_header {
+  height: 44px;
+  line-height: 44px;
+  a {
+    text-decoration: none;
+  }
+}
+
+.login_logo {
+  height: 40px;
+  // margin-right: 16px;
+}
+
+@media screen and (max-width: @screen-xs) {
+  .login_title {
+    font-size: 22px;
+  }
+}
+
+@media screen and (min-width: @screen-sm) {
+  .login_title {
+    font-size: 33px;
+  }
+}
+
+.login_title {
+  color: @heading-color;
+  font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-weight: 600;
+  position: relative;
+  top: 2px;
+}
+
+.login_prefixIcon {
+  font-size: @font-size-base;
+  color: @disabled-color;
+}
+
+.login_submit {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.login_desc {
+  font-size: @font-size-base;
+  color: @text-color-secondary;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+:global {
+  .ant-form-item {
+    margin-bottom: 28px;
+  }
+}

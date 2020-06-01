@@ -14,7 +14,7 @@ const LinkTo = ({ url, name }) => (
 const userMenu = (
   <Menu selectedKeys={[]}>
     <Menu.Item key="userCenter">
-      <Link href='logout'>
+      <Link href='login'>
         <a><div><LogoutOutlined /> Logout</div></a>
       </Link>
     </Menu.Item>
@@ -50,7 +50,7 @@ export default class BasicLayout extends React.Component {
           {this.props.children}
         </Content>
         <Footer style={{ textAlign: "center" }}>
-          <div>BPS Kabupaten {kab} ©{new Date().getFullYear()}</div>
+          <div>BPS {kab} ©{new Date().getFullYear()}</div>
           <div>{alamat}</div>
         </Footer>
       </Layout>
