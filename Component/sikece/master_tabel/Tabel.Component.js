@@ -1,82 +1,12 @@
 import dynamic from 'next/dynamic';
-import { Row } from 'antd';
+import { Row, Table } from 'antd';
+import { connect } from 'react-redux';
 
 const LihatTabel = dynamic(() => import("./TabelComponent/LihatTabel.Tabel.Component"));
 const EditorTabel = dynamic(() => import("./TabelComponent/EditorTabel.Tabel.Component"));
 
-export default class Tabel extends React.Component {
+class TabelComponent extends React.Component {
     state = {
-        indikators: [
-            {
-                value: 'Geografi',
-                label: 'Geografi',
-                isLeaf: false,
-            },
-            {
-                value: 'Pemerintahan',
-                label: 'Pemerintahan',
-                isLeaf: false,
-            },
-        ],
-        kecData: [
-            {
-                value: 'buton',
-                label: '[7401] Buton',
-                isLeaf: false,
-            },
-            {
-                value: 'buteng',
-                label: '[7414] Buton Tengah',
-                isLeaf: false,
-            },
-            {
-                value: 'busel',
-                label: '[7415] Buton Selatan',
-                isLeaf: false,
-            },
-        ],
-        babs: [{ nomor: 1, name: 'Geografi' }, { nomor: 2, name: 'Pemerintahan' }],
-        tabels: [{
-            nomor: '1.1',
-            judul: 'Luas Wilayah di Kecamatan Pasarwajo (Hektar)',
-            tahun: 2019,
-            bab: 'Geografi'
-        }, {
-            nomor: '1.2',
-            judul: 'Luas Wilayah menurut Jenis Lahan di Kecamatan Pasarwajo...',
-            tahun: 2019,
-            bab: 'Geografi'
-        }, {
-            nomor: '1.3',
-            judul: 'Luas Lahan Bukan Sawah menurut Penggunaan ... Pasarwajo...',
-            tahun: 2019,
-            bab: 'Geografi'
-        }, {
-            nomor: '1.4',
-            judul: 'Luas Lahan Pertanian Bukan Sawah menurut...',
-            tahun: 2019,
-            bab: 'Geografi'
-        }, {
-            nomor: '2.1',
-            judul: 'Banyaknya Dusun, Rukun Warga (RW) dan Rukun...',
-            tahun: 2019,
-            bab: 'Pemerintahan'
-        }, {
-            nomor: '2.2',
-            judul: 'Banyaknya Pamong dan Perangkat Desa menurut Jabatan...',
-            tahun: 2019,
-            bab: 'Pemerintahan'
-        }, {
-            nomor: '2.3',
-            judul: 'Banyaknya Pamong dan Perangkat Desa menurut Jenis...',
-            tahun: 2019,
-            bab: 'Pemerintahan'
-        }, {
-            nomor: '2.4',
-            judul: 'Banyaknya Pamong dan Perangkat Desa...',
-            tahun: 2019,
-            bab: 'Pemerintahan'
-        },]
     }
 
     loadDataKec = selectedOptions => {
@@ -134,12 +64,19 @@ export default class Tabel extends React.Component {
     }
 
     render() {
-        const { babs, tabels, kecData, indikators } = this.state
+        const { babs, kecData, indikators, tables } = this.props
         return (
-            <Row gutter={[20,0]}>
-                <LihatTabel xs={24} md={12} bab babs={babs} tabels={tabels} kecData={kecData} loadDataKec={this.loadDataKec} />
+            <Row gutter={[20, 0]}>
+                <LihatTabel xs={24} md={12} bab babs={babs} tables={tables} kecData={kecData} loadDataKec={this.loadDataKec} />
                 <EditorTabel xs={24} md={12} kecData={kecData} loadDataKec={this.loadDataKec} indikators={indikators} loadDataIndikators={this.loadDataIndikators} cascaderFilter={this.cascaderFilter} />
             </Row>
         )
     }
 }
+
+function mapStateToProps(state) {
+    const { tables, indikators, babs, kecData } = state.master
+    return { tables, indikators, babs, kecData }
+}
+
+export default connect(mapStateToProps)(TabelComponent)

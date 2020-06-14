@@ -55,7 +55,7 @@ export default class IndexMasterTabel extends React.Component {
             >
                 <Tabs defaultActiveKey={router.query.tab} onChange={this.onChangeTab} animated={false}>
                     {tabs.map(t => <TabPane tab={`${t.name}`} key={`${t.name}`}>
-                        {<t.Component />}
+                        {<t.Component {...this.props} />}
                     </TabPane>)}
                 </Tabs>
             </PageHeader>

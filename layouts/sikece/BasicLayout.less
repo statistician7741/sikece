@@ -2,6 +2,23 @@
 
 @pro-header-hover-bg: rgba(0, 0, 0, 0.025);
 
+
+@media screen and (max-width: 767px) {
+  .main-content {
+    margin    : 10px 10px;
+    background: #fff;
+    min-height: 280px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .main-content {
+    margin    : 10px 200px;
+    background: #fff;
+    min-height: 280px;
+  }
+}
+
 .handsontableEditor.autocompleteEditor,
 .handsontableEditor.autocompleteEditor .ht_master .wtHolder {
   min-height: 138px !important;
@@ -10,13 +27,14 @@
 .dt {
   color: rgba(0, 0, 0, 0.65)
 }
-.ant-page-header-content{
+
+.ant-page-header-content {
   padding-top: 8px;
 }
 
 .demo-infinite-container {
-  overflow     : auto;
-  height       : 300px;
+  overflow: auto;
+  height  : 300px;
 }
 
 .demo-loading-container {

@@ -1,10 +1,11 @@
 import { Row } from "antd"
 import dynamic from 'next/dynamic';
+import { connect } from 'react-redux';
 
 const LihatIndikator = dynamic(() => import("./IndikatorComponent/LihatIndikator.Indikator.Component"));
 const EditorIndikator = dynamic(() => import("./IndikatorComponent/EditorIndikator.Indikator.Component"));
 
-export default class Indikator extends React.Component {
+class Indikator extends React.Component {
     state = {
         babData: [{
             _id: '1',
@@ -54,12 +55,19 @@ export default class Indikator extends React.Component {
     }
 
     render() {
-        const { babData, dataIndikators } = this.state;
+        const { babs, indikators } = this.props;
         return (
             <Row gutter={[20, 0]}>
-                <LihatIndikator babData={babData} dataIndikators={dataIndikators} xs={24} md={12} />
-                <EditorIndikator babData={babData} dataIndikators={dataIndikators} xs={24} md={12} />
+                <LihatIndikator babData={babs} dataIndikators={indikators} xs={24} md={12} />
+                <EditorIndikator babData={babs} dataIndikators={indikators} xs={24} md={12} />
             </Row>
         )
     }
 }
+
+function mapStateToProps(state) {
+    const { indikators, babs } = state.master
+    return { indikators, babs }
+}
+
+export default connect(mapStateToProps)(Indikator)

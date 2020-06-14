@@ -7,7 +7,6 @@ import reducer from "./reducers";
 
 const middleware = applyMiddleware(promise, thunk, createLogger());
 
-// export default createStore(reducer, middleware)
 export const initStore = () => {
   return createStore(
     reducer,

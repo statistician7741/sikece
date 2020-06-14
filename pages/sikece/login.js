@@ -66,11 +66,9 @@ class Login extends React.Component {
                     <div className={'login_content'}>
                         <div className={'login_top'}>
                             <div className={'login_header'}>
-                                <Link href="/">
-                                    <div>
-                                        <img src={`/static/sikece.png`} className={'login_logo'} />
-                                    </div>
-                                </Link>
+                                <div>
+                                    <img src={`/static/sikece.png`} className={'login_logo'} />
+                                </div>
                             </div>
                             <div className={'login_desc'}>Sistem Informasi Kecamatan Dalam Angka</div>
                         </div>
@@ -114,11 +112,10 @@ class Login extends React.Component {
                                         ]
                                     })( */}
                                     <Form.Item name="password" noStyle>
-                                        <Input
+                                        <Input.Password
                                             prefix={
                                                 <LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />
                                             }
-                                            type="password"
                                             placeholder="password"
                                             size='large'
                                             autoComplete="off"

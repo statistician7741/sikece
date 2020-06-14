@@ -19,6 +19,7 @@ export default class EditorIndikator_Indikator extends React.Component {
     }
     render() {
         const { xs, md, dataIndikators } = this.props
+        console.log(this.props);
         const { nestedHeaders, data } = this.state
         return (
             <Col xs={xs} md={md}>

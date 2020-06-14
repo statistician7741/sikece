@@ -1,26 +1,11 @@
 import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm } from 'antd';
 import { PlusOutlined } from '@ant-design/icons'
+import { deleteKabbyId } from "../../../../redux/actions/master.action"
 
 export default class LihatTabel_Tabel extends React.Component {
-    state = {
-        kabData: [{
-            _id: '7401',
-            name: 'Buton',
-            ket: 'Kabupaten pertama di Buton, didirikan tahun 1980'
-        }, {
-            _id: '7414',
-            name: 'Buton Tengah',
-            ket: '-'
-        }, {
-            _id: '7415',
-            name: 'Buton Selatan',
-            ket: 'Kabupaten pertama di Buton, didirikan tahun 1980. Kabupaten ini baru dimekarkan.'
-        },]
-    }
     render() {
-        const { xs, md } = this.props
-        const { onClickTambah } = this.props
-        const { kabData } = this.state
+        const { all_kab } = this.props
+        const { onClickTambah, onClickEdit } = this.props
 
         const kabColumns = [{
             title: 'Kode',
@@ -29,7 +14,7 @@ export default class LihatTabel_Tabel extends React.Component {
             width: 90,
             sorter: (a, b) => a._id - b._id
         }, {
-            title: 'Kabupaten',
+            title: 'Nama',
             dataIndex: 'name',
             sorter: (a, b) => {
                 return a.name.localeCompare(b.name)
@@ -43,22 +28,17 @@ export default class LihatTabel_Tabel extends React.Component {
             fixed: 'right',
             width: 140,
             render: (text, record) => <span>
-                <a>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Kabupaten ${record.name}`, record)}>Edit</a>
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus Kabupaten ini?`}>
+                <Popconfirm title={`Hapus Kabupaten ini?`} onConfirm={()=>this.props.dispatch(deleteKabbyId(this.props.socket, record._id))}>
                     <a disabled={record.isSudahDibayar}>Hapus</a>
                 </Popconfirm>
             </span>
         }]
 
         return (
-            <Col xs={xs} md={md}>
+            <Col>
                 <Row gutter={[64, 16]}>
-                    <Col xs={24} md={16}>
-                        <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Daftar Kabupaten</strong></Col>
-                        </Row>
-                    </Col>
                     <Col xs={24} md={8}>
                         <Row><Col>
                             <Dropdown.Button
@@ -77,9 +57,9 @@ export default class LihatTabel_Tabel extends React.Component {
                 <Row gutter={[64, 0]}>
                     <Col xs={24}>
                         <Table
-                            scroll={{ x: 1000 }}
+                            size="small"
                             columns={kabColumns}
-                            dataSource={kabData}
+                            dataSource={all_kab}
                             pagination={false}
                             rowKey="_id"
                         />

@@ -61,11 +61,10 @@ let runServer = () => {
       })
 
       const io = socketServer(serve);
-      const all_connected_clients = require('./SocketConnections')
       io.use(sharedsession(sessionWithMongo, cookieParser("ID==&&%^&A&SHBJSAsjhbJGhUGkbKiUvii^%^#$%^&98G8UIugg==")));
       io.on('connection', function (client) {
         console.log("Hey, someone connected");
-        // require('./api/socket/penilaian.api.socket')(client, all_connected_clients)
+        require('./api/master_table.api')(client)
         client.on('disconnect', () => {
           console.log("Hey, someone disconnected");
         })

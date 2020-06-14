@@ -41,11 +41,7 @@ export default class BasicLayout extends React.Component {
           </Menu>
         </Header>
         <Content
-          style={{
-            margin: "10px 10px",
-            background: "#fff",
-            minHeight: 280
-          }}
+          className="main-content"
         >
           {this.props.children}
         </Content>

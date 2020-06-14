@@ -5,7 +5,7 @@ import { Fragment } from 'react';
 
 export default class LihatTabel_Tabel extends React.Component {
     render() {
-        const { babs, tabels, kecData, xs, md } = this.props
+        const { babs, tables, kecData, xs, md } = this.props
         const { loadDataKec } = this.props
         return (
             <Col xs={xs} md={md}>
@@ -34,7 +34,7 @@ export default class LihatTabel_Tabel extends React.Component {
                             <List
                                 loading={false}
                                 itemLayout="horizontal"
-                                dataSource={tabels.filter(t => (t.bab === b.name))}
+                                dataSource={tables.filter(t => (t.bab === b.name))}
                                 renderItem={tabel => (<List.Item
                                     actions={[<a key="list-loadmore-edit">edit</a>, <a key="list-loadmore-more">hapus</a>]}
                                 >

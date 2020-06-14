@@ -1,0 +1,1 @@
+export const SET_MASTER_KAB = 'SET_MASTER_KAB';
