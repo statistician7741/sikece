@@ -1,4 +1,4 @@
-import { Row } from "antd"
+import { Row, PageHeader } from "antd"
 import dynamic from 'next/dynamic';
 
 const LihatSatuan = dynamic(() => import("./SatuanComponent/LihatSatuan.Satuan.Component"));
@@ -7,30 +7,37 @@ const EditorSatuan = dynamic(() => import("./SatuanComponent/EditorSatuan.Satuan
 export default class Satuan extends React.Component {
     state = {
         isMultiple: false,
-        satuanData: [{
-            _id: '1',
-            name: 'Jiwa',
-            ket: '-'
-        }, {
-            _id: '2',
-            name: 'Km2',
-            ket: '-'
-        }, {
-            _id: '3',
-            name: 'Ton',
-            ket: '-'
-        }]
+        activePage: 'list',
+        activeEditingtitle: '',
+        activeRecord: undefined,
+    }
+    onClickTambah = isMultiple => {
+        this.setState({ isMultiple, activePage: 'edit', activeEditingtitle: `Tambah Bab ${isMultiple ? '(Multiple)' : ''}`, activeRecord: undefined })
+    }
+    onClickEdit = (activeEditingtitle, activeRecord) => {
+        this.setState({ isMultiple: false, activePage: 'edit', activeEditingtitle, activeRecord })
     }
 
-    onClickTambah = isMultiple => this.setState({ isMultiple })
+    onBack = () => this.setState({ activePage: 'list' })
 
     render() {
-        const { isMultiple, kabData, kecData, satuanData } = this.state
+        const { isMultiple, activePage, activeEditingtitle, activeRecord } = this.state
+        const { all_satuan } = this.props
         return (
-            <Row gutter={[20, 0]}>
-                <LihatSatuan xs={24} md={14} kabData={kabData} kecData={kecData} satuanData={satuanData} onClickTambah={this.onClickTambah} />
-                <EditorSatuan xs={24} md={10} kabData={kabData} kecData={kecData} satuanData={satuanData} isMultiple={isMultiple} onClickTambah={this.onClickTambah} />
-            </Row>
+            <PageHeader
+                className="site-page-header"
+                subTitle={activePage === 'list' ? "Daftar Subjek" : `${activeEditingtitle}`}
+                onBack={activePage === 'list' ? undefined : this.onBack}
+                ghost={false}
+            >
+                {activePage === 'list' ?
+                    <Row>
+                        <LihatSatuan {...this.props} all_satuan={all_satuan} onClickTambah={this.onClickTambah}  onClickEdit={this.onClickEdit} />
+                    </Row> :
+                    <Row>
+                        <EditorSatuan {...this.props} isMultiple={isMultiple} onClickTambah={this.onClickTambah} activeRecord={activeRecord} onBack={this.onBack}  />
+                    </Row>}
+            </PageHeader>
         )
     }
 }

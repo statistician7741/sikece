@@ -1,8 +1,8 @@
-const Kab = require('../../models/Kab.model');
+const Kab = require('../../../models/Kab.model');
 const async = require('async')
-const err_code = require('../../error/code.error')
-const kab_fields = require('../../fields/kab.fields')
-const basic_func = require('../../functions/basic.func')
+const err_code = require('../../../error/code.error')
+const kab_fields = require('../../../fields/kab.fields')
+const basic_func = require('../../../functions/basic.func')
 const getKab = require('./getKab.on');
 
 module.exports = (input, cb, client) => {

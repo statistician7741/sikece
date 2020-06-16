@@ -36,11 +36,6 @@ export default class LihatSubjek_Subjek extends React.Component {
         return (
             <Col xs={xs} md={md}>
                 <Row gutter={[64, 16]}>
-                    <Col xs={24} md={16}>
-                        <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Daftar Subjek</strong></Col>
-                        </Row>
-                    </Col>
                     <Col xs={24} md={8}>
                         <Row><Col>
                             <Dropdown.Button

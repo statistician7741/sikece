@@ -1,9 +1,6 @@
 import { Row, Col, Input, Form, Space, Button } from 'antd';
 const { TextArea } = Input;
-import InputForm from '../../general/InputForm.Component'
 import Hot from '../../general/Hot.Component'
-import { Fragment } from 'react';
-import api from './api/kab.api.client'
 import func from '../../../../functions/basic.func'
 import kabFields from '../../../../fields/kab.fields'
 import _ from 'lodash'
@@ -22,15 +19,14 @@ const formItemLayout = {
 
 export default class LihatTabel_Tabel extends React.Component {
     state = {
-        isValid: false,
         ...func.getFormVar(kabFields, null, true),
+        data: [],
         nestedHeaders: [
             ['Kode',
                 'Nama',
                 'Keterangan'],
             ['(1)', '(2)', '(3)']
         ],
-        data: []
     }
     onChangeInput = (changedValues) => {
         this.setState(changedValues)
@@ -38,14 +34,10 @@ export default class LihatTabel_Tabel extends React.Component {
     onClickSimpanKab = () => {
         if (this.props.isMultiple) {
             this.state.data.forEach(kabData => {
-                kabData._id && this.props.dispatch(simpanKab(this.props.socket, func.getFormVar(kabFields, kabData), this.props, ()=>{
-                    this.props.onBack()
-                }))
+                kabData._id && this.props.dispatch(simpanKab(this.props.socket, func.getFormVar(kabFields, kabData), this.props))
             })
         } else {
-            this.props.dispatch(simpanKab(this.props.socket, func.getFormVar(kabFields, this.state), this.props, ()=>{
-                this.props.onBack()
-            }))
+            this.props.dispatch(simpanKab(this.props.socket, func.getFormVar(kabFields, this.state), this.props))
         }
     }
 
@@ -97,7 +89,7 @@ export default class LihatTabel_Tabel extends React.Component {
     saveInputRef = input => this.input = input
 
     render() {
-        const { isMultiple, onBack } = this.props
+        const { isMultiple } = this.props
         const { nestedHeaders, _id, name } = this.state
         return (
             <Col xs={24}>
@@ -106,7 +98,7 @@ export default class LihatTabel_Tabel extends React.Component {
                         {isMultiple ? <Row gutter={[0, 16]}>
                             <Col xs={24} md={24}>
                                 <Hot
-                                    dataSchema={{ kode: null, name: null, ket: null }}
+                                    dataSchema={{ _id: null, name: null, ket: null }}
                                     nestedHeaders={nestedHeaders}
                                     data={this.data}
                                     columns={[
@@ -174,7 +166,6 @@ export default class LihatTabel_Tabel extends React.Component {
                             <Col xs={24} md={24}>
                                 <Space>
                                     <Button type="primary" disabled={!(!isMultiple && (/^\d{4}$/.test(_id) && name)) && !(isMultiple && this.isMultipleEditValid())} onClick={this.onClickSimpanKab}>Simpan</Button>
-                                    <Button onClick={onBack}>Batal</Button>
                                 </Space>
                             </Col>
                         </Row>

@@ -1,8 +1,18 @@
 import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm } from 'antd';
 import { PlusOutlined } from '@ant-design/icons'
-import { deleteKabbyId } from "../../../../redux/actions/master.action"
+import { deleteKabbyId, getKab } from "../../../../redux/actions/master.action"
 
 export default class LihatTabel_Tabel extends React.Component {
+    componentDidMount() {
+      if (this.props.socket && !this.props.all_kab.length) {
+        this.props.dispatch(getKab(this.props.socket))
+      }
+    }
+    componentDidUpdate(prevProps) {
+      if (this.props.socket !== prevProps.socket) {
+        this.props.dispatch(getKab(this.props.socket))
+      }
+    }
     render() {
         const { all_kab } = this.props
         const { onClickTambah, onClickEdit } = this.props
@@ -31,7 +41,7 @@ export default class LihatTabel_Tabel extends React.Component {
                 <a onClick={() => onClickEdit(`Edit Kabupaten ${record.name}`, record)}>Edit</a>
                 <Divider type="vertical" />
                 <Popconfirm title={`Hapus Kabupaten ini?`} onConfirm={()=>this.props.dispatch(deleteKabbyId(this.props.socket, record._id))}>
-                    <a disabled={record.isSudahDibayar}>Hapus</a>
+                    <a>Hapus</a>
                 </Popconfirm>
             </span>
         }]

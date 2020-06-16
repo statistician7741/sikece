@@ -1,6 +1,5 @@
-import { Row, Tabs, PageHeader } from "antd"
+import { Row, PageHeader } from "antd"
 import dynamic from 'next/dynamic';
-const { TabPane } = Tabs;
 
 const LihatKab = dynamic(() => import("./KabComponent/LihatKab.Kab.Component"));
 const EditorKab = dynamic(() => import("./KabComponent/EditorKab.Kab.Component"));
@@ -11,19 +10,6 @@ export default class Kabupaten extends React.Component {
         activePage: 'list',
         activeEditingtitle: '',
         activeRecord: undefined,
-        kabData: [{
-            _id: '7401',
-            name: 'Buton',
-            ket: 'Kabupaten pertama di Buton, didirikan tahun 1980'
-        }, {
-            _id: '7414',
-            name: 'Buton Tengah',
-            ket: '-'
-        }, {
-            _id: '7415',
-            name: 'Buton Selatan',
-            ket: 'Kabupaten pertama di Buton, didirikan tahun 1980. Kabupaten ini baru dimekarkan.'
-        },]
     }
     onClickTambah = isMultiple => {
         this.setState({ isMultiple, activePage: 'edit', activeEditingtitle: `Tambah Kabupaten ${isMultiple?'(Multiple)':''}`, activeRecord: undefined })
@@ -35,7 +21,7 @@ export default class Kabupaten extends React.Component {
     onBack = () => this.setState({ activePage: 'list' })
 
     render() {
-        const { isMultiple, activePage, activeEditingtitle, activeRecord, kabData } = this.state
+        const { isMultiple, activePage, activeEditingtitle, activeRecord } = this.state
         const { all_kab } = this.props
         return (
             <PageHeader

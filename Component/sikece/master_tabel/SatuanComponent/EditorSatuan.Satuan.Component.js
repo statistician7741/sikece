@@ -1,65 +1,151 @@
-import { Row, Col, Input, AutoComplete, Space, Button, Select, Radio } from 'antd';
+import { Row, Col, Input, Space, Button, Form } from 'antd';
 const { TextArea } = Input;
-const { Option } = Select;
-import InputForm from '../../general/InputForm.Component'
 import Hot from '../../general/Hot.Component'
-import { Fragment } from 'react';
+import func from '../../../../functions/basic.func'
+import satuanFields from '../../../../fields/satuan.fields'
+import { simpanSatuan } from "../../../../redux/actions/master.action"
+import _ from 'lodash'
+
+const formItemLayout = {
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 6 },
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 12 },
+    },
+};
 
 export default class EditorSatuan_Satuan extends React.Component {
     state = {
+        ...func.getFormVar(satuanFields, null, true),
         nestedHeaders: [
             ['Satuan', 'Keterangan'],
             ['(1)', '(2)']
         ],
-        data: [
-            ["Jiwa", "-"],
-            ["Km2", "-"],
-            ["Ton", "-"],
-        ]
+        data: [],
+        name: undefined
     }
+
+    get data() {
+        return this.state.data
+    }
+    onChangeInput = (changedValues) => {
+        this.setState(changedValues)
+    }
+    onChangeMultiple = (changes) => {
+        let newData = [...this.state.data]
+        for (let [row, column, oldValue, newValue] of changes) {
+            if (!newData[row]) newData[row] = {}
+            newData[row][column] = newValue;
+        }
+        this.setState({
+            data: newData
+        })
+    }
+
+    removeRowMultipleEdit = (rowsIndex) => {
+        let newData = [...this.state.data]
+        _.reverse(rowsIndex).forEach(row => {
+            newData = _.filter(newData, (satuan, i) => (row !== i))
+        })
+        this.setState({
+            data: newData
+        })
+    }
+
+    onClickSimpanSatuan = () => {
+        if (this.props.isMultiple) {
+            this.state.data.forEach(satuanData => {
+                satuanData.name && this.props.dispatch(simpanSatuan(this.props.socket, func.getFormVar(satuanFields, satuanData), this.props))
+            })
+        } else {
+            this.props.dispatch(simpanSatuan(this.props.socket, func.getFormVar(satuanFields, this.state), this.props))
+        }
+    }
+    isMultipleEditValid = () => {
+        if (this.state.data.length < 1) return false
+        if (this.state.data.length === 1) return this.state.data[0].name
+        let isValid = true;
+        this.state.data.forEach((satuan, i) => {
+            const { name, ket } = satuan;
+            if (name || ket) {
+                if (!name) isValid = false
+            }
+        })
+        return isValid;
+    }
+    componentDidMount = () => {
+        this.input && this.input.focus()
+        this.onChangeInput(this.props.activeRecord ? func.getFormVar(satuanFields, this.props.activeRecord) : func.getFormVar(satuanFields, undefined, true))
+        this.formRef.current && this.formRef.current.setFieldsValue(this.props.activeRecord ? func.getFormVar(satuanFields, this.props.activeRecord) : func.getFormVar(satuanFields, undefined, true));
+    }
+    formRef = React.createRef();
+    saveInputRef = input => this.input = input
+
     render() {
-        const { xs, md, isMultiple } = this.props
-        const { nestedHeaders, data } = this.state
+        const { isMultiple } = this.props
+        const { nestedHeaders, name } = this.state
         return (
-            <Col xs={xs} md={md}>
+            <Col xs={24}>
                 <Row gutter={[64, 0]}>
                     <Col xs={24} md={24}>
-                        <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Edit Satuan ({isMultiple ? 'Multi' : 'Single'})</strong></Col>
-                        </Row>
                         {isMultiple ? <Row gutter={[0, 16]}>
                             <Col xs={24} md={24}>
                                 <Hot
+                                    dataSchema={{ name: null, ket: null }}
                                     nestedHeaders={nestedHeaders}
-                                    data={data}
+                                    data={this.data}
+                                    columns={[
+                                        { data: 'name', width: 180 },
+                                        { data: 'ket' },
+                                    ]}
+                                    beforeChange={this.onChangeMultiple}
+                                    beforeRemoveRow={(i, a, rowsIndex, s) => this.removeRowMultipleEdit(rowsIndex)}
                                 />
                             </Col>
-                        </Row> : <Fragment>
-                                <InputForm xs={19} name='Satuan' isWajib={true}>
+                        </Row> : <Form
+                            ref={this.formRef}
+                            {...formItemLayout}
+                            onValuesChange={(changedValues) => this.onChangeInput(changedValues)}
+                            initialValues={{
+                                _id: undefined, name: undefined, ket: undefined
+                            }}
+                        >
+                                <Form.Item
+                                    label="Satuan"
+                                    name="name"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Mohon input nama satuan',
+                                        },
+                                    ]}
+
+                                >
                                     <Input
-                                        placeholder="Nama Satuan"
-                                        style={{ width: "70%" }}
+                                        placeholder="Nama satuan"
+                                        style={{ width: "50%" }}
+                                        ref={this.saveInputRef}
                                     />
-                                </InputForm>
-                                <InputForm xs={19} name='Keterangan' isWajib={false}>
-                                    <AutoComplete
+                                </Form.Item>
+                                <Form.Item
+                                    label="Keterangan"
+                                    name="ket"
+                                >
+                                    <TextArea
+                                        style={{ height: 50 }}
                                         allowClear
-                                        dropdownMatchSelectWidth={false}
-                                        dropdownStyle={{ width: 500 }}
                                         placeholder="Keterangan"
                                         style={{ width: "100%" }}
-                                    >
-                                        <TextArea
-                                            style={{ height: 50 }}
-                                        />
-                                    </AutoComplete>
-                                </InputForm>
-                            </Fragment>}
+                                    />
+                                </Form.Item>
+                            </Form>}
                         <Row>
                             <Col xs={24} md={24}>
                                 <Space>
-                                    <Button type="primary">Simpan</Button>
-                                    <Button>Batal</Button>
+                                    <Button type="primary" disabled={!(!isMultiple && name) && !(isMultiple && this.isMultipleEditValid())} onClick={this.onClickSimpanSatuan}>Simpan</Button>
                                 </Space>
                             </Col>
                         </Row>

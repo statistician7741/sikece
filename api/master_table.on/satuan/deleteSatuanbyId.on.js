@@ -1,8 +1,8 @@
-const Kab = require('../../models/Kab.model');
-const getKab = require('./getKab.on');
+const Satuan = require('../../../models/Satuan.model');
+const getSatuan = require('./getSatuan.on');
 
 module.exports = (_id, cb, client) => {
-    Kab.deleteOne({_id}, (err, result) => {
+    Satuan.deleteOne({_id}, (err, result) => {
         if (err) {
             console.log(err);
             cb({ 'type': 'error', 'data': err })

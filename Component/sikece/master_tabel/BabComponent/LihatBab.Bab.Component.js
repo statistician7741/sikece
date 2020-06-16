@@ -3,27 +3,55 @@ const { Option } = Select;
 const { Text } = Typography;
 import { PlusOutlined } from '@ant-design/icons'
 import InputForm from '../../general/InputForm.Component'
+import { deleteBabbyId, getBab } from "../../../../redux/actions/master.action"
 
 export default class LihatBab_Bab extends React.Component {
     state = {
-
+        years: []
+    }
+    getAllYearsBab = (props) => {
+        props.socket.emit('api.master_tabel.bab/getAllYearsBab', (response) => {
+            if (response.type === 'ok') {
+                this.setState({years: response.data})
+            } else {
+                props.showErrorMessage(response.additionalMsg)
+            }
+        })
+    }
+    onChangePilihTahun = (year) => {
+        this.props.dispatch(getBab(this.props.socket, year))
+    }
+    componentDidMount() {
+        if (this.props.socket) {
+            this.getAllYearsBab(this.props)
+            if (!this.props.all_bab.length) {
+                this.props.dispatch(getBab(this.props.socket, new Date().getFullYear()))
+            }
+        }
+    }
+    componentDidUpdate(prevProps) {
+        if (this.props.socket !== prevProps.socket) {
+            this.getAllYearsBab(this.props)
+            this.props.dispatch(getBab(this.props.socket, new Date().getFullYear()))
+        }
     }
     render() {
-        const { xs, md, kabData, babData, kecData } = this.props
-        const { onClickTambah } = this.props
+        const { years } = this.state
+        const { all_bab } = this.props
+        const { onClickTambah, onClickEdit } = this.props
 
         const kabColumns = [{
             title: 'Tahun Buku',
             dataIndex: 'tahun_buku',
-            key: '_id',
+            key: 'tahun_buku',
             width: 90,
-            sorter: (a, b) => a._id - b._id
+            sorter: (a, b) => a.tahun_buku - b.tahun_buku
         }, {
             title: 'Nomor',
-            dataIndex: '_id',
-            key: '_id',
+            dataIndex: 'nomor',
+            key: 'nomor',
             width: 90,
-            sorter: (a, b) => a._id - b._id
+            sorter: (a, b) => a.nomor - b.nomor
         }, {
             title: 'Bab',
             dataIndex: 'name',
@@ -39,26 +67,32 @@ export default class LihatBab_Bab extends React.Component {
             fixed: 'right',
             width: 140,
             render: (text, record) => <span>
-                <a>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Bab ${record.nomor}. ${record.name}`, record)}>Edit</a>
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus Bab ini?`}>
-                    <a disabled={record.isSudahDibayar}>Hapus</a>
+                <Popconfirm title={`Hapus Bab ini?`} onConfirm={() => this.props.dispatch(deleteBabbyId(this.props.socket, { _id: record._id, tahun_buku: record.tahun_buku }))}>
+                    <a>Hapus</a>
                 </Popconfirm>
             </span>
         }]
 
         return (
-            <Col xs={xs} md={md}>
+            <Col>
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={16}>
-                        <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Daftar Bab</strong></Col>
-                        </Row>
                         <InputForm xs={19} name='Tahun Buku' isWajib={false} left>
-                            <Input
+                            <Select
+                                showSearch
+                                style={{ width: 120 }}
                                 placeholder="Tahun buku"
-                                style={{ width: "35%" }}
-                            />
+                                optionFilterProp="children"
+                                onChange={this.onChangePilihTahun}
+                                value={all_bab.length ? all_bab[0].tahun_buku : new Date().getFullYear()}
+                                filterOption={(input, option) =>
+                                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                            >
+                                {years.length ? years.map(y => (<Option value={y} key={y}>{y}</Option>)) : <Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Option>}
+                            </Select>
                         </InputForm>
                     </Col>
                     <Col xs={24} md={8}>
@@ -79,9 +113,9 @@ export default class LihatBab_Bab extends React.Component {
                 <Row gutter={[64, 0]}>
                     <Col xs={24}>
                         <Table
-                            scroll={{ x: 1000 }}
+                            size="small"
                             columns={kabColumns}
-                            dataSource={babData}
+                            dataSource={all_bab}
                             pagination={false}
                             rowKey="_id"
                         />
