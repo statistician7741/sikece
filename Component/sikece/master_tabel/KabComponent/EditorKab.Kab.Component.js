@@ -100,6 +100,7 @@ export default class LihatTabel_Tabel extends React.Component {
                                 <Hot
                                     dataSchema={{ _id: null, name: null, ket: null }}
                                     nestedHeaders={nestedHeaders}
+                                    rowHeaders
                                     data={this.data}
                                     columns={[
                                         { data: '_id', width: 60 },

@@ -7,12 +7,13 @@ import 'handsontable/dist/handsontable.full.css';
 
 export default class Hot extends React.Component {
     render() {
-        const { nestedHeaders, data, columns, noSpare, beforeChange, beforeRemoveRow, beforeOnCellMouseDown } = this.props
+        const { nestedHeaders, rowHeaders, data, columns, noSpare, beforeChange, beforeRemoveRow, beforeOnCellMouseDown } = this.props
         return (
             <HotTable
                 settings={{
                     licenseKey: 'non-commercial-and-evaluation',
-                    data
+                    data,
+                    rowHeaders
                 }}
                 height="auto"
                 colHeaders={true}

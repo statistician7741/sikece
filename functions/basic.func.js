@@ -4,7 +4,7 @@ module.exports = {
         fields.map(f => data[f[0]] = isInit ?
             (f[1] ? f[1] : undefined) :
             (state ?
-                state[f[0]] : undefined))
+                (state[f[0]]?state[f[0]]:f[1]) : undefined))
         
         if(vars_exclude){
             vars_exclude.forEach(field => {

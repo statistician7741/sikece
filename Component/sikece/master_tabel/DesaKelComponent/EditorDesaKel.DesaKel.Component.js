@@ -1,95 +1,263 @@
-import { Row, Col, Input, AutoComplete, Space, Button, Select, Radio } from 'antd';
-const { TextArea } = Input;
+import { Row, Col, Input, Space, Button, Form, Select, Radio } from 'antd';
 const { Option } = Select;
-import InputForm from '../../general/InputForm.Component'
+const { TextArea } = Input;
 import Hot from '../../general/Hot.Component'
-import { Fragment } from 'react';
+import func from '../../../../functions/basic.func'
+import deskelFields from '../../../../fields/deskel.fields'
+import { simpanDeskel } from "../../../../redux/actions/master.action"
+import _ from 'lodash'
 
-export default class LihatTabel_Tabel extends React.Component {
+const formItemLayout = {
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 6 },
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 12 },
+    },
+};
+
+export default class EditDeskel_Deskel extends React.Component {
     state = {
+        ...func.getFormVar(deskelFields, null, true),
         nestedHeaders: [
             ['Kode', 'Desa/Kel', 'Klasifikasi', 'Keterangan'],
             ['(1)', '(2)', '(3)', '(4)']
         ],
-        data: [
-            ["001", "Holimombo Jaya", "Kelurahan", "-"]
-        ]
+        data: [],
+        kab: undefined,
+        kec: undefined,
+        kode: undefined,
+        name: undefined,
+        klasifikasi: undefined,
     }
+
+    get data() {
+        return this.state.data
+    }
+    getAllKecByKab = (kab) => {
+        return this.props.all_kec.length ? this.props.all_kec.filter(kec => (kab === kec.kab)) : []
+    }
+    onChangeInput = (changedValues) => {
+        this.setState(changedValues);
+    }
+    onChangeInputKabKec = (changedValues) => {
+        if (changedValues.kab) {
+            let kec = this.getAllKecByKab(changedValues.kab)[0]?this.getAllKecByKab(changedValues.kab)[0]._id:undefined;
+            (this.formRefKabKec.current && this.getAllKecByKab(changedValues.kab)[0])
+                && this.formRefKabKec.current.setFieldsValue({ kec })
+            changedValues['kec'] = kec
+        }
+        this.setState(changedValues, () => {
+            let newData = [...this.state.data]
+            newData.forEach(deskel => {
+                deskel['kab'] = this.state.kab
+                deskel['kec'] = this.state.kec
+            })
+            this.setState({ data: newData })
+        })
+    }
+    onChangeMultiple = (changes) => {
+        let newData = [...this.state.data]
+        for (let [row, column, oldValue, newValue] of changes) {
+            if (!newData[row]) newData[row] = {}
+            newData[row][column] = newValue;
+        }
+        newData.forEach(deskel => {
+            deskel['kab'] = this.state.kab
+            deskel['kec'] = this.state.kec
+        })
+        this.setState({
+            data: newData
+        })
+    }
+
+    removeRowMultipleEdit = (rowsIndex) => {
+        let newData = [...this.state.data]
+        _.reverse(rowsIndex).forEach(row => {
+            newData = _.filter(newData, (deskel, i) => (row !== i))
+        })
+        this.setState({
+            data: newData
+        })
+    }
+
+    onClickSimpanDeskel = () => {
+        if (this.props.isMultiple) {
+            this.state.data.forEach(deskelData => {
+                deskelData.name && this.props.dispatch(simpanDeskel(this.props.socket, func.getFormVar(deskelFields, deskelData), this.props))
+            })
+        } else {
+            this.props.dispatch(simpanDeskel(this.props.socket, func.getFormVar(deskelFields, this.state), this.props))
+        }
+    }
+    isMultipleEditValid = () => {
+        if (this.state.data.length < 1) return false
+        if (this.state.data.length === 1) return /^\d{3}$/.test(this.state.data[0].kode) && this.state.data[0].name && this.state.data[0].klasifikasi
+        let isValid = true;
+        this.state.data.forEach((deskel, i) => {
+            const { kode, name, klasifikasi, ket } = deskel;
+            if (kode || name || klasifikasi || ket) {
+                if (!/^\d{3}$/.test(kode) || !name || !klasifikasi) isValid = false
+            }
+        })
+        return isValid;
+    }
+    componentDidMount = () => {
+        this.input && this.input.focus()
+        this.onChangeInput(this.props.activeRecord ? func.getFormVar(deskelFields, this.props.activeRecord)
+            : func.getFormVar(
+                deskelFields,
+                this.props.all_kab.length ? { kab: this.props.all_kab[0]._id, kec: this.getAllKecByKab(this.props.all_kab[0]._id)[0] ? this.getAllKecByKab(this.props.all_kab[0]._id)[0]._id : undefined } : { kab: undefined, kec: undefined }
+            ))
+        this.formRefKabKec.current && this.formRefKabKec.current.setFieldsValue(this.props.activeRecord ? {
+            kab: func.getFormVar(deskelFields, this.props.activeRecord).kab,
+            kec: func.getFormVar(deskelFields, this.props.activeRecord).kec
+        } : (
+                this.props.all_kab.length ? { kab: this.props.all_kab[0]._id, kec: this.getAllKecByKab(this.props.all_kab[0]._id)[0] ? this.getAllKecByKab(this.props.all_kab[0]._id)[0]._id : undefined } : { kab: undefined, kec: undefined }
+            ));
+        this.formRef.current && this.formRef.current.setFieldsValue(this.props.activeRecord ? func.getFormVar(deskelFields, this.props.activeRecord) : func.getFormVar(deskelFields, undefined, true));
+    }
+    formRef = React.createRef();
+    formRefKabKec = React.createRef();
+    saveInputRef = input => this.input = input
     render() {
-        const { xs, md, isMultiple, kabData, kecData } = this.props
-        const { nestedHeaders, data } = this.state
-        const columns = [
-            {},
-            {},
-            {
-                type: "dropdown",
-                source: ["Desa", "Kelurahan"]
-            },
-            {},
-        ]
+        const { isMultiple, all_kab, all_kec } = this.props
+        const { nestedHeaders, kab, kec, name, kode, klasifikasi } = this.state
         return (
-            <Col xs={xs} md={md}>
+            <Col xs={24}>
                 <Row gutter={[64, 0]}>
                     <Col xs={24} md={24}>
-                        <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Edit Desa/Kelurahan ({isMultiple ? 'Multi' : 'Single'})</strong></Col>
-                        </Row>
-                        <InputForm xs={19} name='Kabupaten' isWajib={true}>
-                            <Select defaultValue={kabData[0]._id} style={{ width: 200 }}>
-                                {kabData.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
-                            </Select>
-                        </InputForm>
-                        <InputForm xs={19} name='Kecamatan' isWajib={true}>
-                            <Select defaultValue={kecData[0]._id} style={{ width: 200 }}>
-                                {kecData.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
-                            </Select>
-                        </InputForm>
+                        <Form
+                            ref={this.formRefKabKec}
+                            {...formItemLayout}
+                            onValuesChange={(changedValues) => this.onChangeInputKabKec(changedValues)}
+                            initialValues={{
+                                kab: undefined, kec: undefined
+                            }}
+                        >
+                            <Form.Item
+                                label="Kabupaten"
+                                name="kab"
+                                rules={[
+                                    {
+                                        required: true
+                                    },
+                                ]}
+
+                            >
+                                <Select style={{ width: 200 }}>
+                                    {all_kab.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
+                                </Select>
+                            </Form.Item>
+                            <Form.Item
+                                label="Kecamatan"
+                                name="kec"
+                                rules={[
+                                    {
+                                        required: true
+                                    },
+                                ]}
+
+                            >
+                                <Select style={{ width: 250 }}>
+                                    {all_kec.filter(kec => kab === kec.kab).map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
+                                </Select>
+                            </Form.Item>
+                        </Form>
                         {isMultiple ? <Row gutter={[0, 16]}>
                             <Col xs={24} md={24}>
                                 <Hot
+                                    dataSchema={{ kab: null, kec: null, kode: null, name: null, klasifikasi: null, ket: null }}
                                     nestedHeaders={nestedHeaders}
-                                    data={data}
-                                    columns={columns}
+                                    rowHeaders
+                                    data={this.data}
+                                    columns={[
+                                        { data: 'kode', width: 60 },
+                                        { data: 'name', width: 180 },
+                                        {
+                                            data: "klasifikasi",
+                                            type: "dropdown",
+                                            source: ["Desa", "Kelurahan"]
+                                        },
+                                        { data: 'ket' },
+                                    ]}
+                                    beforeChange={this.onChangeMultiple}
+                                    beforeRemoveRow={(i, a, rowsIndex, s) => this.removeRowMultipleEdit(rowsIndex)}
                                 />
                             </Col>
-                        </Row> : <Fragment>
-                                <InputForm xs={19} name='Kode' isWajib={true}>
+                        </Row> : <Form
+                            ref={this.formRef}
+                            {...formItemLayout}
+                            onValuesChange={(changedValues) => this.onChangeInput(changedValues)}
+                            initialValues={{
+                                kode: undefined, name: undefined, klasifikasi: 'Desa', ket: undefined
+                            }}
+                        >
+                                <Form.Item
+                                    label="Kode"
+                                    name="kode"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Mohon input 3 digit kode Desa/Kelurahan',
+                                        },
+                                    ]}
+
+                                >
                                     <Input
-                                        placeholder="Kode Desa"
-                                        style={{ width: "35%" }}
+                                        placeholder="Kode Desa/Kelurahan"
+                                        style={{ width: "30%" }}
+                                        ref={this.saveInputRef}
                                     />
-                                </InputForm>
-                                <InputForm xs={19} name='Desa/Kel' isWajib={true}>
+                                </Form.Item>
+                                <Form.Item
+                                    label="Nama"
+                                    name="name"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Mohon input nama Desa/Kelurahan',
+                                        },
+                                    ]}
+                                >
                                     <Input
-                                        placeholder="Nama Desa/Kel"
+                                        placeholder="Nama Desa/Kelurahan"
                                         style={{ width: "70%" }}
                                     />
-                                </InputForm>
-                                <InputForm xs={19} name='Klasifikasi' isWajib={true}>
-                                    <Radio.Group defaultValue="Desa">
+                                </Form.Item>
+                                <Form.Item
+                                    label="Klasifikasi"
+                                    name="klasifikasi"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Mohon pilih klasifikasi Desa/Kelurahan',
+                                        },
+                                    ]}
+                                >
+                                    <Radio.Group>
                                         <Radio.Button value="Desa">Desa</Radio.Button>
                                         <Radio.Button value="Kelurahan">Kelurahan</Radio.Button>
                                     </Radio.Group>
-                                </InputForm>
-                                <InputForm xs={19} name='Keterangan' isWajib={false}>
-                                    <AutoComplete
+                                </Form.Item>
+                                <Form.Item
+                                    label="Keterangan"
+                                    name="ket"
+                                >
+                                    <TextArea
+                                        style={{ height: 50 }}
                                         allowClear
-                                        dropdownMatchSelectWidth={false}
-                                        dropdownStyle={{ width: 500 }}
                                         placeholder="Keterangan"
                                         style={{ width: "100%" }}
-                                    >
-                                        <TextArea
-                                            style={{ height: 50 }}
-                                        />
-                                    </AutoComplete>
-                                </InputForm>
-                            </Fragment>}
+                                    />
+                                </Form.Item>
+                            </Form>}
                         <Row>
                             <Col xs={24} md={24}>
                                 <Space>
-                                    <Button type="primary">Simpan</Button>
-                                    <Button>Batal</Button>
+                                    <Button type="primary" disabled={!(!isMultiple && (/^\d{3}$/.test(kode) && kab && kec && klasifikasi && name)) && !(isMultiple && this.isMultipleEditValid())} onClick={this.onClickSimpanDeskel}>Simpan</Button>
                                 </Space>
                             </Col>
                         </Row>

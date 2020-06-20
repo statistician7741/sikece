@@ -1,18 +1,29 @@
-import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm, Select, Typography } from 'antd';
-const { Option } = Select;
-const { Text } = Typography;
+import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm } from 'antd';
 import { PlusOutlined } from '@ant-design/icons'
-import InputForm from '../../general/InputForm.Component'
+import { deleteSatuanbyId, getSatuan } from "../../../../redux/actions/master.action"
 
 export default class LihatSatuan_Satuan extends React.Component {
-    state = {
-        
+    componentDidMount() {
+        if (this.props.socket && !this.props.all_satuan.length) {
+            this.props.dispatch(getSatuan(this.props.socket))
+        }
+    }
+    componentDidUpdate(prevProps) {
+        if (this.props.socket !== prevProps.socket) {
+            this.props.dispatch(getSatuan(this.props.socket))
+        }
     }
     render() {
-        const { xs, md, kabData, satuanData, kecData } = this.props
-        const { onClickTambah } = this.props
+        const { all_satuan } = this.props
+        const { onClickTambah, onClickEdit } = this.props
 
-        const kabColumns = [{
+        const satuanColumns = [{
+            title: 'No.',
+            dataIndex: '_id',
+            key: '_id',
+            width: 45,
+            render: (t,r,i)=>(i+1)
+        }, {
             title: 'Satuan',
             dataIndex: 'name',
             width: 150,
@@ -28,16 +39,16 @@ export default class LihatSatuan_Satuan extends React.Component {
             fixed: 'right',
             width: 140,
             render: (text, record) => <span>
-                <a>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Satuan ${record.name}`, record)}>Edit</a>
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus Satuan ini?`}>
-                    <a disabled={record.isSudahDibayar}>Hapus</a>
+                <Popconfirm title={`Hapus Satuan ini?`} onConfirm={() => this.props.dispatch(deleteSatuanbyId(this.props.socket, record._id))}>
+                    <a>Hapus</a>
                 </Popconfirm>
             </span>
         }]
 
         return (
-            <Col xs={xs} md={md}>
+            <Col>
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={8}>
                         <Row><Col>
@@ -57,9 +68,9 @@ export default class LihatSatuan_Satuan extends React.Component {
                 <Row gutter={[64, 0]}>
                     <Col xs={24}>
                         <Table
-                            scroll={{ x: 1000 }}
-                            columns={kabColumns}
-                            dataSource={satuanData}
+                            size="small"
+                            columns={satuanColumns}
+                            dataSource={all_satuan}
                             pagination={false}
                             rowKey="_id"
                         />

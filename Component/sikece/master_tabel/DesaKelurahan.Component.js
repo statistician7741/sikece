@@ -1,4 +1,4 @@
-import { Row } from "antd"
+import { Row, PageHeader } from "antd"
 import dynamic from 'next/dynamic';
 
 const LihatDesaKel = dynamic(() => import("./DesaKelComponent/LihatDesaKel.DesaKel.Component"));
@@ -7,79 +7,39 @@ const EditorDesaKel = dynamic(() => import("./DesaKelComponent/EditorDesaKel.Des
 export default class DesaKel extends React.Component {
     state = {
         isMultiple: false,
-        kecData: [{
-            _id: '060',
-            name: 'Pasar Wajo',
-            ket: 'Kecamatan pertama di Buton, didirikan tahun 1980'
-        }, {
-            _id: '050',
-            name: 'Lasalimu',
-            ket: '-'
-        }, {
-            _id: '051',
-            name: 'Lasalimu Selatan',
-            ket: 'Termasuk Kecamatan di Buton, didirikan tahun 2017. Kecamatan ini baru dimekarkan.'
-        }],
-        kabData: [{
-            _id: '7401',
-            name: 'Buton',
-            ket: 'Kabupaten pertama di Buton, didirikan tahun 1980'
-        }, {
-            _id: '7414',
-            name: 'Buton Tengah',
-            ket: '-'
-        }, {
-            _id: '7415',
-            name: 'Buton Selatan',
-            ket: 'Kabupaten pertama di Buton, didirikan tahun 1980. Kabupaten ini baru dimekarkan.'
-        }],
-        desaKelData: [{
-            _id: '001',
-            name: 'Holimombo Jaya',
-            klasifikasi: 'Kelurahan',
-            ket: '-'
-        }, {
-            _id: '002',
-            name: 'Kondowa',
-            klasifikasi: 'Kelurahan',
-            ket: '-'
-        }, {
-            _id: '003',
-            name: 'Dongkala',
-            klasifikasi: 'Desa',
-            ket: '-'
-        }, {
-            _id: '004',
-            name: 'Holimombo',
-            klasifikasi: 'Desa',
-            ket: '-'
-        }, {
-            _id: '005',
-            name: 'Takimpo',
-            klasifikasi: 'Desa',
-            ket: '-'
-        }, {
-            _id: '006',
-            name: 'Kombeli',
-            klasifikasi: 'Desa',
-            ket: '-'
-        }, {
-            _id: '007',
-            name: 'Awainulu',
-            klasifikasi: 'Desa',
-            ket: '-'
-        },]
+        activePage: 'list',
+        activeEditingtitle: '',
+        activeRecord: undefined,
+        kab: 'all_kab',
+        kec: 'all_kec'
     }
+    onClickTambah = isMultiple => {
+        this.setState({ isMultiple, activePage: 'edit', activeEditingtitle: `Tambah Desa/Kelurahan ${isMultiple ? '(Multiple)' : ''}`, activeRecord: undefined })
+    }
+    onClickEdit = (activeEditingtitle, activeRecord) => {
+        this.setState({ isMultiple: false, activePage: 'edit', activeEditingtitle, activeRecord })
+    }
+    onChangeDropdown = (data) => this.setState(data)
 
-    onClickTambah = isMultiple => this.setState({ isMultiple })
+    onBack = () => this.setState({ activePage: 'list' })
 
     render() {
-        const { isMultiple, kabData, desaKelData, kecData } = this.state
+        const { isMultiple, activePage, activeEditingtitle, activeRecord, kab, kec } = this.state
         return (
-            <Row gutter={[20, 0]}>
-                <LihatDesaKel xs={24} md={14} kabData={kabData} kecData={kecData} desaKelData={desaKelData} onClickTambah={this.onClickTambah} />
-                <EditorDesaKel xs={24} md={10} kabData={kabData} kecData={kecData} desaKelData={desaKelData} isMultiple={isMultiple} onClickTambah={this.onClickTambah} />
-            </Row>
+            <PageHeader
+                className="site-page-header"
+                subTitle={activePage === 'list' ? "Daftar Desa dan Kelurahan" : `${activeEditingtitle}`}
+                onBack={activePage === 'list' ? undefined : this.onBack}
+                ghost={false}
+            >
+                {activePage === 'list' ?
+                    <Row>
+                        <LihatDesaKel {...this.props} kab={kab} kec={kec} onChangeDropdown={this.onChangeDropdown} onClickTambah={this.onClickTambah} onClickEdit={this.onClickEdit} />
+                    </Row> :
+                    <Row>
+                        <EditorDesaKel {...this.props} isMultiple={isMultiple} onChangeDropdown={this.onChangeDropdown} onClickTambah={this.onClickTambah} activeRecord={activeRecord} onBack={this.onBack} />
+                    </Row>}
+            </PageHeader>
         )
     }
 }

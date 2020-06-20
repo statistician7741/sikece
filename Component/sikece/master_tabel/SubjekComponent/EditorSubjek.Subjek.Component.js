@@ -96,6 +96,7 @@ export default class EditorSubjek_Subjek extends React.Component {
                                 <Hot
                                     dataSchema={{ name: null, ket: null }}
                                     nestedHeaders={nestedHeaders}
+                                    rowHeaders
                                     data={this.data}
                                     columns={[
                                         { data: 'name', width: 180 },

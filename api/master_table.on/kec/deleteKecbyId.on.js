@@ -1,17 +1,17 @@
-const Kab = require('../../../models/Kab.model');
 const Kec = require('../../../models/Kec.model');
-const getKab = require('./getKab.on');
+const Deskel = require('../../../models/Deskel.model');
+const getKec = require('./getKec.on');
 const async = require('async');
 const err_code = require('../../../error/code.error')
 
 module.exports = (_id, cb, client) => {
     async.auto({
         isChildExist: cb_isChildExist => {
-            Kec.findOne({ kab: _id }, (err, result) => {
+            Deskel.findOne({ kec: _id }, (err, result) => {
                 if (err) {
                     cb_isChildExist(err_code.ERROR_ACCESS_DB, null)
                 } else {
-                    cb_isChildExist(result?err_code.ERROR_KAB_CHILD_EXIST:null, result)
+                    cb_isChildExist(result ? err_code.ERROR_KEC_CHILD_EXIST : null, result)
                 }
             })
         }
@@ -19,12 +19,12 @@ module.exports = (_id, cb, client) => {
         if (err) {
             cb({ 'type': 'error', 'data': err })
         } else {
-            Kab.deleteOne({ _id }, (err, result) => {
+            Kec.deleteOne({ _id }, (err, result) => {
                 if (err) {
                     console.log(err);
                     cb({ 'type': 'error', 'data': err })
                 } else {
-                    getKab(cb, client)
+                    getKec(cb, client)
                 }
             })
         }

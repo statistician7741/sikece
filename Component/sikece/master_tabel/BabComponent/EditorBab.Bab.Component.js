@@ -93,6 +93,7 @@ export default class EditorBab_Bab extends React.Component {
                                 <Hot
                                     dataSchema={{ tahun_buku: null, nomor: null, name: null, ket: null }}
                                     nestedHeaders={nestedHeaders}
+                                    rowHeaders
                                     data={this.data}
                                     columns={[
                                         { data: 'tahun_buku', width: 60 },

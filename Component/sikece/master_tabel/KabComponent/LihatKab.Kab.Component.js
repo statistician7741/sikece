@@ -18,13 +18,19 @@ export default class LihatTabel_Tabel extends React.Component {
         const { onClickTambah, onClickEdit } = this.props
 
         const kabColumns = [{
+            title: 'No.',
+            dataIndex: '_id',
+            key: '_id',
+            width: 45,
+            render: (t,r,i)=>(i+1)
+        }, {
             title: 'Kode',
             dataIndex: '_id',
             key: '_id',
             width: 90,
             sorter: (a, b) => a._id - b._id
         }, {
-            title: 'Nama',
+            title: 'Kabupaten',
             dataIndex: 'name',
             sorter: (a, b) => {
                 return a.name.localeCompare(b.name)
@@ -40,7 +46,7 @@ export default class LihatTabel_Tabel extends React.Component {
             render: (text, record) => <span>
                 <a onClick={() => onClickEdit(`Edit Kabupaten ${record.name}`, record)}>Edit</a>
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus Kabupaten ini?`} onConfirm={()=>this.props.dispatch(deleteKabbyId(this.props.socket, record._id))}>
+                <Popconfirm title={`Hapus Kabupaten ini?`} onConfirm={()=>this.props.dispatch(deleteKabbyId(this.props.socket, record._id, this.props))}>
                     <a>Hapus</a>
                 </Popconfirm>
             </span>

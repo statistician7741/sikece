@@ -7,7 +7,7 @@ module.exports = (_id, cb, client) => {
             console.log(err);
             cb({ 'type': 'error', 'data': err })
         } else {
-            getKab(cb,client)
+            getSatuan(cb,client)
         }
     })
 }

@@ -1,27 +1,49 @@
-import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm, Select, Typography } from 'antd';
+import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm, Select } from 'antd';
 const { Option } = Select;
-const { Text } = Typography;
 import { PlusOutlined } from '@ant-design/icons'
 import InputForm from '../../general/InputForm.Component'
+import { deleteDeskelbyId, getKec, getKab, getDeskel } from "../../../../redux/actions/master.action"
 
-export default class LihatTabel_Tabel extends React.Component {
-    state = {
-        
+export default class LihatDeskel_Deskel extends React.Component {
+    componentDidMount() {
+        if (this.props.socket) {
+            !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
+            !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket))
+            !this.props.all_deskel.length && this.props.dispatch(getDeskel(this.props.socket))
+        }
+    }
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.socket !== prevProps.socket) {
+            this.props.dispatch(getKab(this.props.socket))
+            this.props.dispatch(getKec(this.props.socket))
+            this.props.dispatch(getDeskel(this.props.socket))
+        }
+        if (this.props.kab !== prevProps.kab) {
+            this.props.onChangeDropdown({ kec: 'all_kec' })
+        }
     }
     render() {
-        const { xs, md, kabData, desaKelData, kecData } = this.props
-        const { onClickTambah } = this.props
+        const { all_kab, all_kec, all_deskel, kab, kec } = this.props
+        const { onClickTambah, onClickEdit, onChangeDropdown } = this.props
 
-        const kabColumns = [{
-            title: 'Kode',
+        const deskelColumns = [{
+            title: 'No.',
             dataIndex: '_id',
             key: '_id',
+            width: 45,
+            render: (t,r,i)=>(i+1)
+        }, {
+            title: 'Kode',
+            dataIndex: 'kode',
+            key: '_id',
             width: 90,
-            sorter: (a, b) => a._id - b._id
+            showSorterTooltip: false,
+            sorter: (a, b) => a.kode - b.kode
         }, {
             title: 'Desa/Kel',
             dataIndex: 'name',
             width: 150,
+            showSorterTooltip: false,
             sorter: (a, b) => {
                 return a.name.localeCompare(b.name)
             }
@@ -29,6 +51,7 @@ export default class LihatTabel_Tabel extends React.Component {
             title: 'Klasifikasi',
             dataIndex: 'klasifikasi',
             width: 150,
+            showSorterTooltip: false,
             sorter: (a, b) => {
                 return a.klasifikasi.localeCompare(b.klasifikasi)
             }
@@ -41,30 +64,27 @@ export default class LihatTabel_Tabel extends React.Component {
             fixed: 'right',
             width: 140,
             render: (text, record) => <span>
-                <a>Edit</a>
+                <a onClick={() => onClickEdit(`Edit ${record.klasifikasi} ${record.name}`, record)}>Edit</a>
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus Desa/Kelurahan ini?`}>
-                    <a disabled={record.isSudahDibayar}>Hapus</a>
+                <Popconfirm title={`Hapus ${record.klasifikasi} ini?`} onConfirm={() => this.props.dispatch(deleteDeskelbyId(this.props.socket, record._id, this.props))}>
+                    <a>Hapus</a>
                 </Popconfirm>
             </span>
         }]
 
         return (
-            <Col xs={xs} md={md}>
+            <Col>
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={16}>
-                        <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Daftar Desa/Kelurahan</strong></Col>
-                        </Row>
                         <InputForm xs={19} name='Kabupaten' isWajib={false} left>
-                            <Select defaultValue={kabData[0]._id} style={{ width: 200 }}>
-                                {kabData.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
+                            <Select defaultValue={kab} value={kab} style={{ width: 200 }} onChange={kab => onChangeDropdown({ kab })}>
+                                {all_kab.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
                                 <Option value="all_kab" key="all_kab">[----] Semua</Option>
                             </Select>
                         </InputForm>
                         <InputForm xs={19} name='Kecamatan' isWajib={false} left>
-                            <Select defaultValue={kecData[0]._id} style={{ width: 200 }}>
-                                {kecData.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
+                            <Select defaultValue={kec} value={kec} style={{ width: 200 }} onChange={kec => onChangeDropdown({ kec })}>
+                                {all_kec.filter(kec => kab === 'all_kab' || kab === kec.kab).map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
                                 <Option value="all_kec" key="all_kec">[----] Semua</Option>
                             </Select>
                         </InputForm>
@@ -87,9 +107,11 @@ export default class LihatTabel_Tabel extends React.Component {
                 <Row gutter={[64, 0]}>
                     <Col xs={24}>
                         <Table
-                            scroll={{ x: 1000 }}
-                            columns={kabColumns}
-                            dataSource={desaKelData}
+                            size="small"
+                            columns={deskelColumns}
+                            dataSource={all_deskel.filter(
+                                deskel => (kab === 'all_kab' && kec === 'all_kec' || (kec === 'all_kec' && kab === deskel.kab) || (kec !== 'all_kec' && kec === deskel.kec))
+                            )}
                             pagination={false}
                             rowKey="_id"
                         />

@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;
 
-var KecSchema = new Schema({
+var DeskelSchema = new Schema({
     "_id": {
         'type': String,
         'required': true
@@ -10,6 +10,10 @@ var KecSchema = new Schema({
     "kode": {
         'type': String,
         'required': true
+    },
+    "kec": {
+        type: String,
+        ref: 'Kec'
     },
     "kab": {
         type: String,
@@ -19,7 +23,11 @@ var KecSchema = new Schema({
         'type': String,
         'required': true
     },
+    "klasifikasi": {
+        'type': String,
+        'required': true
+    },
     "ket": String,
-}, { collection: 'kec' });
+}, { collection: 'deskel' });
 
-module.exports = mongoose.model('Kec', KecSchema);
+module.exports = mongoose.model('Deskel', DeskelSchema);

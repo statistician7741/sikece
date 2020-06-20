@@ -7,8 +7,9 @@ export default (
     all_subject: [],
     all_satuan: [],
     all_tables: [],
+    all_kab: [],
     all_kec: [],
-    all_kab: []
+    all_deskel: [],
   },
   action
 ) => {
@@ -32,6 +33,16 @@ export default (
       return {
         ...state,
         all_subject: action.all_subject
+      }
+    case actionTypes.SET_MASTER_KEC:
+      return {
+        ...state,
+        all_kec: action.all_kec
+      }
+    case actionTypes.SET_MASTER_DESKEL:
+      return {
+        ...state,
+        all_deskel: action.all_deskel
       }
     default: return state
   }
