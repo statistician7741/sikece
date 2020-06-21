@@ -1,10 +1,9 @@
 import { Row, Col, Input, Space, Button, Form, AutoComplete } from 'antd';
 const { TextArea } = Input;
-import Hot from '../../general/Hot.Component'
-import func from '../../../../functions/basic.func'
-import satuanFields from '../../../../fields/satuan.fields'
-import { simpanSatuan } from "../../../../redux/actions/master.action"
-import _ from 'lodash'
+import Hot from '../general/Hot.Component'
+import func from '../../../functions/basic.func'
+import userFields from '../../../fields/user.fields'
+import { simpanUser } from "../../../redux/actions/user.action"
 
 const formItemLayout = {
     labelCol: {
@@ -17,15 +16,14 @@ const formItemLayout = {
     },
 };
 
-export default class EditorSatuan_Satuan extends React.Component {
+export default class EditorUser_User extends React.Component {
     state = {
-        ...func.getFormVar(satuanFields, null, true),
-        nestedHeaders: [
-            ['Satuan', 'Keterangan'],
-            ['(1)', '(2)']
-        ],
+        ...func.getFormVar(userFields, null, true),
         data: [],
-        name: undefined,
+        nestedHeaders: [
+            ['Tahun Buku', 'Nomor', 'Nama User', 'Keterangan'],
+            ['(1)', '(2)', '(3)', '(4)']
+        ],
         autoCompleteDataSource: []
     }
     safeQuery = (q) => {
@@ -39,7 +37,6 @@ export default class EditorSatuan_Satuan extends React.Component {
             this.setState({ autoCompleteDataSource: query ? data : [] });
         })
     }
-
     get data() {
         return this.state.data
     }
@@ -60,46 +57,45 @@ export default class EditorSatuan_Satuan extends React.Component {
     removeRowMultipleEdit = (rowsIndex) => {
         let newData = [...this.state.data]
         _.reverse(rowsIndex).forEach(row => {
-            newData = _.filter(newData, (satuan, i) => (row !== i))
+            newData = _.filter(newData, (User, i) => (row !== i))
         })
         this.setState({
             data: newData
         })
     }
 
-    onClickSimpanSatuan = () => {
+    onClickSimpanUser = () => {
         if (this.props.isMultiple) {
-            this.state.data.forEach(satuanData => {
-                satuanData.name && this.props.dispatch(simpanSatuan(this.props.socket, func.getFormVar(satuanFields, satuanData), this.props, this.props.onBack))
+            this.state.data.forEach(UserData => {
+                UserData.tahun_buku && this.props.dispatch(simpanUser(this.props.socket, func.getFormVar(userFields, UserData), this.props, this.props.onBack))
             })
         } else {
-            console.log(func.getFormVar(satuanFields, this.state));
-            this.props.dispatch(simpanSatuan(this.props.socket, func.getFormVar(satuanFields, this.state), this.props, this.props.onBack))
+            this.props.dispatch(simpanUser(this.props.socket, func.getFormVar(userFields, this.state), this.props, this.props.onBack))
         }
     }
     isMultipleEditValid = () => {
         if (this.state.data.length < 1) return false
-        if (this.state.data.length === 1) return this.state.data[0].name
+        if (this.state.data.length === 1) return /^\d{4}$/.test(this.state.data[0].tahun_buku) && /^\d{1,2}$/.test(this.state.data[0].nomor) && this.state.data[0].name
         let isValid = true;
-        this.state.data.forEach((satuan, i) => {
-            const { name, ket } = satuan;
-            if (name || ket) {
-                if (!name) isValid = false
+        this.state.data.forEach((User, i) => {
+            const { tahun_buku, name, nomor, ket } = User;
+            if (tahun_buku || nomor || name || ket) {
+                if (!/^\d{4}$/.test(tahun_buku) || !/^\d{1,2}$/.test(nomor) || !name) isValid = false
             }
         })
         return isValid;
     }
     componentDidMount = () => {
         this.input && this.input.focus()
-        this.onChangeInput(this.props.activeRecord ? func.getFormVar(satuanFields, this.props.activeRecord) : func.getFormVar(satuanFields, undefined, true))
-        this.formRef.current && this.formRef.current.setFieldsValue(this.props.activeRecord ? func.getFormVar(satuanFields, this.props.activeRecord) : func.getFormVar(satuanFields, undefined, true));
+        this.onChangeInput(this.props.activeRecord ? func.getFormVar(userFields, this.props.activeRecord) : func.getFormVar(userFields, undefined, true))
+        this.formRef.current && this.formRef.current.setFieldsValue(this.props.activeRecord ? func.getFormVar(userFields, this.props.activeRecord) : func.getFormVar(userFields, undefined, true));
     }
     formRef = React.createRef();
     saveInputRef = input => this.input = input
 
     render() {
         const { isMultiple } = this.props
-        const { nestedHeaders, name, autoCompleteDataSource } = this.state
+        const { nestedHeaders, name, tahun_buku, nomor, autoCompleteDataSource } = this.state
         return (
             <Col xs={24}>
                 <Row gutter={[64, 0]}>
@@ -107,11 +103,13 @@ export default class EditorSatuan_Satuan extends React.Component {
                         {isMultiple ? <Row gutter={[0, 16]}>
                             <Col xs={24} md={24}>
                                 <Hot
-                                    dataSchema={{ name: null, ket: null }}
+                                    dataSchema={{ tahun_buku: null, nomor: null, name: null, ket: null }}
                                     nestedHeaders={nestedHeaders}
                                     rowHeaders
                                     data={this.data}
                                     columns={[
+                                        { data: 'tahun_buku', width: 60 },
+                                        { data: 'nomor', width: 60 },
                                         { data: 'name', width: 180 },
                                         { data: 'ket' },
                                     ]}
@@ -128,20 +126,52 @@ export default class EditorSatuan_Satuan extends React.Component {
                             }}
                         >
                                 <Form.Item
-                                    label="Satuan"
-                                    name="name"
+                                    label="Tahun Buku"
+                                    name="tahun_buku"
                                     rules={[
                                         {
                                             required: true,
-                                            message: 'Mohon input nama satuan',
+                                            message: 'Mohon input 4 digit tahun buku',
                                         },
                                     ]}
 
                                 >
                                     <Input
-                                        placeholder="Nama satuan"
-                                        style={{ width: "50%" }}
+                                        placeholder="Tahun buku"
+                                        style={{ width: "35%" }}
                                         ref={this.saveInputRef}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    label="Nomor"
+                                    name="nomor"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Mohon input nomor User',
+                                        },
+                                    ]}
+
+                                >
+                                    <Input
+                                        placeholder="Nomor User"
+                                        style={{ width: "35%" }}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    label="Nama"
+                                    name="name"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Mohon input nama User',
+                                        },
+                                    ]}
+
+                                >
+                                    <Input
+                                        placeholder="Nama User"
+                                        style={{ width: "35%" }}
                                     />
                                 </Form.Item>
                                 <Form.Item
@@ -151,7 +181,7 @@ export default class EditorSatuan_Satuan extends React.Component {
                                     <AutoComplete
                                         allowClear
                                         options={autoCompleteDataSource}
-                                        onSearch={q => this.handleAutoCSearch(q, 'ket', 'Satuan')}
+                                        onSearch={q => this.handleAutoCSearch(q, 'ket', 'User')}
                                         style={{ width: "100%" }}
                                     >
                                         <TextArea
@@ -164,7 +194,7 @@ export default class EditorSatuan_Satuan extends React.Component {
                         <Row>
                             <Col xs={24} md={24}>
                                 <Space>
-                                    <Button type="primary" disabled={!(!isMultiple && name) && !(isMultiple && this.isMultipleEditValid())} onClick={this.onClickSimpanSatuan}>Simpan</Button>
+                                    <Button type="primary" disabled={!(!isMultiple && (/^\d{4}$/.test(tahun_buku) && name && /^\d{1,2}$/.test(nomor))) && !(isMultiple && this.isMultipleEditValid())} onClick={this.onClickSimpanUser}>Simpan</Button>
                                 </Space>
                             </Col>
                         </Row>

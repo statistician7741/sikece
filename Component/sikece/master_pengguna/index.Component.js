@@ -1,12 +1,16 @@
+import { Row, PageHeader } from "antd"
 import dynamic from 'next/dynamic';
-import { PageHeader, Table, Row, Col, Divider, Popconfirm, Menu, Dropdown } from 'antd';
-import { PlusOutlined } from '@ant-design/icons'
+
+const LihatUser = dynamic(() => import("./LihatUser.Component"));
+const EditorUser = dynamic(() => import("./EditorUser.Component"));
 
 export default class IndexMasterPengguna extends React.Component {
     state = {
+        isMultiple: false,
         activePage: 'list',
-        activeEditingtitle: undefined,
-        users: [{
+        activeEditingtitle: '',
+        activeRecord: undefined,
+        all_user: [{
             _id: 1,
             name: 'Admin 1',
             jenis_pengguna: 'Admin',
@@ -39,7 +43,7 @@ export default class IndexMasterPengguna extends React.Component {
         }, {
             _id: 6,
             name: 'Yerni',
-            jenis_pengguna: 'Admin',
+            jenis_pengguna: 'Operator Entri',
             ket: 'Bisa mengakses fitur Entri data dan Buku Panduan',
         }, {
             _id: 7,
@@ -53,64 +57,33 @@ export default class IndexMasterPengguna extends React.Component {
             ket: 'Bisa mengakses fitur persetujuan Data',
         },]
     }
+    onClickTambah = isMultiple => {
+        this.setState({ isMultiple, activePage: 'edit', activeEditingtitle: `Tambah Pengguna ${isMultiple ? '(Multiple)' : ''}`, activeRecord: undefined })
+    }
+    onClickEdit = (activeEditingtitle, activeRecord) => {
+        this.setState({ isMultiple: false, activePage: 'edit', activeEditingtitle, activeRecord })
+    }
+
+    onBack = () => this.setState({ activePage: 'list' })
 
     render() {
-        const { users } = this.state
-        const userColumns = [{
-            title: 'Nama',
-            dataIndex: 'name',
-            key: '_id',
-            width: 200,
-        }, {
-            title: 'Jenis Pengguna',
-            dataIndex: 'jenis_pengguna',
-        }, {
-            title: 'Keterangan',
-            dataIndex: 'ket',
-        }, {
-            title: 'pilihan',
-            dataIndex: 'pilihan',
-            fixed: 'right',
-            width: 140,
-            render: (text, record) => <span>
-                <a>Edit</a>
-                <Divider type="vertical" />
-                <Popconfirm title={`Hapus Pengguna ini?`}>
-                    <a>Hapus</a>
-                </Popconfirm>
-            </span>
-        }]
+        const { isMultiple, activePage, activeEditingtitle, activeRecord } = this.state
 
         return (
             <PageHeader
                 className="site-page-header"
                 title="Master Pengguna"
+                subTitle={activePage === 'list' ? "Daftar Pengguna" : `${activeEditingtitle}`}
+                onBack={activePage === 'list' ? undefined : this.onBack}
+                ghost={false}
             >
-                <Row>
-                    <Col xs={24} md={16}>
-                        <Dropdown.Button
-                            type="primary" overlay={
-                                <Menu>
-                                    <Menu.Item key="1">Multi Penambahan</Menu.Item>
-                                </Menu>
-                            }
-                        >
-                            <PlusOutlined /> Tambah
-                            </Dropdown.Button>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col xs={24} md={16}>
-                        <Table
-                            size="small"
-                            scroll={{ x: 800 }}
-                            columns={userColumns}
-                            dataSource={users}
-                            pagination={{ defaultPageSize: 15, showSizeChanger: true, position: 'top', pageSizeOptions: ['15', '30', '50'], showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total} baris` }}
-                            rowKey="_id"
-                        />
-                    </Col>
-                </Row>
+                {activePage === 'list' ?
+                    <Row>
+                        <LihatUser {...this.props} onClickTambah={this.onClickTambah} onClickEdit={this.onClickEdit} />
+                    </Row> :
+                    <Row>
+                        <EditorUser {...this.props} isMultiple={isMultiple} onClickTambah={this.onClickTambah} activeRecord={activeRecord} onBack={this.onBack} />
+                    </Row>}
             </PageHeader>
         )
     }

@@ -5,14 +5,35 @@ export const setActiveUser = (socket) => dispatch => {
         return dispatch({ type: actionTypes.SET_ACTIVE_USER, active_user })
     })
 }
-
 export const resetActiveUser = () => dispatch => {
     return dispatch({ type: actionTypes.SET_ACTIVE_USER, active_user: {} })
 }
-
-export const setTTDSPD = (socket, ttd, cb) => dispatch => {
-    socket.emit('api.socket.spd/s/setTTDSPD', ttd, ( result )=>{
-        cb();
-        return dispatch({ type: actionTypes.SET_TTD_SPD, ttd })
-    })
+export const getUser = (socket) => dispatch => {
+  socket.emit('api.master_user.user/getUser',(response) => {
+    if (response.type === 'ok') {
+      return dispatch({ type: actionTypes.SET_ALL_USER, all_user: response.data })
+    } else {
+      return dispatch({ type: actionTypes.SET_ALL_USER, all_user: [] })
+    }
+  })
+}
+export const deleteUserbyId = (socket, _id, props) => dispatch => {
+  socket.emit('api.master_user.user/deleteUserbyId', _id, (response) => {
+    if (response.type === 'ok') {
+      return dispatch({ type: actionTypes.SET_ALL_USER, all_user: response.data })
+    } else {
+      props.showErrorMessage(response.data)
+    }
+  })
+}
+export const simpanUser = (socket, data, props, cb) => dispatch => {
+  socket.emit('api.master_user.user/simpanUser', data, (response) => {
+    if (response.type === 'ok') {
+      response.additionalMsg && props.showSuccessMessage(response.additionalMsg)
+      cb && cb()
+      return dispatch({ type: actionTypes.SET_ALL_USER, all_user: response.data })
+    } else {
+      props.showErrorMessage(response.data)
+    }
+  })
 }

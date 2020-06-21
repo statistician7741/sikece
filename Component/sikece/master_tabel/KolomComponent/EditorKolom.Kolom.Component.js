@@ -1,4 +1,4 @@
-import { Row, Col, Input, Form, Space, Button, Select, Table, Radio } from 'antd';
+import { Row, Col, Input, Form, Space, Button, Select, Table, Radio, AutoComplete } from 'antd';
 const { TextArea } = Input;
 import Hot from '../../general/Hot.Component'
 import func from '../../../../functions/basic.func'
@@ -25,7 +25,8 @@ export default class EditorVariabel_Variabel extends React.Component {
             ['(1)', '(2)', '(3)', '(4)', '(5)', '(6)', '(7)', '(8)']
         ],
         data: [],
-        view_as: 'Kolom'
+        view_as: 'Kolom',
+        autoCompleteDataSource: []
     }
     onChangeInput = (changedValues) => {
         this.setState(changedValues)
@@ -84,6 +85,17 @@ export default class EditorVariabel_Variabel extends React.Component {
     get data() {
         return this.state.data
     }
+    safeQuery = (q) => {
+        if (typeof q === 'string') return q.replace(/[-[\]{}()*+?.,\\/^$|#\s]/g, "\\$&")
+        else return q
+    }
+    handleAutoCSearch = (query, field, Model) => {
+        const { socket } = this.props;
+        let q = { query: this.safeQuery(query), field, Model }
+        socket.emit('api.general.autocomplete/getFieldByText', q, ({ data }) => {
+            this.setState({ autoCompleteDataSource: query ? data : [] });
+        })
+    }
 
     componentDidMount = () => {
         this.input && this.input.focus()
@@ -102,7 +114,7 @@ export default class EditorVariabel_Variabel extends React.Component {
 
     render() {
         const { all_subject, all_satuan } = this.props
-        const { nestedHeaders, data, view_as } = this.state
+        const { nestedHeaders, data, view_as, autoCompleteDataSource } = this.state
         return (
             <Col xs={24}>
                 <Row gutter={[64, 0]}>
@@ -199,12 +211,17 @@ export default class EditorVariabel_Variabel extends React.Component {
                                 label="Keterangan"
                                 name="ket"
                             >
-                                <TextArea
-                                    style={{ height: 50 }}
+                                <AutoComplete
                                     allowClear
-                                    placeholder="Keterangan"
+                                    options={autoCompleteDataSource}
+                                    onSearch={q => this.handleAutoCSearch(q, 'ket', 'Variable')}
                                     style={{ width: "100%" }}
-                                />
+                                >
+                                    <TextArea
+                                        placeholder="Keterangan mengenai semua variabel di atas"
+                                        style={{ height: 50 }}
+                                    />
+                                </AutoComplete>
                             </Form.Item>
                             <Form.Item
                                 label="Preview"

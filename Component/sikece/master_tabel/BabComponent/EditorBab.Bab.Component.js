@@ -1,4 +1,4 @@
-import { Row, Col, Input, Space, Button, Form } from 'antd';
+import { Row, Col, Input, Space, Button, Form, AutoComplete } from 'antd';
 const { TextArea } = Input;
 import Hot from '../../general/Hot.Component'
 import func from '../../../../functions/basic.func'
@@ -23,7 +23,19 @@ export default class EditorBab_Bab extends React.Component {
         nestedHeaders: [
             ['Tahun Buku', 'Nomor', 'Nama Bab', 'Keterangan'],
             ['(1)', '(2)', '(3)', '(4)']
-        ]
+        ],
+        autoCompleteDataSource: []
+    }
+    safeQuery = (q) => {
+        if (typeof q === 'string') return q.replace(/[-[\]{}()*+?.,\\/^$|#\s]/g, "\\$&")
+        else return q
+    }
+    handleAutoCSearch = (query, field, Model) => {
+        const { socket } = this.props;
+        let q = { query: this.safeQuery(query), field, Model }
+        socket.emit('api.general.autocomplete/getFieldByText', q, ({ data }) => {
+            this.setState({ autoCompleteDataSource: query ? data : [] });
+        })
     }
     get data() {
         return this.state.data
@@ -63,7 +75,7 @@ export default class EditorBab_Bab extends React.Component {
     }
     isMultipleEditValid = () => {
         if (this.state.data.length < 1) return false
-        if (this.state.data.length === 1) return /^\d{4}$/.test(this.state.data[0].tahun_buku) &&  /^\d{1,2}$/.test(this.state.data[0].nomor) && this.state.data[0].name
+        if (this.state.data.length === 1) return /^\d{4}$/.test(this.state.data[0].tahun_buku) && /^\d{1,2}$/.test(this.state.data[0].nomor) && this.state.data[0].name
         let isValid = true;
         this.state.data.forEach((bab, i) => {
             const { tahun_buku, name, nomor, ket } = bab;
@@ -83,7 +95,7 @@ export default class EditorBab_Bab extends React.Component {
 
     render() {
         const { isMultiple } = this.props
-        const { nestedHeaders, name, tahun_buku, nomor } = this.state
+        const { nestedHeaders, name, tahun_buku, nomor, autoCompleteDataSource } = this.state
         return (
             <Col xs={24}>
                 <Row gutter={[64, 0]}>
@@ -166,12 +178,17 @@ export default class EditorBab_Bab extends React.Component {
                                     label="Keterangan"
                                     name="ket"
                                 >
-                                    <TextArea
-                                        style={{ height: 50 }}
+                                    <AutoComplete
                                         allowClear
-                                        placeholder="Keterangan"
+                                        options={autoCompleteDataSource}
+                                        onSearch={q => this.handleAutoCSearch(q, 'ket', 'Bab')}
                                         style={{ width: "100%" }}
-                                    />
+                                    >
+                                        <TextArea
+                                            placeholder="Keterangan"
+                                            style={{ height: 50 }}
+                                        />
+                                    </AutoComplete>
                                 </Form.Item>
                             </Form>}
                         <Row>

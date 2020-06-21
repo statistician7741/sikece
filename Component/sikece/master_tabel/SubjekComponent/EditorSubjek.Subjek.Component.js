@@ -1,4 +1,4 @@
-import { Row, Col, Input, Space, Button, Form } from 'antd';
+import { Row, Col, Input, Space, Button, Form, AutoComplete } from 'antd';
 const { TextArea } = Input;
 import Hot from '../../general/Hot.Component'
 import func from '../../../../functions/basic.func'
@@ -25,7 +25,19 @@ export default class EditorSubjek_Subjek extends React.Component {
             ['(1)', '(2)']
         ],
         data: [],
-        name: undefined
+        name: undefined,
+        autoCompleteDataSource: []
+    }
+    safeQuery = (q) => {
+        if (typeof q === 'string') return q.replace(/[-[\]{}()*+?.,\\/^$|#\s]/g, "\\$&")
+        else return q
+    }
+    handleAutoCSearch = (query, field, Model) => {
+        const { socket } = this.props;
+        let q = { query: this.safeQuery(query), field, Model }
+        socket.emit('api.general.autocomplete/getFieldByText', q, ({ data }) => {
+            this.setState({ autoCompleteDataSource: query ? data : [] });
+        })
     }
 
     get data() {
@@ -86,7 +98,7 @@ export default class EditorSubjek_Subjek extends React.Component {
 
     render() {
         const { isMultiple } = this.props
-        const { nestedHeaders, name } = this.state
+        const { nestedHeaders, name, autoCompleteDataSource } = this.state
         return (
             <Col xs={24}>
                 <Row gutter={[64, 0]}>
@@ -135,12 +147,17 @@ export default class EditorSubjek_Subjek extends React.Component {
                                     label="Keterangan"
                                     name="ket"
                                 >
-                                    <TextArea
-                                        style={{ height: 50 }}
+                                    <AutoComplete
                                         allowClear
-                                        placeholder="Keterangan"
+                                        options={autoCompleteDataSource}
+                                        onSearch={q => this.handleAutoCSearch(q, 'ket', 'Subject')}
                                         style={{ width: "100%" }}
-                                    />
+                                    >
+                                        <TextArea
+                                            placeholder="Keterangan"
+                                            style={{ height: 50 }}
+                                        />
+                                    </AutoComplete>
                                 </Form.Item>
                             </Form>}
                         <Row>

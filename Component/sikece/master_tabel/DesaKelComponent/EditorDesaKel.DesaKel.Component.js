@@ -1,4 +1,4 @@
-import { Row, Col, Input, Space, Button, Form, Select, Radio } from 'antd';
+import { Row, Col, Input, Space, Button, Form, Select, Radio, AutoComplete } from 'antd';
 const { Option } = Select;
 const { TextArea } = Input;
 import Hot from '../../general/Hot.Component'
@@ -31,6 +31,18 @@ export default class EditDeskel_Deskel extends React.Component {
         kode: undefined,
         name: undefined,
         klasifikasi: undefined,
+        autoCompleteDataSource: []
+    }
+    safeQuery = (q) => {
+        if (typeof q === 'string') return q.replace(/[-[\]{}()*+?.,\\/^$|#\s]/g, "\\$&")
+        else return q
+    }
+    handleAutoCSearch = (query, field, Model) => {
+        const { socket } = this.props;
+        let q = { query: this.safeQuery(query), field, Model }
+        socket.emit('api.general.autocomplete/getFieldByText', q, ({ data }) => {
+            this.setState({ autoCompleteDataSource: query ? data : [] });
+        })
     }
 
     get data() {
@@ -124,7 +136,7 @@ export default class EditDeskel_Deskel extends React.Component {
     saveInputRef = input => this.input = input
     render() {
         const { isMultiple, all_kab, all_kec } = this.props
-        const { nestedHeaders, kab, kec, name, kode, klasifikasi } = this.state
+        const { nestedHeaders, kab, kec, name, kode, klasifikasi, autoCompleteDataSource } = this.state
         return (
             <Col xs={24}>
                 <Row gutter={[64, 0]}>
@@ -246,12 +258,17 @@ export default class EditDeskel_Deskel extends React.Component {
                                     label="Keterangan"
                                     name="ket"
                                 >
-                                    <TextArea
-                                        style={{ height: 50 }}
+                                    <AutoComplete
                                         allowClear
-                                        placeholder="Keterangan"
+                                        options={autoCompleteDataSource}
+                                        onSearch={q => this.handleAutoCSearch(q, 'ket', 'Deskel')}
                                         style={{ width: "100%" }}
-                                    />
+                                    >
+                                        <TextArea
+                                            placeholder="Keterangan"
+                                            style={{ height: 50 }}
+                                        />
+                                    </AutoComplete>
                                 </Form.Item>
                             </Form>}
                         <Row>

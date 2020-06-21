@@ -65,6 +65,8 @@ let runServer = () => {
       io.on('connection', function (client) {
         console.log("Hey, someone connected");
         require('./api/master_table.api')(client)
+        require('./api/master_user.api')(client)
+        require('./api/general.api')(client)
         client.on('disconnect', () => {
           console.log("Hey, someone disconnected");
         })
