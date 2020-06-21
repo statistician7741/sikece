@@ -29,8 +29,8 @@ export const simpanKab = (socket, data, props, cb) => dispatch => {
     }
   })
 }
-export const getBab = (socket, tahun_buku) => dispatch => {
-  socket.emit('api.master_tabel.bab/getBab', tahun_buku, (response) => {
+export const getBab = (socket) => dispatch => {
+  socket.emit('api.master_tabel.bab/getBab', (response) => {
     if (response.type === 'ok') {
       return dispatch({ type: actionTypes.SET_MASTER_BAB, all_bab: response.data })
     } else {
@@ -169,6 +169,64 @@ export const simpanDeskel = (socket, data, props, cb) => dispatch => {
       response.additionalMsg && props.showSuccessMessage(response.additionalMsg)
       cb && cb()
       return dispatch({ type: actionTypes.SET_MASTER_DESKEL, all_deskel: response.data })
+    } else {
+      props.showErrorMessage(response.data)
+    }
+  })
+}
+export const getVariable = (socket) => dispatch => {
+  socket.emit('api.master_tabel.variable/getVariable',(response) => {
+    if (response.type === 'ok') {
+      return dispatch({ type: actionTypes.SET_MASTER_VARIABLE, all_variable: response.data })
+    } else {
+      return dispatch({ type: actionTypes.SET_MASTER_VARIABLE, all_variable: [] })
+    }
+  })
+}
+export const deleteVariablebyId = (socket, _id, props) => dispatch => {
+  socket.emit('api.master_tabel.variable/deleteVariablebyId', _id, (response) => {
+    if (response.type === 'ok') {
+      return dispatch({ type: actionTypes.SET_MASTER_VARIABLE, all_variable: response.data })
+    } else {
+      props.showErrorMessage(response.data)
+    }
+  })
+}
+export const simpanVariable = (socket, data, props, cb) => dispatch => {
+  socket.emit('api.master_tabel.variable/simpanVariable', data, (response) => {
+    if (response.type === 'ok') {
+      response.additionalMsg && props.showSuccessMessage(response.additionalMsg)
+      cb && cb()
+      return dispatch({ type: actionTypes.SET_MASTER_VARIABLE, all_variable: response.data })
+    } else {
+      props.showErrorMessage(response.data)
+    }
+  })
+}
+export const getTable = (socket) => dispatch => {
+  socket.emit('api.master_tabel.table/getTable',(response) => {
+    if (response.type === 'ok') {
+      return dispatch({ type: actionTypes.SET_MASTER_TABLE, all_table: response.data })
+    } else {
+      return dispatch({ type: actionTypes.SET_MASTER_TABLE, all_table: [] })
+    }
+  })
+}
+export const deleteTablebyId = (socket, _id, props) => dispatch => {
+  socket.emit('api.master_tabel.table/deleteTablebyId', _id, (response) => {
+    if (response.type === 'ok') {
+      return dispatch({ type: actionTypes.SET_MASTER_TABLE, all_table: response.data })
+    } else {
+      props.showErrorMessage(response.data)
+    }
+  })
+}
+export const simpanTable = (socket, data, props, cb) => dispatch => {
+  socket.emit('api.master_tabel.table/simpanTable', data, (response) => {
+    if (response.type === 'ok') {
+      response.additionalMsg && props.showSuccessMessage(response.additionalMsg)
+      cb && cb()
+      return dispatch({ type: actionTypes.SET_MASTER_TABLE, all_table: response.data })
     } else {
       props.showErrorMessage(response.data)
     }

@@ -12,7 +12,7 @@ export default class Satuan extends React.Component {
         activeRecord: undefined,
     }
     onClickTambah = isMultiple => {
-        this.setState({ isMultiple, activePage: 'edit', activeEditingtitle: `Tambah Bab ${isMultiple ? '(Multiple)' : ''}`, activeRecord: undefined })
+        this.setState({ isMultiple, activePage: 'edit', activeEditingtitle: `Tambah Satuan ${isMultiple ? '(Multiple)' : ''}`, activeRecord: undefined })
     }
     onClickEdit = (activeEditingtitle, activeRecord) => {
         this.setState({ isMultiple: false, activePage: 'edit', activeEditingtitle, activeRecord })

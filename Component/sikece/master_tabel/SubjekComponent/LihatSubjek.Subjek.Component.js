@@ -4,8 +4,8 @@ import { deleteSubjectbyId, getSubject } from "../../../../redux/actions/master.
 
 export default class LihatSubjek_Subjek extends React.Component {
     componentDidMount() {
-        if (this.props.socket && !this.props.all_kab.length) {
-            this.props.dispatch(getSubject(this.props.socket))
+        if (this.props.socket) {
+            !this.props.all_subject.length&&this.props.dispatch(getSubject(this.props.socket))
         }
     }
     componentDidUpdate(prevProps) {
@@ -47,7 +47,7 @@ export default class LihatSubjek_Subjek extends React.Component {
         }]
 
         return (
-            <Col>
+            <Col xs={24}>
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={8}>
                         <Row><Col>

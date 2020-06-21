@@ -86,10 +86,10 @@ export default class EditDeskel_Deskel extends React.Component {
     onClickSimpanDeskel = () => {
         if (this.props.isMultiple) {
             this.state.data.forEach(deskelData => {
-                deskelData.name && this.props.dispatch(simpanDeskel(this.props.socket, func.getFormVar(deskelFields, deskelData), this.props))
+                deskelData.name && this.props.dispatch(simpanDeskel(this.props.socket, func.getFormVar(deskelFields, deskelData), this.props, this.props.onBack))
             })
         } else {
-            this.props.dispatch(simpanDeskel(this.props.socket, func.getFormVar(deskelFields, this.state), this.props))
+            this.props.dispatch(simpanDeskel(this.props.socket, func.getFormVar(deskelFields, this.state), this.props, this.props.onBack))
         }
     }
     isMultipleEditValid = () => {

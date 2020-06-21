@@ -9,13 +9,17 @@ module.exports = (input, cb, client) => {
     const { _id } = input
     async.auto({
         isExist: cb_isExist => {
-            Kab.findOne({ _id }, (err, result) => {
-                if (err) {
-                    cb_isExist(err_code.ERROR_ACCESS_DB, null)
-                } else {
-                    cb_isExist(null, result)
-                }
-            })
+            if(!_id){
+                cb_isExist(null, null)
+            } else{
+                Kab.findOne({ _id }, (err, result) => {
+                    if (err) {
+                        cb_isExist(err_code.ERROR_ACCESS_DB, null)
+                    } else {
+                        cb_isExist(null, result)
+                    }
+                })
+            }
         },
         createKab: ['isExist', (results, cb_createKab) => {
             if (!results.isExist) {

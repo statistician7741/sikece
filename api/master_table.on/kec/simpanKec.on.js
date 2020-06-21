@@ -6,20 +6,24 @@ const basic_func = require('../../../functions/basic.func')
 const getKec = require('./getKec.on');
 
 module.exports = (input, cb, client) => {
-    const _id = `${input.kab}.${input.kode}`
+    const {_id} = input
     async.auto({
         isExist: cb_isExist => {
-            Kec.findOne({ _id }, (err, result) => {
-                if (err) {
-                    cb_isExist(err_code.ERROR_ACCESS_DB, null)
-                } else {
-                    cb_isExist(null, result)
-                }
-            })
+            if(!_id){
+                cb_isExist(null, null)
+            } else{
+                Kec.findOne({ _id }, (err, result) => {
+                    if (err) {
+                        cb_isExist(err_code.ERROR_ACCESS_DB, null)
+                    } else {
+                        cb_isExist(null, result)
+                    }
+                })
+            }
         },
         createKec: ['isExist', (results, cb_createKec) => {
             if (!results.isExist) {
-                Kec.create({...basic_func.getFormVar(kec_fields, input), _id}, (err, result) => {
+                Kec.create({...basic_func.getFormVar(kec_fields, input, false, ['_id']), _id: `${input.kab}.${input.kode}`}, (err, result) => {
                     if (err) {
                         console.log(err);
                         cb_createKec(err_code.ERROR_ACCESS_DB, null)

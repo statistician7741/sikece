@@ -34,10 +34,10 @@ export default class LihatTabel_Tabel extends React.Component {
     onClickSimpanKab = () => {
         if (this.props.isMultiple) {
             this.state.data.forEach(kabData => {
-                kabData._id && this.props.dispatch(simpanKab(this.props.socket, func.getFormVar(kabFields, kabData), this.props))
+                kabData._id && this.props.dispatch(simpanKab(this.props.socket, func.getFormVar(kabFields, kabData), this.props, this.props.onBack))
             })
         } else {
-            this.props.dispatch(simpanKab(this.props.socket, func.getFormVar(kabFields, this.state), this.props))
+            this.props.dispatch(simpanKab(this.props.socket, func.getFormVar(kabFields, this.state), this.props, this.props.onBack))
         }
     }
 

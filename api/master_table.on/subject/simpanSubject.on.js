@@ -6,20 +6,24 @@ const basic_func = require('../../../functions/basic.func')
 const getSubject = require('./getSubject.on');
 
 module.exports = (input, cb, client) => {
-    const _id = input.name
+    const {_id} = input
     async.auto({
         isExist: cb_isExist => {
-            Subject.findOne({ _id }, (err, result) => {
-                if (err) {
-                    cb_isExist(err_code.ERROR_ACCESS_DB, null)
-                } else {
-                    cb_isExist(null, result)
-                }
-            })
+            if (!_id) {
+                cb_isExist(null, null)
+            } else {
+                Subject.findOne({ _id }, (err, result) => {
+                    if (err) {
+                        cb_isExist(err_code.ERROR_ACCESS_DB, null)
+                    } else {
+                        cb_isExist(null, result)
+                    }
+                })
+            }
         },
         createSubject: ['isExist', (results, cb_createSubject) => {
             if (!results.isExist) {
-                Subject.create({...basic_func.getFormVar(subject_fields, input), _id}, (err, result) => {
+                Subject.create({...basic_func.getFormVar(subject_fields, input, false, ['_id'])}, (err, result) => {
                     if (err) {
                         console.log(err);
                         cb_createSubject(err_code.ERROR_ACCESS_DB, null)

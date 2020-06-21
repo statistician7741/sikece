@@ -23,14 +23,23 @@ const simpanDeskel = require('./master_table.on/deskel/simpanDeskel.on');
 const getDeskel = require('./master_table.on/deskel/getDeskel.on');
 const deleteDeskelbyId = require('./master_table.on/deskel/deleteDeskelbyId.on');
 
+const simpanVariable = require('./master_table.on/variable/simpanVariable.on');
+const getVariable = require('./master_table.on/variable/getVariable.on');
+const deleteVariablebyId = require('./master_table.on/variable/deleteVariablebyId.on');
+
+const simpanTable = require('./master_table.on/table/simpanTable.on');
+const getTable = require('./master_table.on/table/getTable.on');
+const deleteTablebyId = require('./master_table.on/table/deleteTablebyId.on');
+const getFieldByText = require('./master_table.on/table/getFieldByText.on');
+
 function applyToClient(client) {
     client.on('api.master_tabel.kab/simpanKab', (query,cb)=>simpanKab(query,cb,client));
     client.on('api.master_tabel.kab/getKab', (cb)=>getKab(cb,client));
     client.on('api.master_tabel.kab/deleteKabbyId', (_id, cb)=>deleteKabbyId(_id, cb,client));
     
     client.on('api.master_tabel.bab/simpanBab', (query,cb)=>simpanBab(query,cb,client));
-    client.on('api.master_tabel.bab/getBab', (tahun_buku,cb)=>getBab(tahun_buku,cb,client));
-    client.on('api.master_tabel.bab/deleteBabbyId', ({_id,tahun_buku},cb)=>deleteBabbyId({_id,tahun_buku},cb,client));
+    client.on('api.master_tabel.bab/getBab', (cb)=>getBab(cb,client));
+    client.on('api.master_tabel.bab/deleteBabbyId', (_id,cb)=>deleteBabbyId(_id,cb,client));
     client.on('api.master_tabel.bab/getAllYearsBab', (cb)=>getAllYearsBab(cb,client));
     
     client.on('api.master_tabel.satuan/simpanSatuan', (query,cb)=>simpanSatuan(query,cb,client));
@@ -48,6 +57,15 @@ function applyToClient(client) {
     client.on('api.master_tabel.deskel/simpanDeskel', (query,cb)=>simpanDeskel(query,cb,client));
     client.on('api.master_tabel.deskel/getDeskel', (cb)=>getDeskel(cb,client));
     client.on('api.master_tabel.deskel/deleteDeskelbyId', (_id, cb)=>deleteDeskelbyId(_id, cb,client));
+    
+    client.on('api.master_tabel.variable/simpanVariable', (query,cb)=>simpanVariable(query,cb,client));
+    client.on('api.master_tabel.variable/getVariable', (cb)=>getVariable(cb,client));
+    client.on('api.master_tabel.variable/deleteVariablebyId', (_id, cb)=>deleteVariablebyId(_id, cb,client));
+    
+    client.on('api.master_tabel.table/simpanTable', (query,cb)=>simpanTable(query,cb,client));
+    client.on('api.master_tabel.table/getTable', (cb)=>getTable(cb,client));
+    client.on('api.master_tabel.table/deleteTablebyId', (_id, cb)=>deleteTablebyId(_id, cb,client));
+    client.on('api.master_tabel.table/getFieldByText', (q, cb)=>getFieldByText(q, cb,client));
 }
 
 module.exports = applyToClient

@@ -69,10 +69,10 @@ export default class LihatTabel_Tabel extends React.Component {
     onClickSimpanKec = () => {
         if (this.props.isMultiple) {
             this.state.data.forEach(kecData => {
-                kecData.name && this.props.dispatch(simpanKec(this.props.socket, func.getFormVar(kecFields, kecData), this.props))
+                kecData.name && this.props.dispatch(simpanKec(this.props.socket, func.getFormVar(kecFields, kecData), this.props, this.props.onBack))
             })
         } else {
-            this.props.dispatch(simpanKec(this.props.socket, func.getFormVar(kecFields, this.state), this.props))
+            this.props.dispatch(simpanKec(this.props.socket, func.getFormVar(kecFields, this.state), this.props, this.props.onBack))
         }
     }
     isMultipleEditValid = () => {

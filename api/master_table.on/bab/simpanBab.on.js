@@ -7,20 +7,24 @@ const getBab = require('./getBab.on');
 
 module.exports = (input, cb, client) => {
     const { tahun_buku, nomor } = input
-    const _id = `${tahun_buku}_${nomor}`
+    const { _id } = input
     async.auto({
         isExist: cb_isExist => {
-            Bab.findOne({ tahun_buku, nomor }, (err, result) => {
-                if (err) {
-                    cb_isExist(err_code.ERROR_ACCESS_DB, null)
-                } else {
-                    cb_isExist(null, result)
-                }
-            })
+            if(!_id){
+                cb_isExist(null, null)
+            } else{
+                Bab.findOne({ tahun_buku, nomor }, (err, result) => {
+                    if (err) {
+                        cb_isExist(err_code.ERROR_ACCESS_DB, null)
+                    } else {
+                        cb_isExist(null, result)
+                    }
+                })
+            }
         },
         createBab: ['isExist', (results, cb_createBab) => {
             if (!results.isExist) {
-                Bab.create({ _id, ...basic_func.getFormVar(bab_fields, input) }, (err, result) => {
+                Bab.create({ ...basic_func.getFormVar(bab_fields, input, false, ['_id']), _id: `${tahun_buku}_${nomor}` }, (err, result) => {
                     if (err) {
                         console.log(err);
                         cb_createBab(err_code.ERROR_ACCESS_DB, null)
@@ -35,8 +39,8 @@ module.exports = (input, cb, client) => {
         updateBab: ['isExist', (results, cb_updateBab) => {
             if (results.isExist) {
                 Bab.updateOne({
-                    tahun_buku, nomor
-                }, { _id, ...basic_func.getFormVar(bab_fields, input) }, (err, result) => {
+                    _id
+                }, { ...basic_func.getFormVar(bab_fields, input, false, ['_id']) }, (err, result) => {
                     if (err) {
                         cb_updateBab(err_code.ERROR_ACCESS_DB, null)
                     } else {
@@ -51,7 +55,7 @@ module.exports = (input, cb, client) => {
         if (err) {
             cb({ 'type': 'error', 'data': err })
         } else {
-            getBab( tahun_buku, cb,client, isExist ? updateBab : createBab)
+            getBab( cb,client, isExist ? updateBab : createBab)
         }
     })
 }

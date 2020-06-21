@@ -48,7 +48,7 @@ export default class LihatSatuan_Satuan extends React.Component {
         }]
 
         return (
-            <Col>
+            <Col xs={24}>
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={8}>
                         <Row><Col>

@@ -7,7 +7,8 @@ import { deleteBabbyId, getBab } from "../../../../redux/actions/master.action"
 
 export default class LihatBab_Bab extends React.Component {
     state = {
-        years: []
+        years: [],
+        selectedYear: new Date().getFullYear()
     }
     getAllYearsBab = (props) => {
         props.socket.emit('api.master_tabel.bab/getAllYearsBab', (response) => {
@@ -18,25 +19,22 @@ export default class LihatBab_Bab extends React.Component {
             }
         })
     }
-    onChangePilihTahun = (year) => {
-        this.props.dispatch(getBab(this.props.socket, year))
-    }
     componentDidMount() {
         if (this.props.socket) {
             this.getAllYearsBab(this.props)
             if (!this.props.all_bab.length) {
-                this.props.dispatch(getBab(this.props.socket, new Date().getFullYear()))
+                this.props.dispatch(getBab(this.props.socket))
             }
         }
     }
     componentDidUpdate(prevProps) {
         if (this.props.socket !== prevProps.socket) {
             this.getAllYearsBab(this.props)
-            this.props.dispatch(getBab(this.props.socket, new Date().getFullYear()))
+            this.props.dispatch(getBab(this.props.socket))
         }
     }
     render() {
-        const { years } = this.state
+        const { years, selectedYear } = this.state
         const { all_bab } = this.props
         const { onClickTambah, onClickEdit } = this.props
 
@@ -76,7 +74,7 @@ export default class LihatBab_Bab extends React.Component {
         }]
 
         return (
-            <Col>
+            <Col xs={24}>
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={16}>
                         <InputForm xs={19} name='Tahun Buku' isWajib={false} left>
@@ -85,12 +83,13 @@ export default class LihatBab_Bab extends React.Component {
                                 style={{ width: 120 }}
                                 placeholder="Tahun buku"
                                 optionFilterProp="children"
-                                onChange={this.onChangePilihTahun}
-                                value={all_bab.length ? all_bab[0].tahun_buku : new Date().getFullYear()}
+                                onChange={(selectedYear)=>this.setState({selectedYear})}
+                                value={selectedYear}
                                 filterOption={(input, option) =>
                                     option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                 }
                             >
+                                <Option value="all_year" key="all_year">Semua</Option>
                                 {years.length ? years.map(y => (<Option value={y} key={y}>{y}</Option>)) : <Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Option>}
                             </Select>
                         </InputForm>
@@ -115,7 +114,7 @@ export default class LihatBab_Bab extends React.Component {
                         <Table
                             size="small"
                             columns={kabColumns}
-                            dataSource={all_bab}
+                            dataSource={all_bab.filter(b=>(selectedYear === 'all_year'||selectedYear == b.tahun_buku))}
                             pagination={false}
                             rowKey="_id"
                         />

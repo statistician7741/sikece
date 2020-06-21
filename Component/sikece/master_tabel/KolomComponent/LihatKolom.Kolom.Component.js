@@ -1,32 +1,13 @@
-import { Row, Col, Table, Divider, Popconfirm, Button, Input, Space, Typography } from 'antd';
+import { Row, Col, Table, Divider, Popconfirm, Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { deleteVariablebyId } from "../../../../redux/actions/master.action"
 
 export default class LihatBab_Bab extends React.Component {
     state = {
-        koloms: [{
-            _id: 1,
-            name: 'Jumlah Penduduk',
-            subjek: 'Sosial Kependudukan',
-            ket: '-'
-        }, {
-            _id: 2,
-            name: 'Luas Wilayah',
-            subjek: 'Sosial Kependudukan',
-            ket: '-'
-        }, {
-            _id: 3,
-            name: 'Banyaknya Dusun',
-            subjek: 'Sosial Kependudukan',
-            ket: '-'
-        }, {
-            _id: 4,
-            name: 'Nilai PDRB',
-            subjek: 'Ekonomi dan Perdagangan',
-            ket: '-'
-        }],
         searchText: '',
-        searchedColumn: ''
+        searchedColumn: '',
+        selectedRowKeys: []
     }
     getColumnSearchProps = dataIndex => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -59,7 +40,7 @@ export default class LihatBab_Bab extends React.Component {
         ),
         filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
         onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+            record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()) : false,
         onFilterDropdownVisibleChange: visible => {
             if (visible) {
                 setTimeout(() => this.searchInput.select());
@@ -71,7 +52,7 @@ export default class LihatBab_Bab extends React.Component {
                     highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
                     searchWords={[this.state.searchText]}
                     autoEscape
-                    textToHighlight={text.toString()}
+                    textToHighlight={text ? text.toString() : text}
                 />
             ) : (
                     text
@@ -91,65 +72,100 @@ export default class LihatBab_Bab extends React.Component {
         this.setState({ searchText: '' });
     };
 
+    multipleDeleteById = (selectedRowKeys) => {
+        selectedRowKeys.forEach(_id => this.props.dispatch(deleteVariablebyId(this.props.socket, _id, this.props)))
+        this.props.setActiveRecord([], [])
+    }
+
     render() {
-        const { xs, md } = this.props
-        const { koloms } = this.state
+        const { all_variable } = this.props
+        const { onClickTambah, onClickEdit, setActiveRecord } = this.props
+        const { selectedRowKeys } = this.props
+
+        const rowSelection = {
+            onChange: (selectedRowKeys, selectedRows) => {
+                setActiveRecord([...selectedRows.map(v=>({...v}))], selectedRowKeys)
+            },
+            selectedRowKeys
+        }
 
         const columns = [{
-            title: 'Judul kolom',
+            title: 'No.',
+            dataIndex: '_id',
+            key: '_id',
+            width: 45,
+            render: (t, r, i) => (i + 1)
+        }, {
+            title: 'Variabel',
             dataIndex: 'name',
+            showSorterTooltip: false,
+            width: 150,
             sorter: (a, b) => {
                 return a.name.localeCompare(b.name)
             },
             ...this.getColumnSearchProps('name')
         }, {
-            title: 'Subjek',
-            dataIndex: 'subjek',
+            title: 'Kelompok',
+            dataIndex: 'kelompok',
+            showSorterTooltip: false,
             sorter: (a, b) => {
-                return a.subjek.localeCompare(b.subjek)
+                return a.kelompok.localeCompare(b.kelompok)
             },
-            width: 300,
-            ...this.getColumnSearchProps('subjek')
+            ...this.getColumnSearchProps('kelompok')
+        }, {
+            title: 'Subjek',
+            dataIndex: 'subject',
+            showSorterTooltip: false,
+            sorter: (a, b) => {
+                return a.subject.localeCompare(b.subject)
+            },
+            ...this.getColumnSearchProps('subject')
         }, {
             title: 'Keterangan',
             dataIndex: 'ket',
-            width: 300
+            ...this.getColumnSearchProps('ket')
         }, {
             title: 'pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
             width: 140,
             render: (text, record) => <span>
-                <a>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Variabel ${record.name}`, record)}>Edit</a>
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus Judul Kolom ini?`}>
-                    <a disabled={record.isSudahDibayar}>Hapus</a>
+                <Popconfirm title={`Hapus Variabel ini?`} onConfirm={() => this.props.dispatch(deleteVariablebyId(this.props.socket, record._id, this.props))}>
+                    <a>Hapus</a>
                 </Popconfirm>
             </span>
         }]
 
         return (
-            <Col xs={xs} md={md}>
+            <Col xs={24}>
                 <Row gutter={[64, 16]}>
-                    <Col xs={24} md={16}>
-                        <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Daftar Baris Kolom</strong></Col>
-                        </Row>
-                    </Col>
                     <Col xs={24} md={8}>
                         <Row><Col>
-                            <Button type="primary">
-                                <PlusOutlined /> Tambah
+                            <Space>
+                                <Button type="primary" onClick={() => onClickTambah()}>
+                                    <PlusOutlined /> Tambah
                             </Button>
+                                <Button type="primary" disabled={!selectedRowKeys.length} onClick={() => onClickEdit(`Edit Variabel`)}>
+                                    <EditOutlined /> Edit
+                            </Button>
+                                <Popconfirm title={`Hapus Variabel ini?`} onConfirm={() => this.multipleDeleteById(selectedRowKeys)}>
+                                    <Button type="primary" danger disabled={!selectedRowKeys.length}>
+                                        <DeleteOutlined /> Hapus
+                            </Button>
+                                </Popconfirm>
+                            </Space>
                         </Col></Row>
                     </Col>
                 </Row>
                 <Row gutter={[64, 0]}>
                     <Col xs={24}>
                         <Table
-                            scroll={{ x: 1000 }}
+                            size="small"
+                            rowSelection={rowSelection}
                             columns={columns}
-                            dataSource={koloms}
+                            dataSource={all_variable}
                             rowKey="_id"
                             pagination={{ defaultPageSize: 15, showSizeChanger: true, position: 'top', pageSizeOptions: ['15', '30', '50', '100', '200', '500'], showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total} baris` }}
                         />

@@ -28,10 +28,12 @@ export default class LihatTabel_Tabel extends React.Component {
             dataIndex: '_id',
             key: '_id',
             width: 90,
+            showSorterTooltip: false,
             sorter: (a, b) => a._id - b._id
         }, {
             title: 'Kabupaten',
             dataIndex: 'name',
+            showSorterTooltip: false,
             sorter: (a, b) => {
                 return a.name.localeCompare(b.name)
             }
@@ -53,7 +55,7 @@ export default class LihatTabel_Tabel extends React.Component {
         }]
 
         return (
-            <Col>
+            <Col xs={24}>
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={8}>
                         <Row><Col>

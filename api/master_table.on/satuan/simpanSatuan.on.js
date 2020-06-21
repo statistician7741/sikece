@@ -6,20 +6,24 @@ const basic_func = require('../../../functions/basic.func')
 const getSatuan = require('./getSatuan.on');
 
 module.exports = (input, cb, client) => {
-    const _id = input.name
+    const {_id} = input
     async.auto({
         isExist: cb_isExist => {
-            Satuan.findOne({ _id }, (err, result) => {
-                if (err) {
-                    cb_isExist(err_code.ERROR_ACCESS_DB, null)
-                } else {
-                    cb_isExist(null, result)
-                }
-            })
+            if (!_id) {
+                cb_isExist(null, null)
+            } else {
+                Satuan.findOne({ _id }, (err, result) => {
+                    if (err) {
+                        cb_isExist(err_code.ERROR_ACCESS_DB, null)
+                    } else {
+                        cb_isExist(null, result)
+                    }
+                })
+            }
         },
         createSatuan: ['isExist', (results, cb_createSatuan) => {
             if (!results.isExist) {
-                Satuan.create({_id, ...basic_func.getFormVar(satuan_fields, input)}, (err, result) => {
+                Satuan.create({ ...basic_func.getFormVar(satuan_fields, input, false, ['_id']) }, (err, result) => {
                     if (err) {
                         console.log(err);
                         cb_createSatuan(err_code.ERROR_ACCESS_DB, null)
@@ -50,7 +54,7 @@ module.exports = (input, cb, client) => {
         if (err) {
             cb({ 'type': 'error', 'data': err })
         } else {
-            getSatuan(cb,client, isExist ? updateSatuan : createSatuan)
+            getSatuan(cb, client, isExist ? updateSatuan : createSatuan)
         }
     })
 }

@@ -58,10 +58,11 @@ export default class EditorSatuan_Satuan extends React.Component {
     onClickSimpanSatuan = () => {
         if (this.props.isMultiple) {
             this.state.data.forEach(satuanData => {
-                satuanData.name && this.props.dispatch(simpanSatuan(this.props.socket, func.getFormVar(satuanFields, satuanData), this.props))
+                satuanData.name && this.props.dispatch(simpanSatuan(this.props.socket, func.getFormVar(satuanFields, satuanData), this.props, this.props.onBack))
             })
         } else {
-            this.props.dispatch(simpanSatuan(this.props.socket, func.getFormVar(satuanFields, this.state), this.props))
+            console.log(func.getFormVar(satuanFields, this.state));
+            this.props.dispatch(simpanSatuan(this.props.socket, func.getFormVar(satuanFields, this.state), this.props, this.props.onBack))
         }
     }
     isMultipleEditValid = () => {

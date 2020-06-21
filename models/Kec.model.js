@@ -13,7 +13,8 @@ var KecSchema = new Schema({
     },
     "kab": {
         type: String,
-        ref: 'Kab'
+        ref: 'Kab',
+        'required': true
     },
     "name": {
         'type': String,

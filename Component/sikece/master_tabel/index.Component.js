@@ -7,16 +7,20 @@ const { TabPane } = Tabs;
 const tabs = [{
     name: 'Tabel',
     Component: dynamic(() => import("./Tabel.Component"))
-}, {
-    name: 'Indikator',
-    Component: dynamic(() => import("./Indikator.Component"))
-}, {
-    name: 'Judul Kolom',
+}, 
+// {
+//     name: 'Indikator',
+//     Component: dynamic(() => import("./Indikator.Component"))
+// }
+, {
+    name: 'Variabel',
     Component: dynamic(() => import("./JudulKolom.Component"))
-}, {
-    name: 'Judul Baris',
-    Component: dynamic(() => import("./JudulBaris.Component"))
-}, {
+}, 
+// {
+//     name: 'Judul Baris',
+//     Component: dynamic(() => import("./JudulBaris.Component"))
+// }
+, {
     name: 'Satuan',
     Component: dynamic(() => import("./Satuan.Component"))
 }, {

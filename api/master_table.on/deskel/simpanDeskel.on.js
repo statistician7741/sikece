@@ -6,20 +6,24 @@ const basic_func = require('../../../functions/basic.func')
 const getDeskel = require('./getDeskel.on');
 
 module.exports = (input, cb, client) => {
-    const _id = `${input.kec}.${input.kode}`
+    const {_id} = input
     async.auto({
         isExist: cb_isExist => {
-            Deskel.findOne({ _id }, (err, result) => {
-                if (err) {
-                    cb_isExist(err_code.ERROR_ACCESS_DB, null)
-                } else {
-                    cb_isExist(null, result)
-                }
-            })
+            if(!_id){
+                cb_isExist(null, null)
+            } else{
+                Deskel.findOne({ _id }, (err, result) => {
+                    if (err) {
+                        cb_isExist(err_code.ERROR_ACCESS_DB, null)
+                    } else {
+                        cb_isExist(null, result)
+                    }
+                })
+            }
         },
         createDeskel: ['isExist', (results, cb_createDeskel) => {
             if (!results.isExist) {
-                Deskel.create({...basic_func.getFormVar(deskel_fields, input), _id}, (err, result) => {
+                Deskel.create({...basic_func.getFormVar(deskel_fields, input, false, ['_id']), _id: `${input.kec}.${input.kode}`}, (err, result) => {
                     if (err) {
                         console.log(err);
                         cb_createDeskel(err_code.ERROR_ACCESS_DB, null)

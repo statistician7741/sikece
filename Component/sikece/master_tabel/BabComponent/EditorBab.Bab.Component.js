@@ -55,10 +55,10 @@ export default class EditorBab_Bab extends React.Component {
     onClickSimpanBab = () => {
         if (this.props.isMultiple) {
             this.state.data.forEach(babData => {
-                babData.tahun_buku && this.props.dispatch(simpanBab(this.props.socket, func.getFormVar(babFields, babData), this.props))
+                babData.tahun_buku && this.props.dispatch(simpanBab(this.props.socket, func.getFormVar(babFields, babData), this.props, this.props.onBack))
             })
         } else {
-            this.props.dispatch(simpanBab(this.props.socket, func.getFormVar(babFields, this.state), this.props))
+            this.props.dispatch(simpanBab(this.props.socket, func.getFormVar(babFields, this.state), this.props, this.props.onBack))
         }
     }
     isMultipleEditValid = () => {
@@ -177,7 +177,7 @@ export default class EditorBab_Bab extends React.Component {
                         <Row>
                             <Col xs={24} md={24}>
                                 <Space>
-                                    <Button type="primary" disabled={!(!isMultiple && (/^\d{4}$/.test(tahun_buku) && name && nomor)) && !(isMultiple && this.isMultipleEditValid())} onClick={this.onClickSimpanBab}>Simpan</Button>
+                                    <Button type="primary" disabled={!(!isMultiple && (/^\d{4}$/.test(tahun_buku) && name && /^\d{1,2}$/.test(nomor))) && !(isMultiple && this.isMultipleEditValid())} onClick={this.onClickSimpanBab}>Simpan</Button>
                                 </Space>
                             </Col>
                         </Row>

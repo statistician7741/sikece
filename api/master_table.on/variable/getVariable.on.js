@@ -1,7 +1,7 @@
-const Bab = require('../../../models/Bab.model');
+const Variable = require('../../../models/Variable.model');
 
 module.exports = (cb, client, additionalMsg) => {
-    Bab.find({}).sort('_id').exec((err, result) => {
+    Variable.find({}).sort('_id').exec((err, result) => {
         if (err) {
             console.log(err);
             cb({ 'type': 'error', 'data': err })

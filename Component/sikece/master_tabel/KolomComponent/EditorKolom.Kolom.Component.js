@@ -1,163 +1,305 @@
-import { Row, Col, Input, AutoComplete, Space, Button, Table, Select } from 'antd';
+import { Row, Col, Input, Form, Space, Button, Select, Table, Radio } from 'antd';
 const { TextArea } = Input;
-const { Option } = Select;
-import InputForm from '../../general/InputForm.Component'
 import Hot from '../../general/Hot.Component'
-import { Fragment } from 'react';
+import func from '../../../../functions/basic.func'
+import variableFields from '../../../../fields/variable.fields'
+import _ from 'lodash'
+import { simpanVariable } from "../../../../redux/actions/master.action"
 
-export default class EditorBab_Bab extends React.Component {
+const formItemLayout = {
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 3 },
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 21 },
+    },
+};
+
+export default class EditorVariabel_Variabel extends React.Component {
     state = {
+        ...func.getFormVar(variableFields, null, true),
         nestedHeaders: [
-            ['Nama', 'Satuan', 'Jenis', 'Desimal', 'Agregat', 'Grafik', 'Parent', 'Keterangan', 'Pilihan']
+            ['Nama', 'Kelompok', 'Satuan', 'Jenis', 'Desimal', 'Agregat', 'Grafik'],
+            ['(1)', '(2)', '(3)', '(4)', '(5)', '(6)', '(7)', '(8)']
         ],
-        data: [
-            ["Laki-laki", "Jiwa", "Angka", 0, 'Jumlah', 'Bar', 'Penduduk', "-"],
-            ["Perempuan", "Jiwa", "Angka", 0, 'Jumlah', 'Bar', 'Penduduk', "-"],
-            ["Jumlah", "Jiwa", "Angka", 0, 'Jumlah', 'Bar', 'Penduduk', "-"],
-            ["Rasio Jenis Kelamin", "%", "Angka", 2, 'Rata-Rata', 'Pie', '-', "-"],
-        ],
-        subjek: [
-            { _id: 1, name: "Sosial Kependudukan" },
-            { _id: 1, name: "Ekonomi dan Perdagangan" },
-            { _id: 1, name: "Pertanian dan Pertambangan" },
-        ]
+        data: [],
+        view_as: 'Kolom'
     }
+    onChangeInput = (changedValues) => {
+        this.setState(changedValues)
+    }
+    onClickSimpanVariable = () => {
+        let newData = [...this.state.data]
+        newData.forEach(deskel => {
+            if (deskel.name) {
+                deskel['subject'] = this.state.subject
+                deskel['ket'] = this.state.ket
+            }
+        })
+        this.setState({
+            data: newData
+        }, () => {
+            this.state.data.forEach(variableData => {
+                (variableData.name && variableData.subject) && this.props.dispatch(simpanVariable(this.props.socket, func.getFormVar(variableFields, variableData), this.props, this.props.onBack))
+            })
+        })
+    }
+
+    isMultipleEditValid = () => {
+        if (this.state.data.length < 1) return false
+        if (this.state.data.length === 1) return this.state.data[0].name && this.state.subject
+        let isValid = true;
+        this.state.data.forEach((variable, i) => {
+            const { name, kelompok, satuan, jenis, desimal, jenis_agregat, jenis_grafik } = variable;
+            if (name || kelompok || satuan || jenis || desimal || jenis_agregat || jenis_grafik) {
+                if (!name || !this.state.subject) isValid = false
+            }
+        })
+        return isValid;
+    }
+
+    onChangeMultiple = (changes) => {
+        let newData = [...this.state.data]
+        for (let [row, column, oldValue, newValue] of changes) {
+            if (!newData[row]) newData[row] = {}
+            newData[row][column] = newValue;
+        }
+        this.setState({
+            data: newData
+        })
+    }
+
+    removeRowMultipleEdit = (rowsIndex) => {
+        let newData = [...this.state.data]
+        _.reverse(rowsIndex).forEach(row => {
+            newData = _.filter(newData, (variable, i) => (row !== i))
+        })
+        this.setState({
+            data: newData
+        })
+    }
+
+    get data() {
+        return this.state.data
+    }
+
+    componentDidMount = () => {
+        this.input && this.input.focus()
+        if (this.props.activeRecord.length) {
+            this.formRef.current && this.formRef.current.setFieldsValue({
+                subject: this.props.activeRecord[0].subject,
+                ket: this.props.activeRecord[0].ket,
+            });
+            let newData = [...this.props.activeRecord]
+            this.setState({ data: newData, subject: newData[0].subject, ket: newData[0].ket })
+        }
+    }
+
+    saveInputRef = input => this.input = input
+    formRef = React.createRef();
+
     render() {
-        const { xs, md } = this.props
-        const { nestedHeaders, data, subjek } = this.state
+        const { all_subject, all_satuan } = this.props
+        const { nestedHeaders, data, view_as } = this.state
         return (
-            <Col xs={xs} md={md}>
+            <Col xs={24}>
                 <Row gutter={[64, 0]}>
                     <Col xs={24} md={24}>
-                        <Row gutter={[0, 8]}>
-                            <Col xs={24}><strong>Edit Judul Kolom</strong></Col>
-                        </Row>
-                        <Fragment>
-                            <InputForm xs={19} name='Nama Judul Kolom' isWajib={true}>
-                                <AutoComplete
-                                    allowClear
-                                    dropdownMatchSelectWidth={false}
-                                    dropdownStyle={{ width: 500 }}
-                                    placeholder="Nama Judul Kolom"
-                                    style={{ width: "100%" }}
-                                >
-                                    <TextArea
-                                        style={{ height: 50 }}
-                                    />
-                                </AutoComplete>
-                            </InputForm>
-                            <InputForm xs={19} name='Subjek' isWajib={true}>
+                        <Form
+                            ref={this.formRef}
+                            {...formItemLayout}
+                            onValuesChange={(changedValues) => this.onChangeInput(changedValues)}
+                            initialValues={{
+                                _id: undefined, name: undefined, ket: undefined, view_as: 'Kolom'
+                            }}
+                        >
+                            <Form.Item
+                                label="Subjek"
+                                name="subject"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Mohon pilih subject',
+                                    },
+                                ]}
+                            >
                                 <Select
-                                    defaultValue={subjek[0].name}
+                                    ref={this.saveInputRef}
+                                    placeholder="Pilih subject"
                                     style={{ width: 300 }}
                                     showSearch
                                     allowClear
                                 >
-                                    {subjek.map(s => <Option value={s.name} key={s.name}>{s.name}</Option>)}
+                                    {all_subject.map(s => <Select.Option value={s.name} key={s._id}>{s.name}</Select.Option>)}
                                 </Select>
-                            </InputForm>
-                            <InputForm xs={19} name='Variabel' isWajib={true}>
+                            </Form.Item>
+                            <Form.Item
+                                label="Variable"
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                ]}
+                            >
                                 <Hot
+                                    dataSchema={{
+                                        _id: null,
+                                        name: null,
+                                        kelompok: null,
+                                        satuan: "Tidak ada",
+                                        jenis: "Tidak ada",
+                                        desimal: "Tidak ada",
+                                        jenis_agregat: "Tidak ada",
+                                        jenis_grafik: "Tidak ada",
+                                    }}
                                     nestedHeaders={nestedHeaders}
-                                    data={data}
+                                    rowHeaders
+                                    data={this.data}
                                     columns={[
-                                        {},
+                                        { data: 'name', width: 136 },
+                                        { data: 'kelompok', width: 86 },
                                         {
+                                            width: 86,
+                                            data: 'satuan',
                                             type: "dropdown",
-                                            source: ["Jiwa", "%", "Km"]
+                                            source: ["Tidak ada", ...all_satuan.map(s => (s.name))]
                                         },
                                         {
+                                            width: 86,
+                                            data: 'jenis',
                                             type: "dropdown",
-                                            source: ["Angka", "Teks"]
+                                            source: ["Tidak ada", "Angka", "Teks"]
                                         },
                                         {
+                                            width: 86,
+                                            data: 'desimal',
                                             type: "dropdown",
-                                            source: ["0", "1", "3", "4"]
+                                            source: ["Tidak ada", "0", "1", "2", "3", "4"]
                                         },
                                         {
+                                            width: 86,
+                                            data: 'jenis_agregat',
                                             type: "dropdown",
-                                            source: ["Jumlah", "Rata-rata"]
+                                            source: ["Tidak ada", "Jumlah", "Rata-rata"]
                                         },
                                         {
+                                            width: 86,
+                                            data: 'jenis_grafik',
                                             type: "dropdown",
-                                            source: ["Bar", "Pie", "Line"]
+                                            source: ["Tidak ada", "Bar", "Pie", "Line"]
                                         },
-                                        {},
-                                        {},
                                     ]}
+                                    beforeChange={this.onChangeMultiple}
+                                    beforeRemoveRow={(i, a, rowsIndex, s) => this.removeRowMultipleEdit(rowsIndex)}
                                 />
-                            </InputForm>
-                            <InputForm xs={19} name='Keterangan' isWajib={false}>
-                                <AutoComplete
+                            </Form.Item>
+                            <Form.Item
+                                label="Keterangan"
+                                name="ket"
+                            >
+                                <TextArea
+                                    style={{ height: 50 }}
                                     allowClear
-                                    dropdownMatchSelectWidth={false}
-                                    dropdownStyle={{ width: 500 }}
                                     placeholder="Keterangan"
                                     style={{ width: "100%" }}
-                                >
-                                    <TextArea
-                                        style={{ height: 50 }}
-                                    />
-                                </AutoComplete>
-                            </InputForm>
-                            <Row gutter={[0, 8]}>
-                                <Col xs={24}><strong>Preview</strong></Col>
-                            </Row>
-                            <InputForm xs={19} name='' isWajib={false}>
-                                <Table
-                                    size="small"
-                                    bordered
-                                    columns={(() => {
-                                        const parents = {}
-                                        const cols = []
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label="Preview"
+                                name="view_as"
+                            >
+                                <Radio.Group>
+                                    <Radio.Button value="Kolom">Kolom</Radio.Button>
+                                    <Radio.Button value="Baris">Baris</Radio.Button>
+                                </Radio.Group>
+                            </Form.Item>
+                            <Table
+                                style={{ marginBottom: 16 }}
+                                size="small"
+                                bordered
+                                columns={(() => {
+                                    if (data[0]) {
+                                        if (!data[0].name) return [{
+                                            title: 'Variable',
+                                            dataIndex: "data"
+                                        }]
+                                    } else {
+                                        return [{
+                                            title: 'Variable',
+                                            dataIndex: "data"
+                                        }]
+                                    }
+                                    if (view_as === 'Baris') {
+                                        let nama_kelompok_baris = 'Kelompok Baris'
                                         data.forEach((v, i) => {
-                                            if (v[0]) {
-                                                if (v[6] !== "-" && v[6] !== "") {
-                                                    if (!parents[v[6]]) {
-                                                        parents[v[6]] = {};
-                                                        parents[v[6]].indexAnggota = [];
-                                                    }
-                                                    parents[v[6]].indexAnggota.push(i)
-                                                } else {
-                                                    if (!parents[`no_parents_${i}`]) {
-                                                        parents[`no_parents_${i}`] = {};
-                                                        parents[`no_parents_${i}`].indexAnggota = [];
-                                                    }
-                                                    parents[`no_parents_${i}`].indexAnggota.push(i)
-                                                }
-                                            }
+                                            if (v.kelompok) nama_kelompok_baris = v.kelompok
                                         })
-                                        for (var parent in parents) {
-                                            if (parents.hasOwnProperty(parent)) {
-                                                if (parent.includes('no_parents')) {
-                                                    cols.push({
-                                                        title: data[parents[parent].indexAnggota[0]][0],
-                                                        dataIndex: "data"
-                                                    })
-                                                } else {
-                                                    const calon_col = {}
-                                                    calon_col.title = parent
-                                                    calon_col.children = parents[parent].indexAnggota.map(indexVar => ({
-                                                        title: data[indexVar][0],
-                                                        dataIndex: "data"
-                                                    }));
-                                                    cols.push(calon_col)
+                                        return [{
+                                            title: nama_kelompok_baris,
+                                            dataIndex: "baris"
+                                        }, {
+                                            title: 'Contoh Kolom',
+                                            children: [{
+                                                title: 'Kolom 1',
+                                                dataIndex: "data"
+                                            }, {
+                                                title: 'Kolom 2',
+                                                dataIndex: "data"
+                                            }]
+                                        }]
+                                    }
+                                    const parents = {}
+                                    const cols = []
+                                    data.forEach((v, i) => {
+                                        //apakah nama ada
+                                        if (v.name) {
+                                            //apakah ada kelompok
+                                            if (v.kelompok !== "-" && v.kelompok !== "" && v.kelompok) {
+                                                if (!parents[v.kelompok]) {
+                                                    parents[v.kelompok] = {};
+                                                    parents[v.kelompok].indexAnggota = [];
                                                 }
+                                                parents[v.kelompok].indexAnggota.push(i)
+                                            } else {
+                                                if (!parents[`no_parents_${i}`]) {
+                                                    parents[`no_parents_${i}`] = {};
+                                                    parents[`no_parents_${i}`].indexAnggota = [];
+                                                }
+                                                parents[`no_parents_${i}`].indexAnggota.push(i)
                                             }
                                         }
-                                        return cols
-                                    })()}
-                                    dataSource={data.map((d, i) => ({ _id: i, data: 'data' }))}
-                                    pagination={false}
-                                    rowKey="_id"
-                                />
-                            </InputForm>
-                        </Fragment>
+                                    })
+                                    for (var parent in parents) {
+                                        if (parents.hasOwnProperty(parent)) {
+                                            if (parent.includes('no_parents')) {
+                                                cols.push({
+                                                    title: data[parents[parent].indexAnggota[0]].name,
+                                                    dataIndex: "data"
+                                                })
+                                            } else {
+                                                const calon_col = {}
+                                                calon_col.title = parent
+                                                calon_col.children = parents[parent].indexAnggota.map(indexVar => ({
+                                                    title: data[indexVar].name,
+                                                    dataIndex: "data"
+                                                }));
+                                                cols.push(calon_col)
+                                            }
+                                        }
+                                    }
+                                    return cols
+                                })()}
+                                dataSource={data.filter(d => (d.name)).map((d, i) => ({ _id: i, baris: d.name, data: 'data' }))}
+                                pagination={false}
+                                rowKey="_id"
+                            />
+                        </Form>
                         <Row>
                             <Col xs={24} md={24}>
                                 <Space>
-                                    <Button type="primary">Simpan</Button>
-                                    <Button>Batal</Button>
+                                    <Button type="primary" disabled={!this.isMultipleEditValid()} onClick={this.onClickSimpanVariable}>Simpan</Button>
                                 </Space>
                             </Col>
                         </Row>

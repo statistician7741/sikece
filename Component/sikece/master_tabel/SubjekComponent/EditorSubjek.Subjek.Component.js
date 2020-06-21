@@ -58,10 +58,10 @@ export default class EditorSubjek_Subjek extends React.Component {
     onClickSimpanSubject = () => {
         if (this.props.isMultiple) {
             this.state.data.forEach(subjectData => {
-                subjectData.name && this.props.dispatch(simpanSubject(this.props.socket, func.getFormVar(subjectFields, subjectData), this.props))
+                subjectData.name && this.props.dispatch(simpanSubject(this.props.socket, func.getFormVar(subjectFields, subjectData), this.props, this.props.onBack))
             })
         } else {
-            this.props.dispatch(simpanSubject(this.props.socket, func.getFormVar(subjectFields, this.state), this.props))
+            this.props.dispatch(simpanSubject(this.props.socket, func.getFormVar(subjectFields, this.state), this.props, this.props.onBack))
         }
     }
     isMultipleEditValid = () => {

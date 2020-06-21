@@ -22,7 +22,6 @@ export default class Bab extends React.Component {
 
     render() {
         const { isMultiple, activePage, activeEditingtitle, activeRecord } = this.state
-        const { all_bab } = this.props
         return (
             <PageHeader
                 className="site-page-header"
@@ -32,7 +31,7 @@ export default class Bab extends React.Component {
             >
                 {activePage === 'list' ?
                     <Row>
-                        <LihatBab {...this.props} onClickTambah={this.onClickTambah} onClickEdit={this.onClickEdit} all_bab={all_bab} />
+                        <LihatBab {...this.props} onClickTambah={this.onClickTambah} onClickEdit={this.onClickEdit} />
                     </Row> :
                     <Row>
                         <EditorBab {...this.props} isMultiple={isMultiple} onClickTambah={this.onClickTambah} activeRecord={activeRecord} onBack={this.onBack} />
