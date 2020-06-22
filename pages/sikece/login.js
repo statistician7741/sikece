@@ -1,10 +1,9 @@
 import { connect } from 'react-redux';
-import { Alert, Button, Form, Input, Select, Layout } from 'antd';
+import { Alert, Button, Form, Input, Layout } from 'antd';
 const FormItem = Form.Item;
-const Option = Select.Option;
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
-
-import Link from "next/link";
+import axios from 'axios'
+import Router from 'next/router'
 
 import { kab } from '../../config/env.config'
 
@@ -14,48 +13,34 @@ class Login extends React.Component {
     state = {
         errMsg: undefined,
         loading: false,
-        tahun_anggaran: [new Date().getFullYear()]
+        username: undefined,
+        password: undefined
     }
 
     componentDidMount = () => {
         this.input.focus()
-        setTimeout(() => {
-            const { socket } = this.props;
-            if (socket) {
-                socket.emit('api.socket.pok/s/getTahunAnggaran', (response) => {
-                    console.log(response);
-                    if (response.type === 200) this.setState({ tahun_anggaran: response.data });
-                })
-            }
-        }, 100)
     }
+    onChangeInput = (changedValues) => this.setState(changedValues)
 
     saveInputRef = input => this.input = input
 
-    handleSubmit = e => {
-        e.preventDefault();
-        this.props.form.validateFields((err, values) => {
-            if (err) return
-            values.username = values.username.toLowerCase()
-            // this.setState({ loading: true, errMsg: undefined }, () => {
-            //     axios.post('/api/login', values)
-            //         .then((response) => {
-            //             if (response.data === 200) {
-            //                 window.open('/', "_top")
-            //                 return
-            //             } else if (response.data === 422) {
-            //                 this.setState({ errMsg: 'Username atau password salah.' })
-            //             } else {
-            //                 this.setState({ errMsg: response.data })
-            //             }
-            //             this.setState({ loading: false });
-            //         })
-            //         .catch((error) => {
-            //             console.log(error);
-            //             this.setState({ loading: false });
-            //         });
-            // })
-        });
+    handleSubmit = values => {
+        this.setState({ loading: true, errMsg: undefined }, () => {
+            axios.post('/sikece/login', values)
+                .then((response) => {
+                    if (response.data === 'ok') {
+                        window.open('/sikece', "_top")
+                    } else if (response.data === 'error') {
+                        this.setState({ loading: false, errMsg: 'Username atau password salah.' })
+                    } else {
+                        this.setState({ loading: false, errMsg: response.data })
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    this.setState({ loading: false });
+                });
+        })
     };
 
     render() {
@@ -83,46 +68,45 @@ class Login extends React.Component {
                                     style={{ marginBottom: '21px' }}
                                 />
                             ) : null}
-                            <Form onSubmit={this.handleSubmit} className="login-form">
-                                <FormItem>
-                                    {/* {getFieldDecorator("username", {
-                                        rules: [
-                                            { required: true, message: "Mohon input username Anda." }
-                                        ]
-                                    })( */}
-                                    <Form.Item name="username" noStyle>
-                                        <Input
-                                            prefix={
-                                                <UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />
-                                            }
-                                            ref={this.saveInputRef}
-                                            type="string"
-                                            placeholder="username"
-                                            size='large'
-                                            autoComplete="off"
-                                            disabled={loading}
-                                        />
-                                    </Form.Item>
-                                    {/* )} */}
+                            <Form onFinish={this.handleSubmit} className="login-form" onValuesChange={this.onChangeInput} >
+                                <FormItem
+                                    name="username"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Mohon input username Anda',
+                                        },
+                                    ]}
+                                >
+                                    <Input
+                                        prefix={
+                                            <UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />
+                                        }
+                                        ref={this.saveInputRef}
+                                        placeholder="username"
+                                        size='large'
+                                        autoComplete="off"
+                                        disabled={loading}
+                                    />
                                 </FormItem>
-                                <FormItem>
-                                    {/* {getFieldDecorator("password", {
-                                        rules: [
-                                            { required: true, message: "Mohon input password Anda." }
-                                        ]
-                                    })( */}
-                                    <Form.Item name="password" noStyle>
-                                        <Input.Password
-                                            prefix={
-                                                <LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />
-                                            }
-                                            placeholder="password"
-                                            size='large'
-                                            autoComplete="off"
-                                            disabled={loading}
-                                        />
-                                    </Form.Item>
-                                    {/* )} */}
+                                <FormItem
+                                    name="password"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Mohon input password Anda',
+                                        },
+                                    ]}
+                                >
+                                    <Input.Password
+                                        prefix={
+                                            <LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />
+                                        }
+                                        placeholder="password"
+                                        size='large'
+                                        autoComplete="off"
+                                        disabled={loading}
+                                    />
                                 </FormItem>
                                 <FormItem>
                                     <Button
@@ -132,7 +116,6 @@ class Login extends React.Component {
                                         size='large'
                                         className={'login_submit'}
                                         loading={this.state.loading}
-                                        onClick={this.enterLoading}
                                     >
                                         Masuk
                                     </Button>
@@ -143,14 +126,11 @@ class Login extends React.Component {
                 </div>
                 <Layout.Footer style={{ textAlign: "center", background: "#fff" }}>
                     <div>BPS {kab} ©{new Date().getFullYear()}</div>
-                    {/* <div>{alamat}</div> */}
                 </Layout.Footer>
             </Layout>
         )
     }
 }
-
-// const WrappedNormalLoginForm = Form.create()(Login);
 
 function mapStateToProps(state) {
     const { socket } = state.socket

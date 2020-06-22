@@ -4,5 +4,7 @@ module.exports = [
     ['password'],
     ['name'],
     ['jenis_pengguna'],
+    ['kec',[]],
+    ['table',[]],
     ['ket'],
 ]

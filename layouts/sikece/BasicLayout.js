@@ -14,7 +14,7 @@ const LinkTo = ({ url, name }) => (
 const userMenu = (
   <Menu selectedKeys={[]}>
     <Menu.Item key="userCenter">
-      <Link href='login'>
+      <Link href='logout'>
         <a><div><LogoutOutlined /> Logout</div></a>
       </Link>
     </Menu.Item>

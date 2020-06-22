@@ -28,7 +28,7 @@ module.exports = (input, cb, client) => {
                         console.log(err);
                         cb_createUser(err_code.ERROR_ACCESS_DB, null)
                     } else {
-                        cb_createUser(null, `Userupaten ${result.name} berhasil disimpan.`)
+                        cb_createUser(null, `${result.name} berhasil disimpan.`)
                     }
                 })
             } else {
@@ -43,7 +43,7 @@ module.exports = (input, cb, client) => {
                     if (err) {
                         cb_updateUser(err_code.ERROR_ACCESS_DB, null)
                     } else {
-                        cb_updateUser(null, `Userupaten ${input.name} berhasil diupdate.`)
+                        cb_updateUser(null, `${input.name} berhasil diupdate.`)
                     }
                 })
             } else {

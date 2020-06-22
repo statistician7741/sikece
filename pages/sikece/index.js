@@ -5,7 +5,7 @@ export default class extends React.Component {
   static async getInitialProps({ req, res }) {
     if (res) {
       res.writeHead(302, {
-        Location: `http://${req.hostname}/sikece/master_tabel`
+        Location: `http://${req.hostname}/sikece/monitoring`
       })
       res.end()
     } else {

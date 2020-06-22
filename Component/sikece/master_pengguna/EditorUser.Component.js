@@ -1,20 +1,101 @@
-import { Row, Col, Input, Space, Button, Form, AutoComplete } from 'antd';
+import { Row, Col, Input, Space, Button, Form, AutoComplete, Radio, Transfer, Table } from 'antd';
 const { TextArea } = Input;
-import Hot from '../general/Hot.Component'
+import difference from 'lodash/difference';
 import func from '../../../functions/basic.func'
 import userFields from '../../../fields/user.fields'
 import { simpanUser } from "../../../redux/actions/user.action"
+import { Fragment } from 'react';
+
+const lc = (text) => (text ? text.toLowerCase() : text)
+
+const leftTableColumnsTable = [
+    {
+        dataIndex: 'judul',
+        title: 'Judul',
+        ellipsis: {
+            showTitle: true,
+        },
+        render: (text, row)=>(`${row.nomor_tabel} ${text}`)
+    }
+];
+const rightTableColumnsTable = (type) => ([
+    {
+        dataIndex: 'judul',
+        title: 'Judul',
+        ellipsis: {
+            showTitle: true,
+        },
+        render: (text, row)=>(`${row.nomor_tabel} ${text}`)
+    }
+]);
+
+const TableTransfer = ({ leftColumns, rightColumns, ...restProps }) => (
+    <Transfer {...restProps} showSelectAll={false}>
+        {({
+            direction,
+            filteredItems,
+            onItemSelectAll,
+            onItemSelect,
+            selectedKeys: listSelectedKeys,
+            disabled: listDisabled,
+        }) => {
+            const columns = direction === 'left' ? leftColumns : rightColumns;
+
+            const rowSelection = {
+                getCheckboxProps: item => ({ disabled: listDisabled || item.disabled }),
+                onSelectAll(selected, selectedRows) {
+                    const treeSelectedKeys = selectedRows
+                        .filter(item => !item.disabled)
+                        .map(({ key }) => key);
+                    const diffKeys = selected
+                        ? difference(treeSelectedKeys, listSelectedKeys)
+                        : difference(listSelectedKeys, treeSelectedKeys);
+                    onItemSelectAll(diffKeys, selected);
+                },
+                onSelect({ key }, selected) {
+                    onItemSelect(key, selected);
+                },
+                selectedRowKeys: listSelectedKeys,
+            };
+
+            return (
+                <Table
+                    rowSelection={rowSelection}
+                    columns={columns}
+                    dataSource={filteredItems}
+                    size="small"
+                    style={{ pointerEvents: listDisabled ? 'none' : null }}
+                    onRow={({ key, disabled: itemDisabled }) => ({
+                        onClick: () => {
+                            if (itemDisabled || listDisabled) return;
+                            onItemSelect(key, !listSelectedKeys.includes(key));
+                        },
+                    })}
+                    pagination={columns.length === 1 ? {} : { defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '15', '20', '25', '30','50','100'] }}
+                />
+            );
+        }}
+    </Transfer>
+);
 
 const formItemLayout = {
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 4 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 12 },
+        sm: { span: 20 },
     },
 };
+const jenisPenggunaOpt = [
+    { label: 'Penyedia Data', value: 'peny_data' },
+    { label: 'Kepala BPS', value: 'ka_bps' },
+    { label: 'Editor', value: 'editor' },
+    { label: 'Operator Entri', value: 'pengentri' },
+    { label: 'Supervisor', value: 'supervisor' },
+    { label: 'Admin', value: 'admin' },
+];
 
 export default class EditorUser_User extends React.Component {
     state = {
@@ -24,8 +105,17 @@ export default class EditorUser_User extends React.Component {
             ['Tahun Buku', 'Nomor', 'Nama User', 'Keterangan'],
             ['(1)', '(2)', '(3)', '(4)']
         ],
-        autoCompleteDataSource: []
+        autoCompleteDataSource: [],
+        isUsernameDuplicate: false,
+        prevUsername: undefined,
+        selectedKecKeys: [],
+        targetKecKeys: [],
+        selectedTableKeys: [],
+        targetTableKeys: []
+
     }
+    filterOption = (inputValue, { name, kab }) => (name ? lc(name).indexOf(inputValue) > -1 : false) || (this.props.all_kab_obj[kab].name ? lc(this.props.all_kab_obj[kab].name).indexOf(lc(inputValue)) > -1 : false);
+    filterOptionTable = (inputValue, { nomor_tabel, judul }) => (judul ? lc(`${nomor_tabel} ${judul}`).indexOf(inputValue) > -1 : false);
     safeQuery = (q) => {
         if (typeof q === 'string') return q.replace(/[-[\]{}()*+?.,\\/^$|#\s]/g, "\\$&")
         else return q
@@ -37,10 +127,25 @@ export default class EditorUser_User extends React.Component {
             this.setState({ autoCompleteDataSource: query ? data : [] });
         })
     }
+    isDuplicate = (query, field, Model) => {
+        const { socket } = this.props;
+        let q = { query: this.safeQuery(query), field, Model }
+        socket.emit('api.general.autocomplete/isDuplicate', q, (response) => {
+            if (response.type === 'ok') {
+                this.setState({ isUsernameDuplicate: response.data })
+            }
+        })
+    }
+    isReallyUsernameDuplicate = (isUsernameDuplicate, username, prevUsername) => {
+        return isUsernameDuplicate && username !== "" && prevUsername !== username
+    }
     get data() {
         return this.state.data
     }
     onChangeInput = (changedValues) => {
+        if (changedValues.username) {
+            this.isDuplicate(changedValues.username, 'username', 'User')
+        }
         this.setState(changedValues)
     }
     onChangeMultiple = (changes) => {
@@ -53,6 +158,26 @@ export default class EditorUser_User extends React.Component {
             data: newData
         })
     }
+    handleKecChange = (targetKeys, direction, moveKeys) => {
+        if (direction === 'right') {
+            let kec = [...this.state.kec.concat(moveKeys)]
+            this.setState({ targetKecKeys: kec, kec })
+        } else {
+            let kec = this.state.kec.filter(i => !moveKeys.includes(i))
+            this.setState({ targetKecKeys: kec, kec })
+        }
+    }
+    handleSelectKecChange = (sourceSelectedKeys, targetSelectedKeys) => this.setState({ selectedKecKeys: [...sourceSelectedKeys, ...targetSelectedKeys] })
+    handleTableChange = (targetKeys, direction, moveKeys) => {
+        if (direction === 'right') {
+            let table = [...this.state.table.concat(moveKeys)]
+            this.setState({ targetTableKeys: table, table })
+        } else {
+            let table = this.state.table.filter(i => !moveKeys.includes(i))
+            this.setState({ targetTableKeys: table, table })
+        }
+    }
+    handleSelectTableChange = (sourceSelectedKeys, targetSelectedKeys) => this.setState({ selectedTableKeys: [...sourceSelectedKeys, ...targetSelectedKeys] })
 
     removeRowMultipleEdit = (rowsIndex) => {
         let newData = [...this.state.data]
@@ -65,13 +190,7 @@ export default class EditorUser_User extends React.Component {
     }
 
     onClickSimpanUser = () => {
-        if (this.props.isMultiple) {
-            this.state.data.forEach(UserData => {
-                UserData.tahun_buku && this.props.dispatch(simpanUser(this.props.socket, func.getFormVar(userFields, UserData), this.props, this.props.onBack))
-            })
-        } else {
-            this.props.dispatch(simpanUser(this.props.socket, func.getFormVar(userFields, this.state), this.props, this.props.onBack))
-        }
+        this.props.dispatch(simpanUser(this.props.socket, func.getFormVar(userFields, this.state), this.props, this.props.onBack))
     }
     isMultipleEditValid = () => {
         if (this.state.data.length < 1) return false
@@ -87,37 +206,76 @@ export default class EditorUser_User extends React.Component {
     }
     componentDidMount = () => {
         this.input && this.input.focus()
-        this.onChangeInput(this.props.activeRecord ? func.getFormVar(userFields, this.props.activeRecord) : func.getFormVar(userFields, undefined, true))
-        this.formRef.current && this.formRef.current.setFieldsValue(this.props.activeRecord ? func.getFormVar(userFields, this.props.activeRecord) : func.getFormVar(userFields, undefined, true));
+        if (this.props.activeRecord) {
+            this.onChangeInput({ ...func.getFormVar(userFields, this.props.activeRecord), prevUsername: this.props.activeRecord.username })
+            this.formRef.current && this.formRef.current.setFieldsValue(func.getFormVar(userFields, this.props.activeRecord));
+            this.setState({ targetKecKeys: this.props.activeRecord.kec, targetTableKeys: this.props.activeRecord.table })
+        } else {
+            this.onChangeInput(func.getFormVar(userFields, undefined, true))
+            this.formRef.current && this.formRef.current.setFieldsValue(func.getFormVar(userFields, undefined, true));
+        }
     }
     formRef = React.createRef();
     saveInputRef = input => this.input = input
 
     render() {
-        const { isMultiple } = this.props
-        const { nestedHeaders, name, tahun_buku, nomor, autoCompleteDataSource } = this.state
+        const {
+            username,
+            password,
+            name,
+            jenis_pengguna,
+            autoCompleteDataSource,
+            isUsernameDuplicate,
+            prevUsername,
+            targetKecKeys,
+            selectedKecKeys,
+            targetTableKeys,
+            selectedTableKeys,
+            kec,
+            table
+        } = this.state
+        const { all_kec, all_kab_obj, all_table } = this.props
+        console.log(this.state);
+
+        const leftTableColumns = [
+            {
+                dataIndex: 'name',
+                title: 'Kecamatan',
+                ellipsis: {
+                    showTitle: true,
+                }
+            },
+            {
+                dataIndex: 'kab',
+                title: 'Kab',
+                ellipsis: {
+                    showTitle: true,
+                },
+                render: (text) => all_kab_obj[text].name
+            }
+        ];
+        const rightTableColumns = (type) => ([
+            {
+                dataIndex: 'name',
+                title: 'Kecamatan',
+                ellipsis: {
+                    showTitle: true,
+                }
+            },
+            {
+                dataIndex: 'kab',
+                title: 'Kab',
+                ellipsis: {
+                    showTitle: true,
+                },
+                render: (text) => all_kab_obj[text].name
+            }
+        ]);
         return (
             <Col xs={24}>
                 <Row gutter={[64, 0]}>
                     <Col xs={24} md={24}>
-                        {isMultiple ? <Row gutter={[0, 16]}>
-                            <Col xs={24} md={24}>
-                                <Hot
-                                    dataSchema={{ tahun_buku: null, nomor: null, name: null, ket: null }}
-                                    nestedHeaders={nestedHeaders}
-                                    rowHeaders
-                                    data={this.data}
-                                    columns={[
-                                        { data: 'tahun_buku', width: 60 },
-                                        { data: 'nomor', width: 60 },
-                                        { data: 'name', width: 180 },
-                                        { data: 'ket' },
-                                    ]}
-                                    beforeChange={this.onChangeMultiple}
-                                    beforeRemoveRow={(i, a, rowsIndex, s) => this.removeRowMultipleEdit(rowsIndex)}
-                                />
-                            </Col>
-                        </Row> : <Form
+                        <Form
                             ref={this.formRef}
                             {...formItemLayout}
                             onValuesChange={(changedValues) => this.onChangeInput(changedValues)}
@@ -125,76 +283,153 @@ export default class EditorUser_User extends React.Component {
                                 _id: undefined, name: undefined, ket: undefined
                             }}
                         >
-                                <Form.Item
-                                    label="Tahun Buku"
-                                    name="tahun_buku"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Mohon input 4 digit tahun buku',
-                                        },
-                                    ]}
+                            <Form.Item
+                                label="Username"
+                                name="username"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Mohon input username',
+                                    },
+                                ]}
+                                validateStatus={this.isReallyUsernameDuplicate(isUsernameDuplicate, username, prevUsername) ? "error" : undefined}
+                                help={this.isReallyUsernameDuplicate(isUsernameDuplicate, username, prevUsername) ? "Username sudah terpakai" : undefined}
+                            >
+                                <Input
+                                    placeholder="Username"
+                                    autoComplete="off"
+                                    style={{ width: "25%" }}
+                                    ref={this.saveInputRef}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label="Password"
+                                name="password"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Mohon input password',
+                                    },
+                                ]}
 
+                            >
+                                <Input.Password
+                                    placeholder="Password"
+                                    autoComplete="off"
+                                    style={{ width: "25%" }}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label="Nama"
+                                name="name"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Mohon input nama pengguna',
+                                    },
+                                ]}
+
+                            >
+                                <AutoComplete
+                                    allowClear
+                                    options={autoCompleteDataSource}
+                                    onSearch={q => this.handleAutoCSearch(q, 'name', 'User')}
+                                    style={{ width: "40%" }}
                                 >
                                     <Input
-                                        placeholder="Tahun buku"
-                                        style={{ width: "35%" }}
-                                        ref={this.saveInputRef}
+                                        placeholder="Nama pengguna"
                                     />
-                                </Form.Item>
-                                <Form.Item
-                                    label="Nomor"
-                                    name="nomor"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Mohon input nomor User',
-                                        },
-                                    ]}
-
-                                >
-                                    <Input
-                                        placeholder="Nomor User"
-                                        style={{ width: "35%" }}
-                                    />
-                                </Form.Item>
-                                <Form.Item
-                                    label="Nama"
-                                    name="name"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Mohon input nama User',
-                                        },
-                                    ]}
-
-                                >
-                                    <Input
-                                        placeholder="Nama User"
-                                        style={{ width: "35%" }}
-                                    />
-                                </Form.Item>
-                                <Form.Item
-                                    label="Keterangan"
-                                    name="ket"
-                                >
-                                    <AutoComplete
-                                        allowClear
-                                        options={autoCompleteDataSource}
-                                        onSearch={q => this.handleAutoCSearch(q, 'ket', 'User')}
-                                        style={{ width: "100%" }}
+                                </AutoComplete>
+                            </Form.Item>
+                            <Form.Item
+                                label="Jenis pengguna"
+                                name="jenis_pengguna"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Mohon pilih jenis pengguna',
+                                    },
+                                ]}
+                            >
+                                <Radio.Group options={jenisPenggunaOpt} />
+                            </Form.Item>
+                            {jenis_pengguna === 'peny_data' || jenis_pengguna === 'pengentri' ?
+                                <Fragment>
+                                    <Form.Item
+                                        label="Kec"
+                                        name="kec"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: 'Mohon pindahkan 1 atau beberapa Kecamatan',
+                                            },
+                                        ]}
                                     >
-                                        <TextArea
-                                            placeholder="Keterangan"
-                                            style={{ height: 50 }}
+                                        <TableTransfer
+                                            showSearch
+                                            dataSource={all_kec}
+                                            titles={['Semua Kecamatan', 'Kecamatan terpilih']}
+                                            targetKeys={targetKecKeys}
+                                            selectedKeys={selectedKecKeys}
+                                            filterOption={this.filterOption}
+                                            onChange={this.handleKecChange}
+                                            onSelectChange={this.handleSelectKecChange}
+                                            render={item => item.name}
+                                            rowKey={item => item._id}
+                                            leftColumns={leftTableColumns}
+                                            rightColumns={rightTableColumns('Kec')}
+                                            oneWay
+                                            pagination
                                         />
-                                    </AutoComplete>
-                                </Form.Item>
-                            </Form>}
+                                    </Form.Item><Form.Item
+                                        label="Tabel"
+                                        name="table"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: 'Mohon pindahkan 1 atau beberapa Tabel',
+                                            },
+                                        ]}
+                                    >
+                                        <TableTransfer
+                                            showSearch
+                                            dataSource={all_table}
+                                            titles={['Semua Tabel', 'Tabel terpilih']}
+                                            targetKeys={targetTableKeys}
+                                            selectedKeys={selectedTableKeys}
+                                            filterOption={this.filterOptionTable}
+                                            onChange={this.handleTableChange}
+                                            onSelectChange={this.handleSelectTableChange}
+                                            render={item => item.name}
+                                            rowKey={item => item._id}
+                                            leftColumns={leftTableColumnsTable}
+                                            rightColumns={rightTableColumnsTable('Table')}
+                                            oneWay
+                                            pagination
+                                        />
+                                    </Form.Item>
+                                </Fragment> : null}
+                            <Form.Item
+                                label="Keterangan"
+                                name="ket"
+                            >
+                                <AutoComplete
+                                    allowClear
+                                    options={autoCompleteDataSource}
+                                    onSearch={q => this.handleAutoCSearch(q, 'ket', 'User')}
+                                    style={{ width: "50%" }}
+                                >
+                                    <TextArea
+                                        placeholder="Keterangan"
+                                        style={{ height: 50 }}
+                                    />
+                                </AutoComplete>
+                            </Form.Item>
+                        </Form>
                         <Row>
                             <Col xs={24} md={24}>
                                 <Space>
-                                    <Button type="primary" disabled={!(!isMultiple && (/^\d{4}$/.test(tahun_buku) && name && /^\d{1,2}$/.test(nomor))) && !(isMultiple && this.isMultipleEditValid())} onClick={this.onClickSimpanUser}>Simpan</Button>
+                                    <Button type="primary" disabled={(isUsernameDuplicate && username!==prevUsername) || !(username && password && name && jenis_pengguna && ((jenis_pengguna !=='peny_data' && jenis_pengguna !=='pengentri') || (kec.length && table.length)) )} onClick={this.onClickSimpanUser}>Simpan</Button>
                                 </Space>
                             </Col>
                         </Row>

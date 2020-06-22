@@ -19,6 +19,16 @@ var UserSchema = new Schema({
         'type': String,
         'required': true
     },
+    "kec": {
+        'type': [String],
+        'ref': 'Kec',
+        'default': []
+    },
+    "table": {
+        'type': [String],
+        'ref': 'Table',
+        'default': []
+    },
     "ket": String,
 }, { collection: 'user' });
 

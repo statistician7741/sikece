@@ -6,19 +6,29 @@ export default (
     all_subject: [],
     all_satuan: [],
     all_kab: [],
+    all_kab_obj: {},
     all_kec: [],
+    all_kec_obj: {},
     all_deskel: [],
     all_variable: [],
     all_variable_obj: {},
     all_table: [],
+    all_table_obj: {},
   },
   action
 ) => {
   switch (action.type) {
     case actionTypes.SET_MASTER_KAB:
+      let all_kab_obj = {}
+      if (action.all_kab.length) {
+        action.all_kab.forEach(v => {
+          all_kab_obj[v._id] = v
+        });
+      }
       return {
         ...state,
-        all_kab: action.all_kab
+        all_kab: action.all_kab,
+        all_kab_obj
       }
     case actionTypes.SET_MASTER_BAB:
       return {

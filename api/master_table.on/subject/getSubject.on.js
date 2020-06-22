@@ -1,7 +1,7 @@
 const Subject = require('../../../models/Subject.model');
 
 module.exports = (cb, client, additionalMsg) => {
-    Subject.find({}).sort('_id').exec((err, result) => {
+    Subject.find({}).sort('name').exec((err, result) => {
         if (err) {
             console.log(err);
             cb({ 'type': 'error', 'data': err })

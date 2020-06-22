@@ -43,10 +43,23 @@ let runServer = () => {
       server.use(bodyParser.urlencoded({ extended: true }));
       server.use(bodyParser.json())
 
+      server.use('/sikece', require("./api/login.api"));
+
+      let login_check = function (req, res, next) {
+        if (/^\/sikece\/login$/.test(req.url)) {
+          if (req.cookies.user_id) res.redirect('/sikece')
+          else next();
+        } else if (/sikece\/login|static|_next/.test(req.url)) {
+          next();
+        } else {
+          if (req.cookies.user_id) next()
+          else res.redirect('/sikece/login')
+        }
+      }
+      server.use(login_check)
+
       //socket.io
       const serve = http.createServer(server);
-
-      // server.use('/api/login', require("./api/login.api"));
 
       //Kompresi gzip
       const compression = require('compression');
@@ -58,6 +71,19 @@ let runServer = () => {
       serve.listen(port, (err) => {
         if (err) throw err
         console.log(`> Ready on https://localhost:${port}`)
+        const User = require('./models/User.model')
+        User.findOne({ "username": 'ipds' }, (err, result) => {
+          const data = {
+            'username': 'ipds',
+            'password': '@ipds',
+            'name': 'IPDS Admin',
+            'jenis_pengguna': 'admin',
+            'ket': 'Login default'
+          }
+          if (!result) {
+            User.create(data, (err, result) => { })
+          }
+        })
       })
 
       const io = socketServer(serve);
