@@ -1,9 +1,11 @@
-import { Avatar, Breadcrumb, Dropdown, Layout, Menu } from "antd";
+import { Avatar, Dropdown, Layout, Menu } from "antd";
 const { Content, Footer, Header } = Layout;
 import Link from "next/link";
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { LogoutOutlined, UserOutlined, LoadingOutlined } from '@ant-design/icons'
+import { connect } from 'react-redux';
 
 import { menu, kab, alamat } from '../../config/env.config'
+import { setActiveUser } from "../../redux/actions/user.action"
 
 import "./BasicLayout.less"
 
@@ -21,20 +23,31 @@ const userMenu = (
   </Menu>
 );
 
-export default class BasicLayout extends React.Component {
+class BasicLayout extends React.Component {
+  componentDidMount() {
+    if (this.props.socket) {
+      !this.props.active_user.username && this.props.dispatch(setActiveUser(this.props.socket))
+    }
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.socket !== prevProps.socket) {
+      this.props.dispatch(setActiveUser(this.props.socket))
+    }
+  }
   render() {
     const user_type = 'admin';
+    const { active_user: { name, jenis_pengguna } } = this.props
     return (
       <Layout className="layout" style={{ minHeight: '100vh' }}>
         <Header>
           <Link href="/"><a><img className="logo" src={`/static/logo.png`} /></a></Link>
           <Menu theme="dark" mode="horizontal" defaultSelectedKeys={[this.props.router.asPath]}>
-            {menu.map(m => m.user_type.includes(user_type) ? <Menu.Item key={m.key}><LinkTo url={m.key} name={m.name} /></Menu.Item> : null)}
+            {menu.map(m => m.user_type.includes(jenis_pengguna) ? <Menu.Item key={m.key}><LinkTo url={m.key} name={m.name} /></Menu.Item> : null)}
             <span className="right">
               <Dropdown overlay={userMenu} trigger={['click']}>
                 <span className={`action account`}>
                   <Avatar className={'avatar'} icon={<UserOutlined />} />
-                  {user_type} 1
+                  {name? name:<LoadingOutlined /> }
               </span>
               </Dropdown>
             </span>
@@ -53,3 +66,10 @@ export default class BasicLayout extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  const { socket: { socket }, user: { active_user } } = state
+  return { socket, active_user }
+}
+
+export default connect(mapStateToProps)(BasicLayout)
