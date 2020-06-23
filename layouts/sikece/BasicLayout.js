@@ -35,7 +35,6 @@ class BasicLayout extends React.Component {
     }
   }
   render() {
-    const user_type = 'admin';
     const { active_user: { name, jenis_pengguna } } = this.props
     return (
       <Layout className="layout" style={{ minHeight: '100vh' }}>

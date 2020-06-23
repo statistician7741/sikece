@@ -1,5 +1,4 @@
 /node_modules
-/config/env.config.js
 /public/static/output/spd
 /public/static/output/qr_img
 /public/static/output/rekap_spd

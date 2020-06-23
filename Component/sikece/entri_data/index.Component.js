@@ -1,5 +1,6 @@
+import { Row, PageHeader } from "antd"
 import dynamic from 'next/dynamic';
-import { Row, Col, PageHeader } from 'antd';
+import { getKec, getTable, getKab, getBab } from "../../../redux/actions/master.action"
 
 const LihatEntri = dynamic(() => import("./EntriComponent/LihatEntri.Entri.Component"));
 const EditorEntri = dynamic(() => import("./EntriComponent/EditorEntri.Entri.Component"));
@@ -7,152 +8,72 @@ const EditorEntri = dynamic(() => import("./EntriComponent/EditorEntri.Entri.Com
 export default class IndexEntri extends React.Component {
     state = {
         activePage: 'list',
-        activeEditingtitle: undefined,
-        indikators: [
-            {
-                value: 'Geografi',
-                label: 'Geografi',
-                isLeaf: false,
-            },
-            {
-                value: 'Pemerintahan',
-                label: 'Pemerintahan',
-                isLeaf: false,
-            },
-        ],
-        kecData: [
-            {
-                value: 'buton',
-                label: '[7401] Buton',
-                isLeaf: false,
-            },
-            {
-                value: 'buteng',
-                label: '[7414] Buton Tengah',
-                isLeaf: false,
-            },
-            {
-                value: 'busel',
-                label: '[7415] Buton Selatan',
-                isLeaf: false,
-            },
-        ],
-        babs: [{ nomor: 1, name: 'Geografi' }, { nomor: 2, name: 'Pemerintahan' }],
-        tabels: [{
-            nomor: '1.1',
-            judul: 'Luas Wilayah di Kecamatan Pasarwajo (Hektar)',
-            tahun: 2019,
-            bab: 'Geografi'
-        }, {
-            nomor: '1.2',
-            judul: 'Luas Wilayah menurut Jenis Lahan di Kecamatan Pasarwajo...',
-            tahun: 2019,
-            bab: 'Geografi'
-        }, {
-            nomor: '1.3',
-            judul: 'Luas Lahan Bukan Sawah menurut Penggunaan ... Pasarwajo...',
-            tahun: 2019,
-            bab: 'Geografi'
-        }, {
-            nomor: '1.4',
-            judul: 'Luas Lahan Pertanian Bukan Sawah menurut...',
-            tahun: 2019,
-            bab: 'Geografi'
-        }, {
-            nomor: '2.1',
-            judul: 'Banyaknya Dusun, Rukun Warga (RW) dan Rukun...',
-            tahun: 2019,
-            bab: 'Pemerintahan'
-        }, {
-            nomor: '2.2',
-            judul: 'Banyaknya Pamong dan Perangkat Desa menurut Jabatan...',
-            tahun: 2019,
-            bab: 'Pemerintahan'
-        }, {
-            nomor: '2.3',
-            judul: 'Banyaknya Pamong dan Perangkat Desa menurut Jenis...',
-            tahun: 2019,
-            bab: 'Pemerintahan'
-        }, {
-            nomor: '2.4',
-            judul: 'Banyaknya Pamong dan Perangkat Desa...',
-            tahun: 2019,
-            bab: 'Pemerintahan'
-        },]
+        activeEditingtitle: '',
+        activeRecord: undefined,
+        selectedYear: new Date().getFullYear(),
+        years: [],
+        kab: undefined,
+        kec: undefined,
+        bab: 'all_bab'
     }
 
-    loadDataKec = selectedOptions => {
-        const targetOption = selectedOptions[selectedOptions.length - 1];
-        targetOption.loading = true;
-
-        // load options lazily
-        setTimeout(() => {
-            targetOption.loading = false;
-            targetOption.children = [
-                {
-                    label: `[060] Kec 1`,
-                    value: 'kec1',
-                },
-                {
-                    label: `[050] Kec 2`,
-                    value: 'kec2',
-                },
-                {
-                    label: `[051] Kec 3`,
-                    value: 'kec3',
-                },
-            ];
-            this.setState({
-                kecData: [...this.state.kecData],
-            });
-        }, 1000);
-    };
-
-    loadDataIndikators = selectedOptions => {
-        const targetOption = selectedOptions[selectedOptions.length - 1];
-        targetOption.loading = true;
-
-        // load options lazily
-        setTimeout(() => {
-            targetOption.loading = false;
-            targetOption.children = [
-                {
-                    label: `Luas Wilayah menurut Desa/Kelurahan`,
-                    value: 'kec1',
-                },
-                {
-                    label: `Jumlah penduduk menurut desa/kelurahan`,
-                    value: 'kec2',
-                },
-            ];
-            this.setState({
-                indikators: [...this.state.indikators],
-            });
-        }, 1000);
-    };
-
-    cascaderFilter = (inputValue, path) => {
-        return path.some(option => option.label.toLowerCase().indexOf(inputValue.toLowerCase()) > -1);
+    onClickEntri = (activeEditingtitle) => {
+        this.setState({ activePage: 'edit', activeEditingtitle })
     }
-
-    onClickEntri = (activeEditingtitle)=>{
-        this.setState({activePage: 'edit', activeEditingtitle})
+    onBack = () => this.setState({ activePage: 'list' })
+    getAllYearsBab = (props) => {
+        props.socket.emit('api.master_tabel.bab/getAllYearsBab', (response) => {
+            if (response.type === 'ok') {
+                this.setState({ years: response.data })
+            } else {
+                props.showErrorMessage(response.additionalMsg)
+            }
+        })
+    }
+    onChangeDropdown = (data) => this.setState(data)
+    componentDidMount() {
+        if (this.props.socket) {
+            !this.state.years && this.getAllYearsBab(this.props)
+            !this.props.all_table.length && this.props.dispatch(getTable(this.props.socket))
+            !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
+            !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket))
+            !this.props.all_bab.length && this.props.dispatch(getBab(this.props.socket))
+        }
+    }
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.socket !== prevProps.socket) {
+            this.getAllYearsBab(this.props)
+            this.props.dispatch(getTable(this.props.socket))
+            this.props.dispatch(getKab(this.props.socket))
+            this.props.dispatch(getKec(this.props.socket))
+            this.props.dispatch(getBab(this.props.socket))
+        }
+        if (this.props.all_kab !== prevProps.all_kab && this.props.all_kab.length) {
+            this.setState({ kab: this.props.all_kab[0]._id })
+        }
+        if (this.props.all_kec !== prevProps.all_kec && this.props.all_kec.length && this.state.kab) {
+            this.props.all_kec.filter(kec => this.state.kab === kec.kab).length&&this.setState({ kec: this.props.all_kec.filter(kec => this.state.kab === kec.kab)[0]._id })
+        }
+        if (this.state.kab !== prevState.kab && this.state.kab) {
+            this.props.all_kec.filter(kec => this.state.kab === kec.kab).length&&this.setState({ kec: this.props.all_kec.filter(kec => this.state.kab === kec.kab)[0]._id })
+        }
     }
 
     render() {
-        const { babs, tabels, kecData, indikators, activePage, activeEditingtitle } = this.state
+        const { activePage, activeEditingtitle, activeRecord, bab, selectedYear, years, kab, kec } = this.state
         return (
             <PageHeader
                 className="site-page-header"
-                title={activePage === 'list' ? "Entri Data":`Entri Tabel ${activeEditingtitle}`}
-                onBack={activePage === 'list' ? undefined:()=>this.setState({activePage:'list'})}
+                title={activePage === 'list' ? "Entri Data" : `Entri Tabel ${activeEditingtitle}`}
+                subTitle={activePage === 'list' ? "Daftar tabel" : `${activeEditingtitle}`}
+                onBack={activePage === 'list' ? undefined : this.onBack}
             >
                 {activePage === 'list' ?
                     <Row gutter={[16, 0]}>
-                        <LihatEntri xs={24} bab babs={babs} tabels={tabels} kecData={kecData} loadDataKec={this.loadDataKec} onClickEntri={this.onClickEntri} />
+                        <LihatEntri {...this.props} years={years} kab={kab} kec={kec} bab={bab} selectedYear={selectedYear} onChangeDropdown={this.onChangeDropdown} onClickEntri={this.onClickEntri} />
                     </Row> :
                     <Row gutter={[16, 0]}>
-                        <EditorEntri xs={24} kecData={kecData} loadDataKec={this.loadDataKec} indikators={indikators} loadDataIndikators={this.loadDataIndikators} cascaderFilter={this.cascaderFilter} />
+                        <EditorEntri {...this.props} xs={24} kecData={kecData} loadDataKec={this.loadDataKec} indikators={indikators} loadDataIndikators={this.loadDataIndikators} cascaderFilter={this.cascaderFilter} />
                     </Row>}
             </PageHeader>
         )

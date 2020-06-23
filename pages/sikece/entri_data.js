@@ -14,15 +14,15 @@ class Index extends React.Component {
   render() {
     return (
       <BasicLayout {...this.props}>
-        <IndexComponent />
+        <IndexComponent {...this.props} />
       </BasicLayout>
     )
   }
 }
 
 function mapStateToProps(state) {
-  const { socket } = state.socket
-  return { socket }
+  const { socket: { socket }, master: { all_kab, all_kec, all_deskel, all_bab, all_variable, all_variable_obj, all_table } } = state
+  return { socket, all_kab, all_kec, all_deskel, all_bab, all_variable, all_variable_obj, all_table }
 }
 
 export default connect(mapStateToProps)(Index)
