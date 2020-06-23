@@ -1,6 +1,6 @@
 import { Row, PageHeader, Col, Table } from "antd"
 import dynamic from 'next/dynamic';
-import { getKec, getTable, getKab, getBab, getVariable } from "../../../redux/actions/master.action"
+import { getKec, getTable, getKab, getBab, getVariable, getDeskel } from "../../../redux/actions/master.action"
 
 const LihatEntri = dynamic(() => import("./EntriComponent/LihatEntri.Entri.Component"));
 const EditorEntri = dynamic(() => import("./EntriComponent/EditorEntri.Entri.Component"));
@@ -50,8 +50,8 @@ export default class IndexEntri extends React.Component {
         })
         return judul_baris.map((d, i) => ({ '_id': i, 'baris_var': d, 'data': "data" }))
     }
-    getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan) => {
-        const { all_variable_obj, all_kec } = this.props;
+    getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan, kec) => {
+        const { all_variable_obj, all_kec_obj } = this.props;
         return <Row>
             <Col xs={24}>
                 <Row justify="center" style={{ textAlign: "center" }}>
@@ -61,7 +61,7 @@ export default class IndexEntri extends React.Component {
                 </Row>
                 <Row justify="center" style={{ textAlign: "center" }} gutter={[0, 16]}>
                     <Col xs={24}>
-                        <strong>{judul ? judul.replace('{nama}', all_kec.length ? all_kec[0].name : 'A') : '[Judul Tabel]'}</strong>
+                        <strong>{judul ? judul.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : '[Judul Tabel]'}</strong>
                     </Col>
                 </Row>
                 <Row gutter={[0, 8]}>
@@ -122,8 +122,8 @@ export default class IndexEntri extends React.Component {
                             rowKey="_id"
                             summary={() => (this.props.all_variable_obj[baris[baris.length - 1]].name.match(/^Jumlah|Total\s?$/) ?
                                 <Table.Summary.Row style={{ background: '#fafafa', textAlign: 'right' }}>
-                                    <Table.Summary.Cell index={0}><strong style={{ float: 'left' }}>{this.props.all_variable_obj[baris[baris.length - 1]].name}</strong></Table.Summary.Cell>
-                                    {kolom.map((k, i) => <Table.Summary.Cell index={i + 1}><strong>data</strong></Table.Summary.Cell>)}
+                                    <Table.Summary.Cell index={0} key={0}><strong style={{ float: 'left' }}>{this.props.all_variable_obj[baris[baris.length - 1]].name}</strong></Table.Summary.Cell>
+                                    {kolom.map((k, i) => <Table.Summary.Cell index={i + 1} key={i}><strong>data</strong></Table.Summary.Cell>)}
                                 </Table.Summary.Row> : undefined)
                             }
                         /> : 'Belum ada Variabel'}
@@ -131,12 +131,12 @@ export default class IndexEntri extends React.Component {
                 </Row>
                 <Row gutter={[0, catatan ? 0 : 16]}>
                     <Col xs={24}>
-                        Sumber: {sumber ? sumber.replace('{nama}', all_kec.length ? all_kec[0].name : 'A') : ''}
+                        Sumber: {sumber ? sumber.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : ''}
                     </Col>
                 </Row>
                 {catatan ? <Row gutter={[0, 16]}>
                     <Col xs={24}>
-                        Catatan: {catatan.replace('{nama}', all_kec.length ? all_kec[0].name : 'A')}
+                        Catatan: {catatan.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A')}
                     </Col>
                 </Row> : null}
             </Col>
@@ -149,6 +149,7 @@ export default class IndexEntri extends React.Component {
             !this.props.all_table.length && this.props.dispatch(getTable(this.props.socket))
             !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
             !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket))
+            !this.props.all_deskel.length && this.props.dispatch(getDeskel(this.props.socket))
             !this.props.all_bab.length && this.props.dispatch(getBab(this.props.socket))
             !this.props.all_variable.length && this.props.dispatch(getVariable(this.props.socket))
         }
@@ -159,6 +160,7 @@ export default class IndexEntri extends React.Component {
             this.props.dispatch(getTable(this.props.socket))
             this.props.dispatch(getKab(this.props.socket))
             this.props.dispatch(getKec(this.props.socket))
+            this.props.dispatch(getDeskel(this.props.socket))
             this.props.dispatch(getBab(this.props.socket))
             this.props.dispatch(getVariable(this.props.socket))
         }

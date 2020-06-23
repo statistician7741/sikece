@@ -72,9 +72,9 @@ export default class LihatTabel_Tabel extends React.Component {
         this.setState({ searchText: '' });
     };
     render() {
-        const { all_table, all_bab, all_kab, all_kec, bab, selectedYear, years, kab, kec } = this.props
+        const { all_table, all_bab, all_kab, all_kec, all_kec_obj, bab, selectedYear, years, kab, kec } = this.props
         const { onClickEdit, onChangeDropdown, getDynamicTable } = this.props
-        console.log(this.props);
+        // console.log(this.props);
         const tableColumns = [{
             title: 'No.',
             dataIndex: 'nomor_tabel',
@@ -87,7 +87,7 @@ export default class LihatTabel_Tabel extends React.Component {
             width: 400,
             showSorterTooltip: false,
             sorter: (a, b) => a.judul - b.judul,
-            ...this.getColumnSearchProps('judul')
+            render: (text)=>text?text.replace('{nama}', (all_kec_obj[kec]?all_kec_obj[kec].name:text)):text
         }, {
             title: 'Keterangan',
             dataIndex: 'ket',
@@ -151,7 +151,7 @@ export default class LihatTabel_Tabel extends React.Component {
                             dataSource={all_table.filter(t => ( selectedYear==t.bab.substring(0, 4) && (bab === 'all_bab' || bab === t.bab)) )}
                             rowKey="_id"
                             expandable={{
-                                expandedRowRender: ({ baris, kolom, nomor_tabel, judul, sumber, catatan }) => getDynamicTable(baris, kolom, nomor_tabel, judul, sumber, catatan),
+                                expandedRowRender: ({ baris, kolom, nomor_tabel, judul, sumber, catatan }) => getDynamicTable(baris, kolom, nomor_tabel, judul, sumber, catatan, kec),
                             }}
                             pagination={{ defaultPageSize: 15, showSizeChanger: true, position: 'top', pageSizeOptions: ['15', '30', '50', '100', '200', '500'], showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total} tabel` }}
                         />

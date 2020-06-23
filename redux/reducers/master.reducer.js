@@ -46,9 +46,16 @@ export default (
         all_subject: action.all_subject
       }
     case actionTypes.SET_MASTER_KEC:
+      let all_kec_obj = {}
+      if (action.all_kec.length) {
+        action.all_kec.forEach(v => {
+          all_kec_obj[v._id] = v
+        });
+      }
       return {
         ...state,
-        all_kec: action.all_kec
+        all_kec: action.all_kec,
+        all_kec_obj
       }
     case actionTypes.SET_MASTER_DESKEL:
       return {
