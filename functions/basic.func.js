@@ -1,4 +1,7 @@
 module.exports = {
+    replaceToKecName: (text, kecObj)=>{
+        return text?text.replace('{nama}', (kecObj?kecObj.name:'')):text
+    },
     getFormVar: (fields, state, isInit, vars_exclude) => {
         const data = {}
         fields.map(f => data[f[0]] = isInit ?

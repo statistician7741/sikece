@@ -3,4 +3,5 @@ module.exports = {
     ERROR_KAB_CHILD_EXIST: 'Maaf, masih ada kecamatan yang merujuk ke Kabupaten ini.',
     ERROR_KEC_CHILD_EXIST: 'Maaf, masih ada desa/kelurahan yang merujuk ke Kecamatan ini.',
     ERROR_VAR_TABLE_EXIST: 'Maaf, masih ada Tabel yang merujuk ke Variabel ini.',
+    ERROR_DATA_NOT_AVAILABLE: 'Maaf, Data tidak tersedia.',
 }

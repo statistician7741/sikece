@@ -1,8 +1,10 @@
 import { Row, Col, Select, Input, Button, Table, Space, Divider, Popconfirm } from 'antd';
 const { Option } = Select
-import { SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined, LoadingOutlined } from '@ant-design/icons'
 import Highlighter from 'react-highlight-words';
 import InputForm from '../../general/InputForm.Component'
+import { replaceToKecName } from '../../../../functions/basic.func'
+import { deleteTableDatabyId } from '../../../../redux/actions/master.action'
 
 export default class LihatTabel_Tabel extends React.Component {
     state = {
@@ -73,7 +75,7 @@ export default class LihatTabel_Tabel extends React.Component {
     };
     render() {
         const { all_table, all_bab, all_kab, all_kec, all_kec_obj, bab, selectedYear, years, kab, kec } = this.props
-        const { onClickEdit, onChangeDropdown, getDynamicTable } = this.props
+        const { onClickEntri, onChangeDropdown, getDynamicTable, loadingData, activeRecord } = this.props
         // console.log(this.props);
         const tableColumns = [{
             title: 'No.',
@@ -87,7 +89,7 @@ export default class LihatTabel_Tabel extends React.Component {
             width: 400,
             showSorterTooltip: false,
             sorter: (a, b) => a.judul - b.judul,
-            render: (text)=>text?text.replace('{nama}', (all_kec_obj[kec]?all_kec_obj[kec].name:text)):text
+            render: (text) => replaceToKecName(text, all_kec_obj[kec])
         }, {
             title: 'Keterangan',
             dataIndex: 'ket',
@@ -98,9 +100,10 @@ export default class LihatTabel_Tabel extends React.Component {
             fixed: 'right',
             width: 140,
             render: (text, record) => <span>
-                <a onClick={() => onClickEdit(`Entri ${record.judul}`, record)}>Edit</a>
+                {loadingData && record._id === activeRecord._id ? <LoadingOutlined /> :
+                    <a onClick={() => onClickEntri(`Entri Tabel ${record.nomor_tabel}`, record)}>Entri</a>}
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus entrian di tabel ini? Ini tidak akan menghapus tabel`} onConfirm={() => this.props.dispatch(deleteTablebyId(this.props.socket, record._id, this.props))}>
+                <Popconfirm title={`Hapus entrian di tabel ini? Ini tidak akan menghapus tabel`} onConfirm={() => this.props.dispatch(deleteTableDatabyId(this.props.socket, { _idKec: kec,_idTable: record._id }, this.props))}>
                     <a>Hapus</a>
                 </Popconfirm>
             </span>
@@ -148,7 +151,7 @@ export default class LihatTabel_Tabel extends React.Component {
                             scroll={{ x: 1200 }}
                             size="small"
                             columns={tableColumns}
-                            dataSource={all_table.filter(t => ( selectedYear==t.bab.substring(0, 4) && (bab === 'all_bab' || bab === t.bab)) )}
+                            dataSource={all_table.filter(t => (selectedYear == t.bab.substring(0, 4) && (bab === 'all_bab' || bab === t.bab)))}
                             rowKey="_id"
                             expandable={{
                                 expandedRowRender: ({ baris, kolom, nomor_tabel, judul, sumber, catatan }) => getDynamicTable(baris, kolom, nomor_tabel, judul, sumber, catatan, kec),

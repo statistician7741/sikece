@@ -27,7 +27,7 @@ module.exports = (cb, client, additionalMsg) => {
             cb({ 'type': 'error', 'data': err })
         } else {
             const q = getUser?{ '_id': { '$in': getUser.kec } }:{}
-            Kec.find(q).sort('_id').exec((err, result) => {
+            Kec.find(q, '_id kode kab name ket').sort('_id').exec((err, result) => {
                 if (err) {
                     console.log(err);
                     cb({ 'type': 'error', 'data': err })

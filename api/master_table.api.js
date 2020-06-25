@@ -18,6 +18,9 @@ const deleteSubjectbyId = require('./master_table.on/subject/deleteSubjectbyId.o
 const simpanKec = require('./master_table.on/kec/simpanKec.on');
 const getKec = require('./master_table.on/kec/getKec.on');
 const deleteKecbyId = require('./master_table.on/kec/deleteKecbyId.on');
+const simpanData = require('./master_table.on/kec/simpanData.on');
+const getDataTable = require('./master_table.on/kec/getDataTable.on');
+const deleteTableDatabyId = require('./master_table.on/kec/deleteTableDatabyId.on');
 
 const simpanDeskel = require('./master_table.on/deskel/simpanDeskel.on');
 const getDeskel = require('./master_table.on/deskel/getDeskel.on');
@@ -53,6 +56,9 @@ function applyToClient(client) {
     client.on('api.master_tabel.kec/simpanKec', (query,cb)=>simpanKec(query,cb,client));
     client.on('api.master_tabel.kec/getKec', (cb)=>getKec(cb,client));
     client.on('api.master_tabel.kec/deleteKecbyId', (_id, cb)=>deleteKecbyId(_id, cb,client));
+    client.on('api.master_tabel.kec/simpanData', (data, cb)=>simpanData(data, cb,client));
+    client.on('api.master_tabel.kec/getDataTable', (data, cb)=>getDataTable(data, cb,client));
+    client.on('api.master_tabel.kec/deleteTableDatabyId', (data, cb)=>deleteTableDatabyId(data, cb,client));
     
     client.on('api.master_tabel.deskel/simpanDeskel', (query,cb)=>simpanDeskel(query,cb,client));
     client.on('api.master_tabel.deskel/getDeskel', (cb)=>getDeskel(cb,client));

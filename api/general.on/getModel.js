@@ -6,6 +6,7 @@ const Kab = require('../../models/Kab.model');
 const Kec = require('../../models/Kec.model');
 const Deskel = require('../../models/Deskel.model');
 const User = require('../../models/User.model');
+const Table = require('../../models/Table.model');
 
 module.exports = (Model) => {
     if (Model === 'Variable') return Variable
@@ -16,5 +17,6 @@ module.exports = (Model) => {
     else if (Model === 'Kec') return Kec
     else if (Model === 'Deskel') return Deskel
     else if (Model === 'User') return User
+    else if (Model === 'Table') return Table
     else return Variable
 }

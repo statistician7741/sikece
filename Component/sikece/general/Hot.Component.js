@@ -7,7 +7,7 @@ import 'handsontable/dist/handsontable.full.css';
 
 export default class Hot extends React.Component {
     render() {
-        const { nestedHeaders, rowHeaders, data, columns, noSpare, beforeChange, beforeRemoveRow, beforeOnCellMouseDown } = this.props
+        const { nestedHeaders, rowHeaders, data, columns, noSpare, beforeChange, beforeRemoveRow, beforeOnCellMouseDown, entryContextMenu } = this.props
         return (
             <HotTable
                 settings={{
@@ -20,7 +20,7 @@ export default class Hot extends React.Component {
                 nestedHeaders={nestedHeaders}
                 minSpareRows={noSpare ? 0 : 1}
                 columns={columns}
-                contextMenu={['remove_row', '---------', 'undo', 'redo', '---------', 'copy', 'cut']}
+                contextMenu={entryContextMenu?['undo', 'redo', '---------', 'copy', 'cut']:['remove_row', '---------', 'undo', 'redo', '---------', 'copy', 'cut']}
                 beforeChange={beforeChange}
                 beforeRemoveRow={beforeRemoveRow}
                 beforeOnCellMouseDown={beforeOnCellMouseDown}

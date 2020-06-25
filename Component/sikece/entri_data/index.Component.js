@@ -14,11 +14,13 @@ export default class IndexEntri extends React.Component {
         years: [],
         kab: undefined,
         kec: undefined,
-        bab: 'all_bab'
+        bab: 'all_bab',
+        activeData: undefined,
+        loadingData: false
     }
 
-    onClickEntri = (activeEditingtitle) => {
-        this.setState({ activePage: 'edit', activeEditingtitle })
+    onClickEntri = (activeEditingtitle, activeRecord) => {
+        this.getDataTable(this.props, this.state.kec, activeRecord, () => this.setState({ activePage: 'edit', activeEditingtitle, activeRecord }))
     }
     onBack = () => this.setState({ activePage: 'list' })
     getAllYearsBab = (props) => {
@@ -30,22 +32,23 @@ export default class IndexEntri extends React.Component {
             }
         })
     }
-    getBarisDataSource = (baris) => {
+    getBarisDataSource = (baris, kec) => {
+        const { all_variable_obj, all_kec_obj, all_deskel } = this.props;
         let judul_baris = [];
         baris.forEach((_id, i) => {
-            if (this.props.all_variable_obj[_id].name.match(/^Desa\s?\/?\s?(Kelurahan)?\s?$/)) {
-                if (this.props.all_deskel.length) {
-                    let id_kec = this.props.all_deskel[0].kec
-                    this.props.all_deskel.filter(d => (d.kec === id_kec)).forEach((d, i) => {
+            if (all_variable_obj[_id].name.match(/^Desa\s?\/?\s?(Kelurahan)?\s?$/)) {
+                const deskel = all_deskel.filter(d => (d.kec === kec))
+                if (deskel.length) {
+                    deskel.forEach((d, i) => {
                         judul_baris.push(`${d.kode} ${d.name}`)
                     })
                 } else {
-                    judul_baris.push(this.props.all_variable_obj[_id].name)
+                    judul_baris.push(all_variable_obj[_id].name)
                 }
-            } else if (this.props.all_variable_obj[_id].name.match(/^Jumlah|Total\s?$/) && i === baris.length - 1) {
+            } else if (all_variable_obj[_id].name.match(/^Jumlah|Total\s?$/) && i === baris.length - 1) {
                 //not pushing
             } else {
-                judul_baris.push(this.props.all_variable_obj[_id].name)
+                judul_baris.push(all_variable_obj[_id].name)
             }
         })
         return judul_baris.map((d, i) => ({ '_id': i, 'baris_var': d, 'data': "data" }))
@@ -117,7 +120,7 @@ export default class IndexEntri extends React.Component {
                                 }
                                 return cols
                             })()}
-                            dataSource={this.getBarisDataSource(baris)}
+                            dataSource={this.getBarisDataSource(baris, kec)}
                             pagination={false}
                             rowKey="_id"
                             summary={() => (this.props.all_variable_obj[baris[baris.length - 1]].name.match(/^Jumlah|Total\s?$/) ?
@@ -143,6 +146,19 @@ export default class IndexEntri extends React.Component {
         </Row>
     }
     onChangeDropdown = (data) => this.setState(data)
+    getDataTable = (props, _idKec, activeRecord, cb) => {
+        this.setState({ activeData: undefined, loadingData: true, activeRecord }, () => {
+            let data = { _idKec, _idTable: activeRecord._id }
+            props.socket.emit('api.master_tabel.kec/getDataTable', data, (response) => {
+                if (response.type === 'ok') {
+                    console.log(response.data);
+                    this.setState({ activeData: response.data, loadingData: false }, cb)
+                } else {
+                    props.showErrorMessage(response.additionalMsg)
+                }
+            })
+        })
+    }
     componentDidMount() {
         if (this.props.socket) {
             !this.state.years && this.getAllYearsBab(this.props)
@@ -176,20 +192,20 @@ export default class IndexEntri extends React.Component {
     }
 
     render() {
-        const { activePage, activeEditingtitle, activeRecord, bab, selectedYear, years, kab, kec } = this.state
+        const { activePage, loadingData, activeEditingtitle, activeRecord, activeData, bab, selectedYear, years, kab, kec } = this.state
         return (
             <PageHeader
                 className="site-page-header"
-                title={activePage === 'list' ? "Entri Data" : `Entri Tabel ${activeEditingtitle}`}
+                title="Entri Data"
                 subTitle={activePage === 'list' ? "Daftar tabel" : `${activeEditingtitle}`}
                 onBack={activePage === 'list' ? undefined : this.onBack}
             >
                 {activePage === 'list' ?
                     <Row gutter={[16, 0]}>
-                        <LihatEntri {...this.props} years={years} kab={kab} kec={kec} bab={bab} selectedYear={selectedYear} onChangeDropdown={this.onChangeDropdown} onClickEntri={this.onClickEntri} getDynamicTable={this.getDynamicTable} />
+                        <LihatEntri {...this.props} activeRecord={activeRecord} loadingData={loadingData} getDataTable={this.getDataTable} activeData={activeData} years={years} kab={kab} kec={kec} bab={bab} selectedYear={selectedYear} onChangeDropdown={this.onChangeDropdown} onClickEntri={this.onClickEntri} getDynamicTable={this.getDynamicTable} />
                     </Row> :
                     <Row gutter={[16, 0]}>
-                        <EditorEntri {...this.props} xs={24} kecData={kecData} loadDataKec={this.loadDataKec} indikators={indikators} loadDataIndikators={this.loadDataIndikators} cascaderFilter={this.cascaderFilter} />
+                        <EditorEntri {...this.props} getDataTable={this.getDataTable} activeData={activeData} kec={kec} activeRecord={activeRecord} onBack={this.onBack} />
                     </Row>}
             </PageHeader>
         )

@@ -44,6 +44,7 @@ let runServer = () => {
       server.use(bodyParser.json())
 
       server.use('/sikece', require("./api/login.api"));
+      server.use('/sikece/entri_data', require("./api/entri_data.api"));
 
       let login_check = function (req, res, next) {
         if (/^\/sikece\/login$/.test(req.url)) {

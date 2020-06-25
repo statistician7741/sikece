@@ -3,7 +3,6 @@ import { Alert, Button, Form, Input, Layout } from 'antd';
 const FormItem = Form.Item;
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import axios from 'axios'
-import Router from 'next/router'
 
 import { kab } from '../../config/env.config'
 
