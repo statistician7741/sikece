@@ -1,6 +1,6 @@
 import { Row, Col, Select, Input, Button, Table, Space, Divider, Popconfirm } from 'antd';
 const { Option } = Select
-import { SearchOutlined, LoadingOutlined } from '@ant-design/icons'
+import { SearchOutlined, LoadingOutlined, CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons'
 import Highlighter from 'react-highlight-words';
 import InputForm from '../../general/InputForm.Component'
 import { replaceToKecName } from '../../../../functions/basic.func'
@@ -9,7 +9,8 @@ import { deleteTableDatabyId } from '../../../../redux/actions/master.action'
 export default class LihatTabel_Tabel extends React.Component {
     state = {
         searchText: '',
-        searchedColumn: ''
+        searchedColumn: '',
+        expandedRowKeys: []
     }
     getColumnSearchProps = dataIndex => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -74,8 +75,9 @@ export default class LihatTabel_Tabel extends React.Component {
         this.setState({ searchText: '' });
     };
     render() {
-        const { all_table, all_bab, all_kab, all_kec, all_kec_obj, bab, selectedYear, years, kab, kec } = this.props
-        const { onClickEntri, onChangeDropdown, getDynamicTable, loadingData, activeRecord } = this.props
+        const { expandedRowKeys } = this.state
+        const { all_table, all_bab, all_kab, all_kec, all_kec_obj, bab, selectedYear, years, kab, kec, activeData } = this.props
+        const { onClickEntri, onChangeDropdown, getDynamicTable, loadingData, activeRecord, getDataTable, setExpandLoading } = this.props
         // console.log(this.props);
         const tableColumns = [{
             title: 'No.',
@@ -86,14 +88,9 @@ export default class LihatTabel_Tabel extends React.Component {
             title: 'Judul',
             dataIndex: 'judul',
             key: '_id',
-            width: 400,
             showSorterTooltip: false,
             sorter: (a, b) => a.judul - b.judul,
             render: (text) => replaceToKecName(text, all_kec_obj[kec])
-        }, {
-            title: 'Keterangan',
-            dataIndex: 'ket',
-            ...this.getColumnSearchProps('ket')
         }, {
             title: 'pilihan',
             dataIndex: 'pilihan',
@@ -103,7 +100,7 @@ export default class LihatTabel_Tabel extends React.Component {
                 {loadingData && record._id === activeRecord._id ? <LoadingOutlined /> :
                     <a onClick={() => onClickEntri(`Entri Tabel ${record.nomor_tabel}`, record)}>Entri</a>}
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus entrian di tabel ini? Ini tidak akan menghapus tabel`} onConfirm={() => this.props.dispatch(deleteTableDatabyId(this.props.socket, { _idKec: kec,_idTable: record._id }, this.props))}>
+                <Popconfirm title={`Hapus entrian di tabel ini? Ini tidak akan menghapus tabel`} onConfirm={() => this.props.dispatch(deleteTableDatabyId(this.props.socket, { _idKec: kec, _idTable: record._id }, this.props))}>
                     <a>Hapus</a>
                 </Popconfirm>
             </span>
@@ -148,13 +145,22 @@ export default class LihatTabel_Tabel extends React.Component {
                 <Row gutter={[64, 0]}>
                     <Col xs={24}>
                         <Table
-                            scroll={{ x: 1200 }}
                             size="small"
                             columns={tableColumns}
                             dataSource={all_table.filter(t => (selectedYear == t.bab.substring(0, 4) && (bab === 'all_bab' || bab === t.bab)))}
                             rowKey="_id"
+                            expandedRowKeys={expandedRowKeys}
                             expandable={{
-                                expandedRowRender: ({ baris, kolom, nomor_tabel, judul, sumber, catatan }) => getDynamicTable(baris, kolom, nomor_tabel, judul, sumber, catatan, kec),
+                                expandedRowRender: ({ baris, kolom, nomor_tabel, judul, sumber, catatan }) => getDynamicTable(baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData),
+                            }}
+                            onExpand={(expanded, record) => {
+                                this.setState({ expandedRowKeys: expanded?[record._id]:[] }, () => {
+                                    if (expanded) {
+                                        setExpandLoading(true, () => {
+                                            getDataTable(this.props, kec, record, () => setExpandLoading(false))
+                                        })
+                                    }
+                                })
                             }}
                             pagination={{ defaultPageSize: 15, showSizeChanger: true, position: 'top', pageSizeOptions: ['15', '30', '50', '100', '200', '500'], showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total} tabel` }}
                         />

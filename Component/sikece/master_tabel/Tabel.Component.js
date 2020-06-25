@@ -125,8 +125,8 @@ export default class TabelComponent extends React.Component {
                             rowKey="_id"
                             summary={() => (this.props.all_variable_obj[baris[baris.length - 1]].name.match(/^Jumlah|Total\s?$/) ?
                                 <Table.Summary.Row style={{ background: '#fafafa', textAlign: 'right' }}>
-                                    <Table.Summary.Cell index={0} key={i}><strong style={{ float: 'left' }}>{this.props.all_variable_obj[baris[baris.length - 1]].name}</strong></Table.Summary.Cell>
-                                    {kolom.map((k, i) => <Table.Summary.Cell index={i + 1} key={i}><strong>data</strong></Table.Summary.Cell>)}
+                                    <Table.Summary.Cell index={0} key={0}><strong style={{ float: 'left' }}>{this.props.all_variable_obj[baris[baris.length - 1]].name}</strong></Table.Summary.Cell>
+                                    {kolom.map((k, i) => <Table.Summary.Cell index={i + 1} key={i+1}><strong>data</strong></Table.Summary.Cell>)}
                                 </Table.Summary.Row> : undefined)
                             }
                         /> : 'Belum ada Variabel'}

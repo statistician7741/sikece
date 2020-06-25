@@ -1,5 +1,6 @@
 import { Row, PageHeader, Col, Table } from "antd"
 import dynamic from 'next/dynamic';
+import { LoadingOutlined } from '@ant-design/icons'
 import { getKec, getTable, getKab, getBab, getVariable, getDeskel } from "../../../redux/actions/master.action"
 
 const LihatEntri = dynamic(() => import("./EntriComponent/LihatEntri.Entri.Component"));
@@ -16,8 +17,10 @@ export default class IndexEntri extends React.Component {
         kec: undefined,
         bab: 'all_bab',
         activeData: undefined,
-        loadingData: false
+        loadingData: false,
+        expandLoading: false
     }
+    setExpandLoading = (expandLoading, cb) => this.setState({ expandLoading }, cb)
 
     onClickEntri = (activeEditingtitle, activeRecord) => {
         this.getDataTable(this.props, this.state.kec, activeRecord, () => this.setState({ activePage: 'edit', activeEditingtitle, activeRecord }))
@@ -32,7 +35,17 @@ export default class IndexEntri extends React.Component {
             }
         })
     }
-    getBarisDataSource = (baris, kec) => {
+    getJumlahData = (activeData, _idKolom) => {
+        if (activeData) {
+            let lastBaris = activeData.all_data[activeData.all_data.length - 1]
+            for (var property in lastBaris) {
+                if (lastBaris.hasOwnProperty(property)) {
+                    if (property === _idKolom) return lastBaris[property]
+                }
+            }
+        } else return ''
+    }
+    getBarisDataSource = (baris, kec, activeData) => {
         const { all_variable_obj, all_kec_obj, all_deskel } = this.props;
         let judul_baris = [];
         baris.forEach((_id, i) => {
@@ -40,23 +53,32 @@ export default class IndexEntri extends React.Component {
                 const deskel = all_deskel.filter(d => (d.kec === kec))
                 if (deskel.length) {
                     deskel.forEach((d, i) => {
-                        judul_baris.push(`${d.kode} ${d.name}`)
+                        judul_baris.push({ '_id': d._id, 'baris_var': `${d.kode} ${d.name}` })
                     })
                 } else {
-                    judul_baris.push(all_variable_obj[_id].name)
+                    judul_baris.push({ '_id': _id, 'baris_var': all_variable_obj[_id].name })
                 }
             } else if (all_variable_obj[_id].name.match(/^Jumlah|Total\s?$/) && i === baris.length - 1) {
                 //not pushing
             } else {
-                judul_baris.push(all_variable_obj[_id].name)
+                judul_baris.push({ '_id': _id, 'baris_var': all_variable_obj[_id].name })
             }
         })
-        return judul_baris.map((d, i) => ({ '_id': i, 'baris_var': d, 'data': "data" }))
+        if (activeData) {
+            activeData.all_data && judul_baris.forEach((data, i) => {
+                activeData.all_data.forEach(row => {
+                    if (data._id === row._idBaris) {
+                        judul_baris[i] = { ...data, ...row }
+                    }
+                })
+            })
+        }
+        return judul_baris
     }
-    getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan, kec) => {
+    getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData) => {
         const { all_variable_obj, all_kec_obj } = this.props;
         return <Row>
-            <Col xs={24}>
+            {this.state.expandLoading ? <LoadingOutlined /> : <Col xs={24}>
                 <Row justify="center" style={{ textAlign: "center" }}>
                     <Col xs={24}>
                         <strong>{`Tabel ${nomor_tabel ? nomor_tabel : '[Nomor Tabel]'}`}</strong>
@@ -103,7 +125,7 @@ export default class IndexEntri extends React.Component {
                                         if (parent.includes('no_parents')) {
                                             cols.push({
                                                 title: all_variable_obj[parents[parent].indexAnggota[0]].name,
-                                                dataIndex: "data",
+                                                dataIndex: all_variable_obj[parents[parent].indexAnggota[0]]._id,
                                                 align: 'right'
                                             })
                                         } else {
@@ -111,7 +133,7 @@ export default class IndexEntri extends React.Component {
                                             calon_col.title = parent
                                             calon_col.children = parents[parent].indexAnggota.map(indexVar => ({
                                                 title: all_variable_obj[indexVar].name,
-                                                dataIndex: "data",
+                                                dataIndex: all_variable_obj[indexVar]._id,
                                                 align: 'right'
                                             }));
                                             cols.push(calon_col)
@@ -120,13 +142,13 @@ export default class IndexEntri extends React.Component {
                                 }
                                 return cols
                             })()}
-                            dataSource={this.getBarisDataSource(baris, kec)}
+                            dataSource={this.getBarisDataSource(baris, kec, activeData)}
                             pagination={false}
                             rowKey="_id"
                             summary={() => (this.props.all_variable_obj[baris[baris.length - 1]].name.match(/^Jumlah|Total\s?$/) ?
                                 <Table.Summary.Row style={{ background: '#fafafa', textAlign: 'right' }}>
                                     <Table.Summary.Cell index={0} key={0}><strong style={{ float: 'left' }}>{this.props.all_variable_obj[baris[baris.length - 1]].name}</strong></Table.Summary.Cell>
-                                    {kolom.map((k, i) => <Table.Summary.Cell index={i + 1} key={i}><strong>data</strong></Table.Summary.Cell>)}
+                                    {kolom.map((k, i) => <Table.Summary.Cell index={i + 1} key={i}><strong>{this.getJumlahData(activeData, k)}</strong></Table.Summary.Cell>)}
                                 </Table.Summary.Row> : undefined)
                             }
                         /> : 'Belum ada Variabel'}
@@ -142,7 +164,13 @@ export default class IndexEntri extends React.Component {
                         Catatan: {catatan.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A')}
                     </Col>
                 </Row> : null}
-            </Col>
+                {activeData ? <Row gutter={[0, catatan ? 0 : 16]}>
+                    <Col xs={24}>
+                        Arsip:
+                        {activeData.arsip.length ? activeData.arsip.map(a => (<p key={a}><a target="_blank" href={`http://${window.location.hostname}/static/arsip/${a}`}>{a}</a></p>)):null}
+                    </Col>
+                </Row> : null}
+            </Col>}
         </Row>
     }
     onChangeDropdown = (data) => this.setState(data)
@@ -151,7 +179,6 @@ export default class IndexEntri extends React.Component {
             let data = { _idKec, _idTable: activeRecord._id }
             props.socket.emit('api.master_tabel.kec/getDataTable', data, (response) => {
                 if (response.type === 'ok') {
-                    console.log(response.data);
                     this.setState({ activeData: response.data, loadingData: false }, cb)
                 } else {
                     props.showErrorMessage(response.additionalMsg)
@@ -202,7 +229,7 @@ export default class IndexEntri extends React.Component {
             >
                 {activePage === 'list' ?
                     <Row gutter={[16, 0]}>
-                        <LihatEntri {...this.props} activeRecord={activeRecord} loadingData={loadingData} getDataTable={this.getDataTable} activeData={activeData} years={years} kab={kab} kec={kec} bab={bab} selectedYear={selectedYear} onChangeDropdown={this.onChangeDropdown} onClickEntri={this.onClickEntri} getDynamicTable={this.getDynamicTable} />
+                        <LihatEntri {...this.props} setExpandLoading={this.setExpandLoading} activeRecord={activeRecord} loadingData={loadingData} getDataTable={this.getDataTable} activeData={activeData} years={years} kab={kab} kec={kec} bab={bab} selectedYear={selectedYear} onChangeDropdown={this.onChangeDropdown} onClickEntri={this.onClickEntri} getDynamicTable={this.getDynamicTable} />
                     </Row> :
                     <Row gutter={[16, 0]}>
                         <EditorEntri {...this.props} getDataTable={this.getDataTable} activeData={activeData} kec={kec} activeRecord={activeRecord} onBack={this.onBack} />

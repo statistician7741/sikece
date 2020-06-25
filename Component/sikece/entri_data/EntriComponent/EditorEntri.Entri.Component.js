@@ -165,8 +165,14 @@ export default class EditorTabel_Tabel extends React.Component {
             const { nomor_tabel, judul, baris, sumber, catatan, ket } = this.props.activeRecord
             const activeKec = this.props.all_kec_obj[this.props.kec]
             let arsip = undefined;
+            let sumberEdited = undefined;
+            let catatanEdited = undefined;
+            let ketEdited = undefined;
             if (this.props.activeData) {
                 arsip = this.props.activeData.arsip
+                sumberEdited = this.props.activeData.sumber
+                catatanEdited = this.props.activeData.catatan
+                ketEdited = this.props.activeData.ket
             }
             let fileList = arsip ? arsip.map((a, i) => ({
                 uid: i,
@@ -177,17 +183,17 @@ export default class EditorTabel_Tabel extends React.Component {
             this.formRef.current && this.formRef.current.setFieldsValue({
                 judul: replaceToKecName(judul, activeKec),
                 nomor_tabel,
-                sumber: replaceToKecName(sumber, activeKec),
-                catatan: replaceToKecName(catatan, activeKec),
-                ket: replaceToKecName(ket, activeKec),
+                sumber: sumberEdited?sumberEdited:replaceToKecName(sumber, activeKec),
+                catatan: catatanEdited?catatanEdited:replaceToKecName(catatan, activeKec),
+                ket: ketEdited?ketEdited:replaceToKecName(ket, activeKec),
                 fileList
             });
             this.setState({
                 nomor_tabel,
                 judul: replaceToKecName(judul, activeKec),
-                sumber: replaceToKecName(sumber, activeKec),
-                catatan: replaceToKecName(catatan, activeKec),
-                ket: replaceToKecName(ket, activeKec),
+                sumber: sumberEdited?sumberEdited:replaceToKecName(sumber, activeKec),
+                catatan: catatanEdited?catatanEdited:replaceToKecName(catatan, activeKec),
+                ket: ketEdited?ketEdited:replaceToKecName(ket, activeKec),
                 activeKec,
                 fileList
             }, () => {
