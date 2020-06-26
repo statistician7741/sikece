@@ -4,9 +4,9 @@
   "description": "",
   "main": "SocketConnections.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "set NODE_ENV=dev&&nodemon server.js",
     "build": "next build",
-    "start": "node server.js"
+    "start": "set NODE_ENV=production&&node server.js"
   },
   "keywords": [],
   "author": "",

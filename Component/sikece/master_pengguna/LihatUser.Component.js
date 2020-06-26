@@ -160,6 +160,7 @@ export default class LihatTabel_Tabel extends React.Component {
                             dataSource={all_user}
                             pagination={false}
                             rowKey="_id"
+                            pagination={{ defaultPageSize: 15, showSizeChanger: true, position: 'top', pageSizeOptions: ['15', '30', '50', '100', '200', '500'], showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total} tabel` }}
                         />
                     </Col>
                 </Row>

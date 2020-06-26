@@ -195,6 +195,9 @@ export default class IndexEntri extends React.Component {
             !this.props.all_deskel.length && this.props.dispatch(getDeskel(this.props.socket))
             !this.props.all_bab.length && this.props.dispatch(getBab(this.props.socket))
             !this.props.all_variable.length && this.props.dispatch(getVariable(this.props.socket))
+            if (this.props.all_kab.length) {
+                this.setState({ kab: this.props.all_kab[0]._id })
+            }
         }
     }
     componentDidUpdate(prevProps, prevState) {
