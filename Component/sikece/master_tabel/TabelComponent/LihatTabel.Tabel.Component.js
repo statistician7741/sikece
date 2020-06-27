@@ -171,10 +171,11 @@ export default class LihatTabel_Tabel extends React.Component {
                 <Row gutter={[64, 0]}>
                     <Col xs={24}>
                         <Table
+                            loading={!all_table.length}
                             scroll={{ x: 1200 }}
                             size="small"
                             columns={tableColumns}
-                            dataSource={all_table.filter(t => (bab === 'all_bab' || bab === t.bab)).sort((a, b) => a.nomor_tabel.localeCompare(b.nomor_tabel))}
+                            dataSource={all_table.filter(t => ((bab === 'all_bab' && t.bab.match(new RegExp(selectedYear,'i')) ) || bab === t.bab))}
                             rowKey="_id"
                             expandable={{
                                 expandedRowRender: ({baris, kolom, nomor_tabel, judul, sumber, catatan}) => getDynamicTable(baris, kolom, nomor_tabel, judul, sumber, catatan),

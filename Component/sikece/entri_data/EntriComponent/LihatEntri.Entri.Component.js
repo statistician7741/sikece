@@ -1,10 +1,17 @@
-import { Row, Col, Select, Input, Button, Table, Space, Divider, Popconfirm } from 'antd';
+import { Row, Col, Select, Input, Button, Table, Space, Divider, Popconfirm, Tag, Typography } from 'antd';
 const { Option } = Select
-import { SearchOutlined, LoadingOutlined, CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons'
+const { Text } = Typography;
+import { SearchOutlined, LoadingOutlined } from '@ant-design/icons'
 import Highlighter from 'react-highlight-words';
 import InputForm from '../../general/InputForm.Component'
 import { replaceToKecName } from '../../../../functions/basic.func'
-import { deleteTableDatabyId } from '../../../../redux/actions/master.action'
+import { deleteTableDatabyId, getKec } from '../../../../redux/actions/master.action'
+
+const DisabledOpt = () => <span>
+    <Text disabled>Entri</Text>
+    <Divider type="vertical" />
+    <Text disabled>Hapus</Text>
+</span>
 
 export default class LihatTabel_Tabel extends React.Component {
     state = {
@@ -76,9 +83,18 @@ export default class LihatTabel_Tabel extends React.Component {
     };
     render() {
         const { expandedRowKeys } = this.state
-        const { all_table, all_bab, all_kab, all_kec, all_kec_obj, bab, selectedYear, years, kab, kec, activeData } = this.props
+        const { all_table, all_bab, all_kab, all_kec, all_kec_obj, all_kec_table_obj, bab, selectedYear, years, kab, kec, activeData } = this.props
         const { onClickEntri, onChangeDropdown, getDynamicTable, loadingData, activeRecord, getDataTable, setExpandLoading } = this.props
-        // console.log(this.props);
+        const EnableOpt = ({ record }) => (
+            <span>
+                {loadingData && record._id === activeRecord._id ? <LoadingOutlined /> :
+                    <a onClick={() => onClickEntri(`Entri Tabel ${record.nomor_tabel}`, record)}>Entri</a>}
+                <Divider type="vertical" />
+                <Popconfirm title={`Hapus entrian di tabel ini? Ini tidak akan menghapus tabel`} onConfirm={() => this.props.dispatch(deleteTableDatabyId(this.props.socket, { _idKec: kec, _idTable: record._id }, this.props, ()=>this.props.dispatch(getKec(this.props.socket))))}>
+                    <a>Hapus</a>
+                </Popconfirm>
+            </span>
+        )
         const tableColumns = [{
             title: 'No.',
             dataIndex: 'nomor_tabel',
@@ -91,20 +107,25 @@ export default class LihatTabel_Tabel extends React.Component {
             showSorterTooltip: false,
             sorter: (a, b) => a.judul - b.judul,
             render: (text) => replaceToKecName(text, all_kec_obj[kec])
-        }, {
+        },
+        {
+            title: 'Status',
+            dataIndex: '_id',
+            width: 65,
+            render: (_idTable, record) => all_kec_table_obj[kec] ?
+                (<Tag color={all_kec_table_obj[kec][_idTable] ? (all_kec_table_obj[kec][_idTable].isApproved ? "#87d068" : "#108ee9") : undefined}>{all_kec_table_obj[kec][_idTable] ? (all_kec_table_obj[kec][_idTable].isApproved ? "Disetujui" : "Terentri") : "Belum entri"}</Tag>)
+                : (<LoadingOutlined />)
+        },
+        {
             title: 'pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
             width: 140,
-            render: (text, record) => <span>
-                {loadingData && record._id === activeRecord._id ? <LoadingOutlined /> :
-                    <a onClick={() => onClickEntri(`Entri Tabel ${record.nomor_tabel}`, record)}>Entri</a>}
-                <Divider type="vertical" />
-                <Popconfirm title={`Hapus entrian di tabel ini? Ini tidak akan menghapus tabel`} onConfirm={() => this.props.dispatch(deleteTableDatabyId(this.props.socket, { _idKec: kec, _idTable: record._id }, this.props))}>
-                    <a>Hapus</a>
-                </Popconfirm>
-            </span>
-        }]
+            render: (text, record) => all_kec_table_obj[kec] ?
+                (all_kec_table_obj[kec][record._id] ? (all_kec_table_obj[kec][record._id].isApproved ? (<DisabledOpt />) : (<EnableOpt record={record} />)) : (<EnableOpt record={record} />))
+                : (<LoadingOutlined />)
+        }
+        ]
         return (
             <Col xs={24}>
                 <Row gutter={[64, 0]}>
@@ -154,7 +175,7 @@ export default class LihatTabel_Tabel extends React.Component {
                                 expandedRowRender: ({ baris, kolom, nomor_tabel, judul, sumber, catatan }) => getDynamicTable(baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData),
                             }}
                             onExpand={(expanded, record) => {
-                                this.setState({ expandedRowKeys: expanded?[record._id]:[] }, () => {
+                                this.setState({ expandedRowKeys: expanded ? [record._id] : [] }, () => {
                                     if (expanded) {
                                         setExpandLoading(true, () => {
                                             getDataTable(this.props, kec, record, () => setExpandLoading(false))

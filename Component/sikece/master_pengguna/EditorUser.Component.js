@@ -1,4 +1,4 @@
-import { Row, Col, Input, Space, Button, Form, AutoComplete, Radio, Transfer, Table } from 'antd';
+import { Row, Col, Input, Space, Button, Form, AutoComplete, Radio, Transfer, Table, Select } from 'antd';
 const { TextArea } = Input;
 import difference from 'lodash/difference';
 import func from '../../../functions/basic.func'
@@ -15,7 +15,7 @@ const leftTableColumnsTable = [
         ellipsis: {
             showTitle: true,
         },
-        render: (text, row)=>(`${row.nomor_tabel} ${text}`)
+        render: (text, row) => (`${row.nomor_tabel} ${text}`)
     }
 ];
 const rightTableColumnsTable = (type) => ([
@@ -25,7 +25,7 @@ const rightTableColumnsTable = (type) => ([
         ellipsis: {
             showTitle: true,
         },
-        render: (text, row)=>(`${row.nomor_tabel} ${text}`)
+        render: (text, row) => (`${row.nomor_tabel} ${text}`)
     }
 ]);
 
@@ -71,7 +71,7 @@ const TableTransfer = ({ leftColumns, rightColumns, ...restProps }) => (
                             onItemSelect(key, !listSelectedKeys.includes(key));
                         },
                     })}
-                    pagination={columns.length === 1 ? {} : { defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '15', '20', '25', '30','50','100'] }}
+                    pagination={columns.length === 1 ? {} : { defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '15', '20', '25', '30', '50', '100'] }}
                 />
             );
         }}
@@ -145,6 +145,18 @@ export default class EditorUser_User extends React.Component {
     onChangeInput = (changedValues) => {
         if (changedValues.username) {
             this.isDuplicate(changedValues.username, 'username', 'User')
+        } else if (changedValues.tahun_buku) {
+            this.setState({
+                selectedTableKeys: [],
+                targetTableKeys: [],
+                table: [],
+                ...changedValues
+            }, () => {
+                this.formRef.current && this.formRef.current.setFieldsValue({
+                    table: []
+                });
+            })
+            return
         }
         this.setState(changedValues)
     }
@@ -192,18 +204,6 @@ export default class EditorUser_User extends React.Component {
     onClickSimpanUser = () => {
         this.props.dispatch(simpanUser(this.props.socket, func.getFormVar(userFields, this.state), this.props, this.props.onBack))
     }
-    isMultipleEditValid = () => {
-        if (this.state.data.length < 1) return false
-        if (this.state.data.length === 1) return /^\d{4}$/.test(this.state.data[0].tahun_buku) && /^\d{1,2}$/.test(this.state.data[0].nomor) && this.state.data[0].name
-        let isValid = true;
-        this.state.data.forEach((User, i) => {
-            const { tahun_buku, name, nomor, ket } = User;
-            if (tahun_buku || nomor || name || ket) {
-                if (!/^\d{4}$/.test(tahun_buku) || !/^\d{1,2}$/.test(nomor) || !name) isValid = false
-            }
-        })
-        return isValid;
-    }
     componentDidMount = () => {
         this.input && this.input.focus()
         if (this.props.activeRecord) {
@@ -231,11 +231,11 @@ export default class EditorUser_User extends React.Component {
             selectedKecKeys,
             targetTableKeys,
             selectedTableKeys,
+            tahun_buku,
             kec,
             table
         } = this.state
-        const { all_kec, all_kab_obj, all_table } = this.props
-        console.log(this.state);
+        const { all_kec, all_kab_obj, all_table, years } = this.props
 
         const leftTableColumns = [
             {
@@ -356,6 +356,28 @@ export default class EditorUser_User extends React.Component {
                             {jenis_pengguna === 'peny_data' || jenis_pengguna === 'pengentri' ?
                                 <Fragment>
                                     <Form.Item
+                                        label="Tahun Buku"
+                                        name="tahun_buku"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: 'Mohon pilih tahun buku',
+                                            },
+                                        ]}
+                                    >
+                                        <Select
+                                            placeholder="Pilih tahun buku"
+                                            style={{ width: 120 }}
+                                            filterOption={(input, option) =>
+                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                            showSearch
+                                            allowClear
+                                        >
+                                            {years.length ? years.map(y => (<Option value={y} key={y}>{y}</Option>)) : <Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Option>}
+                                        </Select>
+                                    </Form.Item>
+                                    <Form.Item
                                         label="Kec"
                                         name="kec"
                                         rules={[
@@ -393,7 +415,7 @@ export default class EditorUser_User extends React.Component {
                                     >
                                         <TableTransfer
                                             showSearch
-                                            dataSource={all_table}
+                                            dataSource={all_table.filter(t => (tahun_buku && t.bab.match(new RegExp(tahun_buku, 'i'))))}
                                             titles={['Semua Tabel', 'Tabel terpilih']}
                                             targetKeys={targetTableKeys}
                                             selectedKeys={selectedTableKeys}
@@ -429,7 +451,7 @@ export default class EditorUser_User extends React.Component {
                         <Row>
                             <Col xs={24} md={24}>
                                 <Space>
-                                    <Button type="primary" disabled={(isUsernameDuplicate && username!==prevUsername) || !(username && password && name && jenis_pengguna && ((jenis_pengguna !=='peny_data' && jenis_pengguna !=='pengentri') || (kec.length && table.length)) )} onClick={this.onClickSimpanUser}>Simpan</Button>
+                                    <Button type="primary" disabled={(isUsernameDuplicate && username !== prevUsername) || !(username && password && name && jenis_pengguna && ((jenis_pengguna !== 'peny_data' && jenis_pengguna !== 'pengentri') || (kec.length && table.length && tahun_buku)))} onClick={this.onClickSimpanUser}>Simpan</Button>
                                 </Space>
                             </Col>
                         </Row>

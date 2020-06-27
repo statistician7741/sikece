@@ -156,6 +156,7 @@ export default class LihatTabel_Tabel extends React.Component {
                     <Col xs={24}>
                         <Table
                             size="small"
+                            loading={!all_user.length}
                             columns={userColumns}
                             dataSource={all_user}
                             pagination={false}

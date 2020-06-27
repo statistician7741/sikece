@@ -6,6 +6,7 @@ import { simpanData } from "../../../../redux/actions/master.action"
 import { replaceToKecName } from "../../../../functions/basic.func"
 import axios from 'axios'
 import _ from 'lodash'
+import { getKec } from "../../../../redux/actions/master.action"
 
 const formItemLayout = {
     labelCol: {
@@ -43,8 +44,8 @@ export default class EditorTabel_Tabel extends React.Component {
         this.state.fileList.forEach(file => {
             if (file.status === 'done') {
                 fileToKeep.push(file.name)
-                if(fileToDelete.length){
-                    fileToDelete = _.remove(fileToDelete, f=>{
+                if (fileToDelete.length) {
+                    fileToDelete = _.remove(fileToDelete, f => {
                         return f !== file.name
                     })
                 }
@@ -73,7 +74,9 @@ export default class EditorTabel_Tabel extends React.Component {
                 const { sumber, catatan, ket, all_data, activeKec: { _id: _idKec } } = this.state
                 const { activeRecord: { _id: _idTable } } = this.props
                 this.props.dispatch(simpanData(this.props.socket, { _idKec, _idTable, sumber, catatan, ket, all_data, fileToKeep, fileToDelete }, this.props, () => {
-                    this.setState({ sending: false }, this.props.onBack)
+                    this.props.dispatch(getKec(this.props.socket, () => {
+                        this.setState({ sending: false }, this.props.onBack)
+                    }))
                 }))
             });
         })
@@ -183,17 +186,17 @@ export default class EditorTabel_Tabel extends React.Component {
             this.formRef.current && this.formRef.current.setFieldsValue({
                 judul: replaceToKecName(judul, activeKec),
                 nomor_tabel,
-                sumber: sumberEdited?sumberEdited:replaceToKecName(sumber, activeKec),
-                catatan: catatanEdited?catatanEdited:replaceToKecName(catatan, activeKec),
-                ket: ketEdited?ketEdited:replaceToKecName(ket, activeKec),
+                sumber: sumberEdited ? sumberEdited : replaceToKecName(sumber, activeKec),
+                catatan: catatanEdited ? catatanEdited : replaceToKecName(catatan, activeKec),
+                ket: ketEdited ? ketEdited : replaceToKecName(ket, activeKec),
                 fileList
             });
             this.setState({
                 nomor_tabel,
                 judul: replaceToKecName(judul, activeKec),
-                sumber: sumberEdited?sumberEdited:replaceToKecName(sumber, activeKec),
-                catatan: catatanEdited?catatanEdited:replaceToKecName(catatan, activeKec),
-                ket: ketEdited?ketEdited:replaceToKecName(ket, activeKec),
+                sumber: sumberEdited ? sumberEdited : replaceToKecName(sumber, activeKec),
+                catatan: catatanEdited ? catatanEdited : replaceToKecName(catatan, activeKec),
+                ket: ketEdited ? ketEdited : replaceToKecName(ket, activeKec),
                 activeKec,
                 fileList
             }, () => {

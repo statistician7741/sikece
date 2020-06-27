@@ -19,6 +19,10 @@ var UserSchema = new Schema({
         'type': String,
         'required': true
     },
+    "tahun_buku": {
+        'type': String,
+        'default': "2020"
+    },
     "kec": {
         'type': [String],
         'ref': 'Kec',

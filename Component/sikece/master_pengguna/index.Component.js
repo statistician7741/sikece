@@ -9,16 +9,26 @@ export default class IndexMasterPengguna extends React.Component {
     state = {
         activePage: 'list',
         activeEditingtitle: '',
-        activeRecord: undefined
+        activeRecord: undefined,
+        years: []
     }
     onClickTambah = () => this.setState({ activePage: 'edit', activeEditingtitle: `Tambah Pengguna`, activeRecord: undefined })
     onClickEdit = (activeEditingtitle, activeRecord) => {
         this.setState({ activePage: 'edit', activeEditingtitle, activeRecord })
     }
-
+    getAllYearsBab = (props) => {
+        props.socket.emit('api.master_tabel.bab/getAllYearsBab', (response) => {
+            if (response.type === 'ok') {
+                this.setState({ years: response.data })
+            } else {
+                props.showErrorMessage(response.additionalMsg)
+            }
+        })
+    }
     onBack = () => this.setState({ activePage: 'list' })
     componentDidMount() {
         if (this.props.socket) {
+            this.getAllYearsBab(this.props)
             !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket))
             !this.props.all_table.length && this.props.dispatch(getTable(this.props.socket))
             !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
@@ -26,6 +36,7 @@ export default class IndexMasterPengguna extends React.Component {
     }
     componentDidUpdate(prevProps, prevState) {
         if (this.props.socket !== prevProps.socket) {
+            this.getAllYearsBab(this.props)
             this.props.dispatch(getKec(this.props.socket))
             this.props.dispatch(getTable(this.props.socket))
             this.props.dispatch(getKab(this.props.socket))
@@ -33,7 +44,7 @@ export default class IndexMasterPengguna extends React.Component {
     }
 
     render() {
-        const { activePage, activeEditingtitle, activeRecord } = this.state
+        const { activePage, activeEditingtitle, activeRecord, years } = this.state
 
         return (
             <PageHeader
@@ -48,7 +59,7 @@ export default class IndexMasterPengguna extends React.Component {
                         <LihatUser {...this.props} onClickTambah={this.onClickTambah} onClickEdit={this.onClickEdit} />
                     </Row> :
                     <Row>
-                        <EditorUser {...this.props} onClickTambah={this.onClickTambah} activeRecord={activeRecord} onBack={this.onBack} />
+                        <EditorUser {...this.props} years={years} onClickTambah={this.onClickTambah} activeRecord={activeRecord} onBack={this.onBack} />
                     </Row>}
             </PageHeader>
         )

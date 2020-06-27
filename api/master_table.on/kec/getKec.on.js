@@ -26,15 +26,58 @@ module.exports = (cb, client, additionalMsg) => {
         if (err) {
             cb({ 'type': 'error', 'data': err })
         } else {
-            const q = getUser?{ '_id': { '$in': getUser.kec } }:{}
-            Kec.find(q, '_id kode kab name ket').sort('_id').exec((err, result) => {
-                if (err) {
-                    console.log(err);
-                    cb({ 'type': 'error', 'data': err })
-                } else {
-                    cb({ 'type': 'ok', 'data': result, additionalMsg })
+            const q = getUser ? { '_id': { '$in': getUser.kec } } : {}
+            if (['pengentri', 'peny_data'].includes(jenis_pengguna)) {
+                let aggQuery = [
+                    { $unwind: "$table" },
+                    { $match: { "table._idTable": { '$in': getUser.table } } }
+                ]
+                if (jenis_pengguna === 'peny_data') {
+                    q["table._idTable"] = { '$in': getUser.table }
+                    // aggQuery.push({ $match: { "table._idTable": { '$in': getUser.table } } })
                 }
-            })
+                aggQuery.unshift({ $match: { ...q } })
+                aggQuery.push({ $group: { _id: "$_id", kode: { $first: "$kode" }, kab: { $first: "$kab" }, name: { $first: "$name" }, ket: { $first: "$ket" }, table: { $addToSet: "$table" } } })
+                Kec.aggregate(aggQuery).exec((err, result) => {
+                    if (err) {
+                        console.log(err);
+                        cb({ 'type': 'error', 'data': err })
+                    } else {
+                        let missing_kec = []
+                        if (jenis_pengguna === 'pengentri') {
+                            getUser.kec.forEach(_idKec => {
+                                let found = false
+                                result.forEach(kec => {
+                                    if (kec._id === _idKec) found = true
+                                })
+                                if (!found) missing_kec.push(_idKec)
+                            });
+                            if (missing_kec.length) {
+                                Kec.find({ '_id': { '$in': missing_kec } }, '_id kode kab name ket').sort('_id').exec((err, missing_kec_result) => {
+                                    if (err) {
+                                        console.log(err);
+                                        cb({ 'type': 'error', 'data': err })
+                                    } else {
+                                        cb({ 'type': 'ok', 'data': result.concat(missing_kec_result).sort((a, b) => a._id.localeCompare(b._id)), additionalMsg })
+                                    }
+                                })
+                            } else {
+                                cb({ 'type': 'ok', 'data': result, additionalMsg })
+                            }
+                        } else {
+                        }
+                    }
+                })
+            } else {
+                Kec.find(q, '_id kode kab name ket').sort('_id').exec((err, result) => {
+                    if (err) {
+                        console.log(err);
+                        cb({ 'type': 'error', 'data': err })
+                    } else {
+                        cb({ 'type': 'ok', 'data': result, additionalMsg })
+                    }
+                })
+            }
         }
     })
 }

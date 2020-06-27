@@ -116,9 +116,10 @@ export const simpanSubject = (socket, data, props, cb) => dispatch => {
     }
   })
 }
-export const getKec = (socket) => dispatch => {
+export const getKec = (socket, cb) => dispatch => {
   socket.emit('api.master_tabel.kec/getKec',(response) => {
     if (response.type === 'ok') {
+      cb&&cb()
       return dispatch({ type: actionTypes.SET_MASTER_KEC, all_kec: response.data })
     } else {
       return dispatch({ type: actionTypes.SET_MASTER_KEC, all_kec: [] })
@@ -134,9 +135,10 @@ export const deleteKecbyId = (socket, _id, props) => dispatch => {
     }
   })
 }
-export const deleteTableDatabyId = (socket, input, props) => dispatch => {
+export const deleteTableDatabyId = (socket, input, props, cb) => dispatch => {
   socket.emit('api.master_tabel.kec/deleteTableDatabyId', input, (response) => {
     if (response.type === 'ok') {
+      cb&&cb()
       props.showSuccessMessage(response.data)
     } else {
       props.showErrorMessage(response.data)

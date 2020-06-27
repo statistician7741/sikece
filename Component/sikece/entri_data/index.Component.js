@@ -77,6 +77,13 @@ export default class IndexEntri extends React.Component {
     }
     getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData) => {
         const { all_variable_obj, all_kec_obj } = this.props;
+        let sumberA, catatanA
+        let arsipA = [];
+        if (activeData) {
+            sumberA = activeData.sumber ? activeData.sumber : undefined
+            catatanA = activeData.catatan ? activeData.catatan : undefined
+            arsipA = activeData.arsip ? activeData.arsip : undefined
+        }
         return <Row>
             {this.state.expandLoading ? <LoadingOutlined /> : <Col xs={24}>
                 <Row justify="center" style={{ textAlign: "center" }}>
@@ -154,20 +161,19 @@ export default class IndexEntri extends React.Component {
                         /> : 'Belum ada Variabel'}
                     </Col>
                 </Row>
-                <Row gutter={[0, catatan ? 0 : 16]}>
+                {sumber ? <Row gutter={[0, catatan ? 0 : 16]}>
                     <Col xs={24}>
-                        Sumber: {sumber ? sumber.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : ''}
-                    </Col>
-                </Row>
-                {catatan ? <Row gutter={[0, 16]}>
-                    <Col xs={24}>
-                        Catatan: {catatan.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A')}
+                        Sumber: {sumberA ? sumberA : sumber.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A')}
                     </Col>
                 </Row> : null}
-                {activeData ? <Row gutter={[0, catatan ? 0 : 16]}>
+                {catatanA || catatan ? <Row>
                     <Col xs={24}>
-                        Arsip:
-                        {activeData.arsip.length ? activeData.arsip.map(a => (<p key={a}><a target="_blank" href={`http://${window.location.hostname}/static/arsip/${a}`}>{a}</a></p>)):null}
+                        Catatan: {catatanA ? catatanA : (catatan ? catatan.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : '')}
+                    </Col>
+                </Row> : null}
+                {arsipA.length ? <Row gutter={[0, catatan ? 0 : 16]}>
+                    <Col xs={24}>
+                        Arsip: {arsipA.length ? activeData.arsip.map(a => (<span key={a}><a target="_blank" href={`http://${window.location.hostname}/static/arsip/${a}`}>{a}</a><br /></span>)) : null}
                     </Col>
                 </Row> : null}
             </Col>}

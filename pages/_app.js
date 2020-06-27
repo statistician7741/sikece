@@ -8,6 +8,7 @@ import { Provider } from 'react-redux'
 import React from 'react'
 import { setSocket } from '../redux/actions/socket.action'
 import withRedux from "next-redux-wrapper";
+import { kab } from '../config/env.config'
 
 import style from './_app.less';
 
@@ -68,7 +69,7 @@ class MyApp extends App {
       <Provider store={store}>
         <div>
           <Head>
-            <title>SIKECE</title>
+            <title>SIKECE - BPS {kab}</title>
             <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             <link rel='shortcut icon' type='image/x-icon' href='/static/favicon.ico' />
           </Head>

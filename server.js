@@ -90,12 +90,13 @@ let runServer = () => {
       const io = socketServer(serve);
       io.use(sharedsession(sessionWithMongo, cookieParser("ID==&&%^&A&SHBJSAsjhbJGhUGkbKiUvii^%^#$%^&98G8UIugg==")));
       io.on('connection', function (client) {
-        console.log("Hey, someone connected");
+        const { name, jenis_pengguna } = client.handshake.cookies
+        console.log(`${name} (${jenis_pengguna}) connected`);
         require('./api/master_table.api')(client)
         require('./api/master_user.api')(client)
         require('./api/general.api')(client)
         client.on('disconnect', () => {
-          console.log("Hey, someone disconnected");
+          console.log(`${name} (${jenis_pengguna}) disconnected`);
         })
       })
     })
