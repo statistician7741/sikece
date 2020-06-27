@@ -77,12 +77,13 @@ export default class IndexEntri extends React.Component {
     }
     getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData) => {
         const { all_variable_obj, all_kec_obj } = this.props;
-        let sumberA, catatanA
+        let sumberA, catatanA, ketA
         let arsipA = [];
         if (activeData) {
-            sumberA = activeData.sumber ? activeData.sumber : undefined
-            catatanA = activeData.catatan ? activeData.catatan : undefined
+            sumberA = activeData.sumber !== undefined ? activeData.sumber : undefined
+            catatanA = activeData.catatan !== undefined ? activeData.catatan : undefined
             arsipA = activeData.arsip ? activeData.arsip : undefined
+            ketA = activeData.ket !== undefined ? activeData.ket : undefined
         }
         return <Row>
             {this.state.expandLoading ? <LoadingOutlined /> : <Col xs={24}>
@@ -162,14 +163,19 @@ export default class IndexEntri extends React.Component {
                         /> : 'Belum ada Variabel'}
                     </Col>
                 </Row>
-                {sumber ? <Row gutter={[0, catatan ? 0 : 16]}>
+                {sumberA ? <Row gutter={[0, catatan ? 0 : 16]}>
                     <Col xs={24}>
-                        <span style={{ marginLeft: 25 }}>Sumber: {sumberA ? sumberA : sumber.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A')}</span>
+                        <span style={{ marginLeft: 25 }}>Sumber: {sumberA}</span>
                     </Col>
                 </Row> : null}
-                {catatanA || catatan ? <Row>
+                {catatanA ? <Row>
                     <Col xs={24}>
-                        <span style={{ marginLeft: 25 }}>Catatan: {catatanA ? catatanA : (catatan ? catatan.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : '')}</span>
+                        <span style={{ marginLeft: 25 }}>Catatan: {catatanA}</span>
+                    </Col>
+                </Row> : null}
+                {ketA ? <Row>
+                    <Col xs={24}>
+                        <span style={{ marginLeft: 25 }}>Keterangan: {ketA}</span>
                     </Col>
                 </Row> : null}
                 {arsipA.length ? <Row gutter={[0, catatan ? 0 : 16]}>

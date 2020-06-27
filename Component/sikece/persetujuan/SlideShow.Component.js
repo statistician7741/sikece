@@ -54,13 +54,12 @@ export default class SlideShow extends React.Component {
     }
     getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData) => {
         const { all_variable_obj, all_kec_obj } = this.props;
-        let sumberA, catatanA, ketA
-        let arsipA = [];
+        let sumberA, catatanA, ketA, arsipA
         if (activeData) {
-            sumberA = activeData.sumber ? activeData.sumber : undefined
-            catatanA = activeData.catatan ? activeData.catatan : undefined
+            sumberA = activeData.sumber !== undefined ? activeData.sumber : undefined
+            catatanA = activeData.catatan !== undefined ? activeData.catatan : undefined
             arsipA = activeData.arsip ? activeData.arsip : undefined
-            ketA = activeData.ket ? activeData.ket : undefined
+            ketA = activeData.ket !== undefined ? activeData.ket : undefined
         }
         return <Row>
             <Col xs={24}>
@@ -139,14 +138,14 @@ export default class SlideShow extends React.Component {
                         /> : 'Belum ada Variabel'}
                     </Col>
                 </Row>
-                {sumber ? <Row gutter={[0, catatan ? 0 : 16]}>
+                {sumberA ? <Row gutter={[0, catatan ? 0 : 16]}>
                     <Col xs={24}>
-                        <span style={{ float: "left" }}>Sumber: {sumberA ? sumberA : sumber.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A')}</span>
+                        <span style={{ float: "left" }}>Sumber: {sumberA}</span>
                     </Col>
                 </Row> : null}
-                {catatanA || catatan ? <Row>
+                {catatanA ? <Row>
                     <Col xs={24}>
-                        <span style={{ float: "left" }}>Catatan: {catatanA ? catatanA : (catatan ? catatan.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : '')}</span>
+                        <span style={{ float: "left" }}>Catatan: {catatanA}</span>
                     </Col>
                 </Row> : null}
                 {ketA ? <Row>
@@ -272,21 +271,21 @@ export default class SlideShow extends React.Component {
                 >
                     {arsip.length ? (
                         <Fragment>
-                            <Row justify="center" style={{ textAlign: "center", marginBottom: 8 }}>
-                                <Col xs={24}>
-                                    {this.getPreviewArsip(arsip[index_arsip])}
-                                </Col>
-                            </Row>
                             <Row>
                                 <Col xs={24} style={{ textAlign: "center" }}>
                                     <Space align="center">
-                                        <Tooltip placement="bottom" title="Arsip sebelumnya">
+                                        <Tooltip title="Arsip sebelumnya">
                                             <Button disabled={active_index !== undefined ? tables[active_index].all_data.arsip.length < 2 : true} onClick={() => this.onClickPrevArsip(index_arsip, active_index !== undefined ? tables[active_index].all_data.arsip.length - 1 : 1)} shape="circle" icon={<LeftOutlined />} />
                                         </Tooltip>
-                                        <Tooltip placement="bottom" title="Arsip berikutnya">
+                                        <Tooltip title="Arsip berikutnya">
                                             <Button disabled={active_index !== undefined ? tables[active_index].all_data.arsip.length < 2 : true} onClick={() => this.onClickNextArsip(index_arsip, active_index !== undefined ? tables[active_index].all_data.arsip.length - 1 : 1)} shape="circle" icon={<RightOutlined />} />
                                         </Tooltip>
                                     </Space>
+                                </Col>
+                            </Row>
+                            <Row justify="center" style={{ textAlign: "center", marginTop: 8 }}>
+                                <Col xs={24}>
+                                    {this.getPreviewArsip(arsip[index_arsip])}
                                 </Col>
                             </Row>
                         </Fragment>

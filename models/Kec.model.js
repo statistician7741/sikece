@@ -25,8 +25,14 @@ var KecSchema = new Schema({
         'type': [{
             '_idTable': String,
             'sumber': String,
-            'catatan': String,
-            'ket': String,
+            'catatan': {
+                'type': String,
+                default: ""
+            },
+            'ket': {
+                'type': String,
+                default: ""
+            },
             'all_data': [],
             'arsip': [],
             'isApproved': Boolean,
