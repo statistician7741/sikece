@@ -219,6 +219,18 @@ export default class SlideShow extends React.Component {
                         </Tooltip>
                     </Col>
                 </Row>
+                <Row gutter={[0, 16]}>
+                    <Col xs={24} style={{ textAlign: "center" }}>
+                        <Space align="center">
+                            <Tooltip title="Tabel sebelumnya">
+                                <Button disabled={active_index === undefined} type="primary" onClick={onClickPrev} shape="circle" icon={<ArrowLeftOutlined />} />
+                            </Tooltip>
+                            <Tooltip title="Tabel berikutnya">
+                                <Button disabled={active_index === undefined} type="primary" onClick={onClickNext} shape="circle" icon={<ArrowRightOutlined />} />
+                            </Tooltip>
+                        </Space>
+                    </Col>
+                </Row>
                 <Row justify="center" style={{ textAlign: "center", marginBottom: 8 }}>
                     <Col xs={24} xl={xl} xxl={xxl}>
                         <Spin spinning={!tables.length || !all_kec.length || !all_variable.length}>
@@ -234,18 +246,6 @@ export default class SlideShow extends React.Component {
                                     tables[active_index].all_data
                                 ) : <p style={{ margin: "32px 0" }}><strong>Belum ada tabel yang tersedia untuk disetujui.</strong></p>}
                         </Spin>
-                    </Col>
-                </Row>
-                <Row gutter={[0, 16]}>
-                    <Col xs={24} style={{ textAlign: "center" }}>
-                        <Space align="center">
-                            <Tooltip title="Tabel sebelumnya">
-                                <Button disabled={active_index === undefined} type="primary" onClick={onClickPrev} shape="circle" icon={<ArrowLeftOutlined />} />
-                            </Tooltip>
-                            <Tooltip title="Tabel berikutnya">
-                                <Button disabled={active_index === undefined} type="primary" onClick={onClickNext} shape="circle" icon={<ArrowRightOutlined />} />
-                            </Tooltip>
-                        </Space>
                     </Col>
                 </Row>
                 <Row gutter={[0, 32]}>

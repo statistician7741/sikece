@@ -22,7 +22,8 @@ export default class IndexApproval extends React.Component {
         searchedColumn: '',
         tables_obj: {},
         tables: [],
-        active_index: undefined
+        active_index: undefined,
+        hostname: ''
     }
     getNextIndex = (prevIndex, maxIndex, tables) => {
         const newIndex = prevIndex + 1 > maxIndex ? 0 : prevIndex + 1
@@ -144,6 +145,7 @@ export default class IndexApproval extends React.Component {
         this.setState({ active_index })
     }
     componentDidMount() {
+        this.setState({hostname: window.location.hostname})
         if (this.props.socket) {
             (this.props.all_kec.length && this.props.all_table.length) && this.setRefinedTable(this.props.all_kec, this.props.all_table)
             !this.props.all_table.length && this.props.dispatch(getTable(this.props.socket))
@@ -186,7 +188,7 @@ export default class IndexApproval extends React.Component {
         }
     }
     render() {
-        const { tables_obj, tables, active_index } = this.state
+        const { tables_obj, tables, active_index, hostname } = this.state
         const { active_user: { kec, table } } = this.props
         const total = kec ? kec.length * table.length : 0
         const approved = kec ? [].concat(...tables).filter(item => item.isApproved).length : 0
@@ -237,6 +239,13 @@ export default class IndexApproval extends React.Component {
                     closable
                     style={{ marginBottom: 16 }}
                 /> : null}
+                <Alert
+                    message="Unduh Surat Pernyataan Pengisian Data"
+                    description={<span>Klik untuk mengunduh file surat pernyataan pengisian data di sini: <a href={`http://${hostname}/sikece/other/template`}>Unduh template</a></span>}
+                    type="info"
+                    showIcon
+                    style={{ marginBottom: 16 }}
+                />
                 <Row>
                     <Col xs={24}>
                         <Table
