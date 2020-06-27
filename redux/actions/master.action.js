@@ -156,6 +156,16 @@ export const simpanKec = (socket, data, props, cb) => dispatch => {
     }
   })
 }
+export const setIsApprove = (socket, input, props, cb) => dispatch => {
+  socket.emit('api.master_tabel.kec/setIsApprove', input, (response) => {
+    if (response.type === 'ok') {
+      cb&&cb()
+      props.showSuccessMessage(response.data)
+    } else {
+      props.showErrorMessage(response.data)
+    }
+  })
+}
 export const getDeskel = (socket) => dispatch => {
   socket.emit('api.master_tabel.deskel/getDeskel',(response) => {
     if (response.type === 'ok') {

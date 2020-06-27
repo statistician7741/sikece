@@ -29,14 +29,7 @@ var KecSchema = new Schema({
             'ket': String,
             'all_data': [],
             'arsip': [],
-            'isFinal': {
-                'type': Boolean,
-                'default': false
-            },
-            'isApproved': {
-                'type': Boolean,
-                'default': false
-            },
+            'isApproved': Boolean,
             'comments': []
         }],
         'default': []
@@ -44,16 +37,3 @@ var KecSchema = new Schema({
 }, { collection: 'kec' });
 
 module.exports = mongoose.model('Kec', KecSchema);
-
-// const kcda = {
-//     _id,
-//     _idTable,
-//     sumber,
-//     catatan,
-//     ket,
-//     data,
-//     arsip,//array of path
-//     isFinal,
-//     isApproved,
-//     comments: [], //{ _id, peny_data, text }
-// }

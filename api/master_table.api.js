@@ -21,6 +21,7 @@ const deleteKecbyId = require('./master_table.on/kec/deleteKecbyId.on');
 const simpanData = require('./master_table.on/kec/simpanData.on');
 const getDataTable = require('./master_table.on/kec/getDataTable.on');
 const deleteTableDatabyId = require('./master_table.on/kec/deleteTableDatabyId.on');
+const setIsApprove = require('./master_table.on/kec/setIsApprove.on');
 
 const simpanDeskel = require('./master_table.on/deskel/simpanDeskel.on');
 const getDeskel = require('./master_table.on/deskel/getDeskel.on');
@@ -59,6 +60,7 @@ function applyToClient(client) {
     client.on('api.master_tabel.kec/simpanData', (data, cb)=>simpanData(data, cb,client));
     client.on('api.master_tabel.kec/getDataTable', (data, cb)=>getDataTable(data, cb,client));
     client.on('api.master_tabel.kec/deleteTableDatabyId', (data, cb)=>deleteTableDatabyId(data, cb,client));
+    client.on('api.master_tabel.kec/setIsApprove', (data, cb)=>setIsApprove(data, cb,client));
     
     client.on('api.master_tabel.deskel/simpanDeskel', (query,cb)=>simpanDeskel(query,cb,client));
     client.on('api.master_tabel.deskel/getDeskel', (cb)=>getDeskel(cb,client));

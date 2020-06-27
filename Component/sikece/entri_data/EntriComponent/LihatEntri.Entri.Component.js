@@ -113,11 +113,11 @@ export default class LihatTabel_Tabel extends React.Component {
             dataIndex: '_id',
             width: 65,
             render: (_idTable, record) => all_kec_table_obj[kec] ?
-                (<Tag color={all_kec_table_obj[kec][_idTable] ? (all_kec_table_obj[kec][_idTable].isApproved ? "#87d068" : "#108ee9") : undefined}>{all_kec_table_obj[kec][_idTable] ? (all_kec_table_obj[kec][_idTable].isApproved ? "Disetujui" : "Terentri") : "Belum entri"}</Tag>)
+                (<Tag color={all_kec_table_obj[kec][_idTable] ? (all_kec_table_obj[kec][_idTable].isApproved ? "#87d068" : "#108ee9") : "#f50"}>{all_kec_table_obj[kec][_idTable] ? (all_kec_table_obj[kec][_idTable].isApproved ? "Disetujui" : "Terentri") : "Belum entri"}</Tag>)
                 : (<LoadingOutlined />)
         },
         {
-            title: 'pilihan',
+            title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
             width: 140,

@@ -1,240 +1,297 @@
-import { Row, Col, Progress, Button, Space, Table, Carousel } from 'antd';
-import { ArrowRightOutlined, ArrowLeftOutlined, CheckOutlined, CloseOutlined, LoadingOutlined } from '@ant-design/icons'
+import { Row, Col, Progress, Button, Space, Table, Tooltip, Spin, Modal } from 'antd';
+import { ArrowRightOutlined, ArrowLeftOutlined, LeftOutlined, RightOutlined, CheckOutlined, CloseOutlined, LoadingOutlined } from '@ant-design/icons'
 import { Fragment } from 'react';
+import { getKec, setIsApprove } from "../../../redux/actions/master.action"
 
 export default class SlideShow extends React.Component {
     state = {
-        dataIndikators: [{
-            _id: 1,
-            name: 'Tabel 1.2 Dusun dan Dasawisma di Kecamatan Pasarwajo (Hektar), 2019',
-            status: 'Desetujui',
-            ket: "-",
-            judul_baris: {
-                _id: 'a',
-                name: 'Desa/Kelurahan',
-                vars: ['Holimombo Jaya', 'Kondowa', 'Dongkala', 'Holimombo', 'Takimpo', 'Kombeli', 'Awainulu']
-            },
-            judul_kolom: [{
-                _id: 'b',
-                name: 'Jumlah penduduk',
-                vars: [
-                    ["Laki-laki", "Jiwa", "Angka", 0, 'Bar', 'Penduduk', "-"],
-                    ["Perempuan", "Jiwa", "Angka", 0, 'Bar', 'Penduduk', "-"],
-                    ["Jumlah", "Jiwa", "Angka", 0, 'Bar', 'Penduduk', "-"],
-                    ["Rasio Jenis Kelamin", "%", "Angka", 2, 'Pie', '-', "-"],
-                ]
-            }, {
-                _id: 'c',
-                name: 'Kematian',
-                vars: [
-                    ["Kematian", "Jiwa", "Angka", 0, 'Bar', '-', "-"],
-                ]
-            }, {
-                _id: 'd',
-                name: 'Kelahiran',
-                vars: [
-                    ["Kelahiran", "Jiwa", "Angka", 0, 'Bar', 'Penduduk', "-"],
-                ]
-            }],
-        }]
+        xl: 24,
+        xxl: 24,
+        loadingSetuju: false,
+        loadingTdkSetuju: false,
+        arsipModalVisible: false,
+        index_arsip: 0
+    }
+    getJumlahData = (activeData, _idKolom) => {
+        if (activeData) {
+            let lastBaris = activeData.all_data[activeData.all_data.length - 1]
+            for (var property in lastBaris) {
+                if (lastBaris.hasOwnProperty(property)) {
+                    if (property === _idKolom) return lastBaris[property]
+                }
+            }
+        } else return ''
+    }
+    getBarisDataSource = (baris, kec, activeData) => {
+        const { all_variable_obj, all_kec_obj, all_deskel } = this.props;
+        let judul_baris = [];
+        baris.forEach((_id, i) => {
+            if (all_variable_obj[_id].name.match(/^Desa\s?\/?\s?(Kelurahan)?\s?$/)) {
+                const deskel = all_deskel.filter(d => (d.kec === kec))
+                if (deskel.length) {
+                    deskel.forEach((d, i) => {
+                        judul_baris.push({ '_id': d._id, 'baris_var': `${d.kode} ${d.name}` })
+                    })
+                } else {
+                    judul_baris.push({ '_id': _id, 'baris_var': all_variable_obj[_id].name })
+                }
+            } else if (all_variable_obj[_id].name.match(/^Jumlah|Total\s?$/) && i === baris.length - 1) {
+                //not pushing
+            } else {
+                judul_baris.push({ '_id': _id, 'baris_var': all_variable_obj[_id].name })
+            }
+        })
+        if (activeData) {
+            activeData.all_data && judul_baris.forEach((data, i) => {
+                activeData.all_data.forEach(row => {
+                    if (data._id === row._idBaris) {
+                        judul_baris[i] = { ...data, ...row }
+                    }
+                })
+            })
+        }
+        return judul_baris
+    }
+    getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData) => {
+        const { all_variable_obj, all_kec_obj } = this.props;
+        let sumberA, catatanA, ketA
+        let arsipA = [];
+        if (activeData) {
+            sumberA = activeData.sumber ? activeData.sumber : undefined
+            catatanA = activeData.catatan ? activeData.catatan : undefined
+            arsipA = activeData.arsip ? activeData.arsip : undefined
+            ketA = activeData.ket ? activeData.ket : undefined
+        }
+        return <Row>
+            <Col xs={24}>
+                <Row justify="center" style={{ textAlign: "center" }}>
+                    <Col xs={24}>
+                        <strong>{`Tabel ${nomor_tabel ? nomor_tabel : '[Nomor Tabel]'}`}</strong>
+                    </Col>
+                </Row>
+                <Row justify="center" style={{ textAlign: "center" }} gutter={[0, 16]}>
+                    <Col xs={24}>
+                        <strong>{judul ? judul.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : '[Judul Tabel]'}</strong>
+                    </Col>
+                </Row>
+                <Row gutter={[0, 8]}>
+                    <Col xs={24}>
+                        {all_variable_obj !== {} && baris.length && kolom.length ? <Table
+                            size="small"
+                            bordered
+                            columns={(() => {
+                                const parents = {}
+                                const cols = []
+                                let judul_kelompok_baris = ''
+                                baris.forEach((_idBaris, i) => {
+                                    if (all_variable_obj[_idBaris].kelompok && judul_kelompok_baris === '') judul_kelompok_baris = all_variable_obj[_idBaris].kelompok
+                                })
+                                cols.push({
+                                    title: judul_kelompok_baris === '' ? all_variable_obj[baris[0]].name : judul_kelompok_baris,
+                                    dataIndex: "baris_var"
+                                })
+                                kolom.forEach((_idKolom, i) => {
+                                    if (all_variable_obj[_idKolom].kelompok !== "-" && all_variable_obj[_idKolom].kelompok !== "" && all_variable_obj[_idKolom].kelompok) {
+                                        if (!parents[all_variable_obj[_idKolom].kelompok]) {
+                                            parents[all_variable_obj[_idKolom].kelompok] = {};
+                                            parents[all_variable_obj[_idKolom].kelompok].indexAnggota = [];
+                                        }
+                                        parents[all_variable_obj[_idKolom].kelompok].indexAnggota.push(_idKolom)
+                                    } else {
+                                        if (!parents[`no_parents_${i}`]) {
+                                            parents[`no_parents_${i}`] = {};
+                                            parents[`no_parents_${i}`].indexAnggota = [];
+                                        }
+                                        parents[`no_parents_${i}`].indexAnggota.push(_idKolom)
+                                    }
+                                })
+                                for (var parent in parents) {
+                                    if (parents.hasOwnProperty(parent)) {
+                                        if (parent.includes('no_parents')) {
+                                            cols.push({
+                                                title: all_variable_obj[parents[parent].indexAnggota[0]].name,
+                                                dataIndex: all_variable_obj[parents[parent].indexAnggota[0]]._id,
+                                                align: 'right'
+                                            })
+                                        } else {
+                                            const calon_col = {}
+                                            calon_col.title = parent
+                                            calon_col.children = parents[parent].indexAnggota.map(indexVar => ({
+                                                title: all_variable_obj[indexVar].name,
+                                                dataIndex: all_variable_obj[indexVar]._id,
+                                                align: 'right'
+                                            }));
+                                            cols.push(calon_col)
+                                        }
+                                    }
+                                }
+                                return cols
+                            })()}
+                            dataSource={this.getBarisDataSource(baris, kec, activeData)}
+                            pagination={false}
+                            rowKey="_id"
+                            summary={() => (this.props.all_variable_obj[baris[baris.length - 1]].name.match(/^Jumlah|Total\s?$/) ?
+                                <Table.Summary.Row style={{ background: '#fafafa', textAlign: 'right' }}>
+                                    <Table.Summary.Cell index={0} key={0}><strong style={{ float: 'left' }}>{this.props.all_variable_obj[baris[baris.length - 1]].name}</strong></Table.Summary.Cell>
+                                    {kolom.map((k, i) => <Table.Summary.Cell index={i + 1} key={i}><strong>{this.getJumlahData(activeData, k)}</strong></Table.Summary.Cell>)}
+                                </Table.Summary.Row> : undefined)
+                            }
+                        /> : 'Belum ada Variabel'}
+                    </Col>
+                </Row>
+                {sumber ? <Row gutter={[0, catatan ? 0 : 16]}>
+                    <Col xs={24}>
+                        <span style={{ float: "left" }}>Sumber: {sumberA ? sumberA : sumber.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A')}</span>
+                    </Col>
+                </Row> : null}
+                {catatanA || catatan ? <Row>
+                    <Col xs={24}>
+                        <span style={{ float: "left" }}>Catatan: {catatanA ? catatanA : (catatan ? catatan.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : '')}</span>
+                    </Col>
+                </Row> : null}
+                {ketA ? <Row>
+                    <Col xs={24}>
+                        <span style={{ float: "left" }}>Keterangan: {ketA}</span>
+                    </Col>
+                </Row> : null}
+            </Col>
+        </Row>
+    }
+    setTableWidth = (columnCount, type) => {
+        const xl = 5 + 3 * columnCount
+        const xxl = 5 + 2 * columnCount
+        this.setState({ xl: xl < 25 ? xl : 24, xxl: xxl < 25 ? xxl : 24 })
+    }
+    onClickNextArsip = (prevIndex, maxIndex) => {
+        const newIndex = prevIndex + 1 > maxIndex ? 0 : prevIndex + 1
+        this.setState({ index_arsip: newIndex })
+    }
+    onClickPrevArsip = (prevIndex, maxIndex) => {
+        const newIndex = prevIndex - 1 < 0 ? maxIndex : prevIndex - 1
+        this.setState({ index_arsip: newIndex })
+    }
+    onClickApprove = (isApproved) => {
+        this.setState({ [isApproved ? 'loadingSetuju' : 'loadingTdkSetuju']: true }, () => {
+            const { tables, active_index } = this.props
+            const { _idKec, _idTable } = tables[active_index]
+            this.props.dispatch(setIsApprove(this.props.socket, { _idKec, _idTable, isApproved }, this.props, () => this.props.dispatch(getKec(this.props.socket, () => {
+                this.setState({ [isApproved ? 'loadingSetuju' : 'loadingTdkSetuju']: false })
+            }))))
+        })
+    }
+    getPreviewArsip = (fileName) => {
+        if (!fileName) {
+            return <span>Tidak ada arsip</span>
+        } else if (fileName.match(/\.(jpeg|jpg|png)$/)) {
+            return <img alt={fileName} style={{ width: '100%' }} src={`http://${window.location.hostname}/static/arsip/${fileName}`} />
+        } else if (fileName.match(/\.pdf$/)) {
+            return <iframe type="application/pdf" width="100%" height="690" frameBorder="0" src={this.props.url || `http://${window.location.hostname}/static/arsip/${fileName}`}></iframe>
+        } else {
+            return <span>Klik untuk mengunduh file: <a target="_blank" href={`http://${window.location.hostname}/static/arsip/${fileName}`}>{fileName}</a></span>
+        }
+    }
+    componentDidUpdate = (prevProps, prevState) => {
+        if (this.props.active_index !== prevProps.active_index) {
+            this.setTableWidth(this.props.tables[this.props.active_index] ? this.props.tables[this.props.active_index].kolom.length : 2)
+        }
     }
     render() {
-        const { dataIndikators } = this.state
-        const { active_user } = this.props
-        const sliderSettings = {
-            dots: true,
-            fade: false
-        };
-
-        console.log(this.props);
-
-        const total_table = 15
-
+        const { active_user: { kec, table }, all_variable, all_kec, tables, active_index, onClickNext, onClickPrev } = this.props
+        const { xxl, xl, loadingSetuju, loadingTdkSetuju, arsipModalVisible, index_arsip } = this.state
+        const total = kec ? kec.length * table.length : 0
+        const approved = kec ? [].concat(...tables).filter(item => item.isApproved).length : 0
+        const persentase = kec ? (approved / total * 100) : 0
+        const active_table = active_index !== undefined ? tables[active_index] : undefined;
+        const all_data = active_table ? active_table.all_data : undefined;
+        const arsip = all_data ? all_data.arsip : [];
 
         return (
             <Fragment>
                 <Row gutter={[0, 16]}>
                     <Col xs={22}>
-                        <Progress
-                            percent={45} status="active" strokeWidth={15}
-                            format={(percent, successPercent) => active_user.kec?null:null}
-                        />
+                        <Tooltip title={`${approved} dari ${total} tabel telah disetujui (${approved / total * 100}%)`}>
+                            <Progress
+                                percent={persentase} status={persentase < 100 ? "active" : undefined} strokeWidth={15}
+                                format={(percent, successPercent) => kec ?
+                                    (`${approved} dari ${total} Tabel`)
+                                    : <LoadingOutlined />}
+                            />
+                        </Tooltip>
                     </Col>
                 </Row>
-                <Row>
-                    <Col xs={24} md={15}>
-                        <Carousel
-                            {...sliderSettings}
-                            ref={c => {
-                                this.slider = c;
-                            }}
-                        >
-                            <div key="1">
-                                <Row gutter={[0, 8]}>
-                                    <Col xs={24} md={24}>
-                                        <strong style={{ fontSize: 16 }}>Tabel 1.1 Luas Wilayah di Kecamatan Pasarwajo (Hektar), 2019</strong>
-                                    </Col>
-                                </Row>
-                                <Row gutter={[0, 16]}>
-                                    <Col xs={24}>
-                                        <Table
-                                            size="small"
-                                            bordered
-                                            columns={(() => {
-                                                const parents = {}
-                                                const cols = []
-                                                cols.push({
-                                                    title: dataIndikators[0].judul_baris.name,
-                                                    dataIndex: "baris_var"
-                                                })
-                                                dataIndikators[0].judul_kolom[0].vars.forEach((v, i) => {
-                                                    if (v[5] !== "-" && v[5] !== "") {
-                                                        if (!parents[v[5]]) {
-                                                            parents[v[5]] = {};
-                                                            parents[v[5]].indexAnggota = [];
-                                                        }
-                                                        parents[v[5]].indexAnggota.push(i)
-                                                    } else {
-                                                        if (!parents[`no_parents_${i}`]) {
-                                                            parents[`no_parents_${i}`] = {};
-                                                            parents[`no_parents_${i}`].indexAnggota = [];
-                                                        }
-                                                        parents[`no_parents_${i}`].indexAnggota.push(i)
-                                                    }
-                                                })
-                                                for (var parent in parents) {
-                                                    if (parents.hasOwnProperty(parent)) {
-                                                        if (parent.includes('no_parents')) {
-                                                            cols.push({
-                                                                title: dataIndikators[0].judul_kolom[0].vars[parents[parent].indexAnggota[0]][0],
-                                                                dataIndex: "data"
-                                                            })
-                                                        } else {
-                                                            const calon_col = {}
-                                                            calon_col.title = parent
-                                                            calon_col.children = parents[parent].indexAnggota.map(indexVar => ({
-                                                                title: dataIndikators[0].judul_kolom[0].vars[indexVar][0],
-                                                                dataIndex: "data"
-                                                            }));
-                                                            cols.push(calon_col)
-                                                        }
-                                                    }
-                                                }
-                                                return cols
-                                            })()}
-                                            dataSource={dataIndikators[0].judul_baris.vars.map((d, i) => ({ '_id': i, 'baris_var': d, 'data': "data" }))}
-                                            pagination={false}
-                                            rowKey="_id"
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col xs={24} md={24}>
-                                        Sumber: Desa/Kelurahan
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col xs={24} md={24}>
-                                        Catatan: -
-                                    </Col>
-                                </Row>
-                            </div>
-                            <div key="2">
-                                <Row gutter={[0, 8]}>
-                                    <Col xs={24} md={24}>
-                                        <strong style={{ fontSize: 16 }}>Tabel 1.2 Dusun dan Dasawisma di Kecamatan Pasarwajo (Hektar), 2019</strong>
-                                    </Col>
-                                </Row>
-                                <Row gutter={[0, 16]}>
-                                    <Col xs={24}>
-                                        <Table
-                                            size="small"
-                                            bordered
-                                            columns={(() => {
-                                                const parents = {}
-                                                const cols = []
-                                                cols.push({
-                                                    title: dataIndikators[0].judul_baris.name,
-                                                    dataIndex: "baris_var"
-                                                })
-                                                dataIndikators[0].judul_kolom[0].vars.forEach((v, i) => {
-                                                    if (v[5] !== "-" && v[5] !== "") {
-                                                        if (!parents[v[5]]) {
-                                                            parents[v[5]] = {};
-                                                            parents[v[5]].indexAnggota = [];
-                                                        }
-                                                        parents[v[5]].indexAnggota.push(i)
-                                                    } else {
-                                                        if (!parents[`no_parents_${i}`]) {
-                                                            parents[`no_parents_${i}`] = {};
-                                                            parents[`no_parents_${i}`].indexAnggota = [];
-                                                        }
-                                                        parents[`no_parents_${i}`].indexAnggota.push(i)
-                                                    }
-                                                })
-                                                for (var parent in parents) {
-                                                    if (parents.hasOwnProperty(parent)) {
-                                                        if (parent.includes('no_parents')) {
-                                                            cols.push({
-                                                                title: dataIndikators[0].judul_kolom[0].vars[parents[parent].indexAnggota[0]][0],
-                                                                dataIndex: "data"
-                                                            })
-                                                        } else {
-                                                            const calon_col = {}
-                                                            calon_col.title = parent
-                                                            calon_col.children = parents[parent].indexAnggota.map(indexVar => ({
-                                                                title: dataIndikators[0].judul_kolom[0].vars[indexVar][0],
-                                                                dataIndex: "data"
-                                                            }));
-                                                            cols.push(calon_col)
-                                                        }
-                                                    }
-                                                }
-                                                return cols
-                                            })()}
-                                            dataSource={dataIndikators[0].judul_baris.vars.map((d, i) => ({ '_id': i, 'baris_var': d, 'data': "data" }))}
-                                            pagination={false}
-                                            rowKey="_id"
-                                        />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col xs={24} md={24}>
-                                        Sumber: Desa/Kelurahan
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col xs={24} md={24}>
-                                        Catatan: -
-                                    </Col>
-                                </Row>
-                            </div>
-                            <div key="3">
-                                <h3>3</h3>
-                            </div>
-                            <div key="4">
-                                <h3>4</h3>
-                            </div>
-                        </Carousel>
+                <Row justify="center" style={{ textAlign: "center", marginBottom: 8 }}>
+                    <Col xs={24} xl={xl} xxl={xxl}>
+                        <Spin spinning={!tables.length || !all_kec.length || !all_variable.length}>
+                            {active_index !== undefined && all_kec.length && all_variable.length ?
+                                this.getDynamicTable(
+                                    tables[active_index].baris,
+                                    tables[active_index].kolom,
+                                    tables[active_index].nomor_tabel,
+                                    tables[active_index].judul,
+                                    tables[active_index].sumber,
+                                    tables[active_index].catatan,
+                                    tables[active_index]._idKec,
+                                    tables[active_index].all_data
+                                ) : <p style={{ margin: "32px 0" }}><strong>Belum ada tabel yang tersedia untuk disetujui.</strong></p>}
+                        </Spin>
                     </Col>
                 </Row>
                 <Row gutter={[0, 16]}>
-                    <Col xs={24} md={15} style={{ textAlign: "center" }}>
+                    <Col xs={24} style={{ textAlign: "center" }}>
                         <Space align="center">
-                            <Button onClick={() => this.slider.prev()} type="primary" shape="circle" icon={<ArrowLeftOutlined />} />
-                            <Button onClick={() => this.slider.next()} type="primary" shape="circle" icon={<ArrowRightOutlined />} />
+                            <Tooltip title="Tabel sebelumnya">
+                                <Button disabled={active_index === undefined} type="primary" onClick={onClickPrev} shape="circle" icon={<ArrowLeftOutlined />} />
+                            </Tooltip>
+                            <Tooltip title="Tabel berikutnya">
+                                <Button disabled={active_index === undefined} type="primary" onClick={onClickNext} shape="circle" icon={<ArrowRightOutlined />} />
+                            </Tooltip>
                         </Space>
                     </Col>
                 </Row>
-                <Row gutter={[0, 16]}>
-                    <Col xs={24} md={15} style={{ textAlign: "center" }}>
+                <Row gutter={[0, 32]}>
+                    <Col xs={24} style={{ textAlign: "center" }}>
                         <Space align="center">
-                            <Button icon={<CheckOutlined />}>Setujui</Button>
-                            <Button icon={<CloseOutlined />}>Blm Setuju</Button>
-                            <Button>Lihat Arsip</Button>
+                            <Button loading={loadingSetuju} disabled={active_index === undefined || (active_index !== undefined ? tables[active_index].isApproved === true : false)} icon={<CheckOutlined />} onClick={() => this.onClickApprove(true)}>Setujui</Button>
+                            <Button loading={loadingTdkSetuju} disabled={active_index === undefined || (active_index !== undefined ? tables[active_index].isApproved === false : false)} icon={<CloseOutlined />} onClick={() => this.onClickApprove(false)}>Belum Setuju</Button>
+                            <Tooltip title={active_index !== undefined ? (tables[active_index].all_data.arsip.length ? "Lihat arsip" : "Tidak ada arsip") : "Tidak ada arsip"}>
+                                <Button disabled={active_index !== undefined ? !tables[active_index].all_data.arsip.length : true} onClick={() => this.setState({ arsipModalVisible: true })}>Lihat Arsip</Button>
+                            </Tooltip>
                         </Space>
                     </Col>
                 </Row>
+                <Modal
+                    title={`Arsip`}
+                    visible={arsipModalVisible}
+                    maskClosable={false}
+                    onCancel={() => this.setState({ arsipModalVisible: false })}
+                    footer={[
+                        <Button key="back" type="primary" onClick={() => this.setState({ arsipModalVisible: false })}>
+                            Kembali
+                        </Button>
+                    ]}
+                >
+                    {arsip.length ? (
+                        <Fragment>
+                            <Row justify="center" style={{ textAlign: "center", marginBottom: 8 }}>
+                                <Col xs={24}>
+                                    {this.getPreviewArsip(arsip[index_arsip])}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col xs={24} style={{ textAlign: "center" }}>
+                                    <Space align="center">
+                                        <Tooltip placement="bottom" title="Arsip sebelumnya">
+                                            <Button disabled={active_index !== undefined ? tables[active_index].all_data.arsip.length < 2 : true} onClick={() => this.onClickPrevArsip(index_arsip, active_index !== undefined ? tables[active_index].all_data.arsip.length - 1 : 1)} shape="circle" icon={<LeftOutlined />} />
+                                        </Tooltip>
+                                        <Tooltip placement="bottom" title="Arsip berikutnya">
+                                            <Button disabled={active_index !== undefined ? tables[active_index].all_data.arsip.length < 2 : true} onClick={() => this.onClickNextArsip(index_arsip, active_index !== undefined ? tables[active_index].all_data.arsip.length - 1 : 1)} shape="circle" icon={<RightOutlined />} />
+                                        </Tooltip>
+                                    </Space>
+                                </Col>
+                            </Row>
+                        </Fragment>
+                    ) : null}
+                </Modal>
             </Fragment>
         )
     }

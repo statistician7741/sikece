@@ -1,52 +1,4 @@
-import { Row, PageHeader, Col, Table } from "antd"
-import dynamic from 'next/dynamic';
-import { LoadingOutlined } from '@ant-design/icons'
-import { getKec, getTable, getKab, getBab, getVariable, getDeskel } from "../../../redux/actions/master.action"
-
-const LihatEntri = dynamic(() => import("./EntriComponent/LihatEntri.Entri.Component"));
-const EditorEntri = dynamic(() => import("./EntriComponent/EditorEntri.Entri.Component"));
-
-export default class IndexEntri extends React.Component {
-    state = {
-        activePage: 'list',
-        activeEditingtitle: '',
-        activeRecord: undefined,
-        selectedYear: new Date().getFullYear(),
-        years: [],
-        kab: undefined,
-        kec: undefined,
-        bab: 'all_bab',
-        activeData: undefined,
-        loadingData: false,
-        expandLoading: false
-    }
-    setExpandLoading = (expandLoading, cb) => this.setState({ expandLoading }, cb)
-
-    onClickEntri = (activeEditingtitle, activeRecord) => {
-        this.getDataTable(this.props, this.state.kec, activeRecord, () => this.setState({ activePage: 'edit', activeEditingtitle, activeRecord }))
-    }
-    onBack = () => this.setState({ activePage: 'list' })
-    getAllYearsBab = (props) => {
-        props.socket.emit('api.master_tabel.bab/getAllYearsBab', (response) => {
-            if (response.type === 'ok') {
-                this.setState({ years: response.data })
-            } else {
-                props.showErrorMessage(response.additionalMsg)
-            }
-        })
-    }
-    getJumlahData = (activeData, _idKolom) => {
-        if (activeData) {
-            let lastBaris = activeData.all_data[activeData.all_data.length - 1]
-            for (var property in lastBaris) {
-                if (lastBaris.hasOwnProperty(property)) {
-                    if (property === _idKolom) return lastBaris[property]
-                }
-            }
-        } else return ''
-    }
-    getBarisDataSource = (baris, kec, activeData) => {
-        const { all_variable_obj, all_kec_obj, all_deskel } = this.props;
+const getBarisDataSource = (baris, kec, activeData, all_variable_obj, all_deskel) => {
         let judul_baris = [];
         baris.forEach((_id, i) => {
             if (all_variable_obj[_id].name.match(/^Desa\s?\/?\s?(Kelurahan)?\s?$/)) {
@@ -75,8 +27,8 @@ export default class IndexEntri extends React.Component {
         }
         return judul_baris
     }
-    getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData) => {
-        const { all_variable_obj, all_kec_obj } = this.props;
+module.exports = {
+    getDynamicTable: (baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData, all_variable_obj, all_kec_obj, all_deskel) => {
         let sumberA, catatanA
         let arsipA = [];
         if (activeData) {
@@ -101,7 +53,6 @@ export default class IndexEntri extends React.Component {
                         {all_variable_obj !== {} && baris.length && kolom.length ? <Table
                             size="small"
                             bordered
-                            style={{ marginRight: 22, marginBottom: 8 }}
                             columns={(() => {
                                 const parents = {}
                                 const cols = []
@@ -150,7 +101,7 @@ export default class IndexEntri extends React.Component {
                                 }
                                 return cols
                             })()}
-                            dataSource={this.getBarisDataSource(baris, kec, activeData)}
+                            dataSource={getBarisDataSource(baris, kec, activeData, all_variable_obj, all_deskel)}
                             pagination={false}
                             rowKey="_id"
                             summary={() => (this.props.all_variable_obj[baris[baris.length - 1]].name.match(/^Jumlah|Total\s?$/) ?
@@ -164,87 +115,20 @@ export default class IndexEntri extends React.Component {
                 </Row>
                 {sumber ? <Row gutter={[0, catatan ? 0 : 16]}>
                     <Col xs={24}>
-                        <span style={{ marginLeft: 25 }}>Sumber: {sumberA ? sumberA : sumber.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A')}</span>
+                        Sumber: {sumberA ? sumberA : sumber.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A')}
                     </Col>
                 </Row> : null}
                 {catatanA || catatan ? <Row>
                     <Col xs={24}>
-                        <span style={{ marginLeft: 25 }}>Catatan: {catatanA ? catatanA : (catatan ? catatan.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : '')}</span>
+                        Catatan: {catatanA ? catatanA : (catatan ? catatan.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : '')}
                     </Col>
                 </Row> : null}
                 {arsipA.length ? <Row gutter={[0, catatan ? 0 : 16]}>
                     <Col xs={24}>
-                        <div style={{ marginLeft: 25 }}>Arsip: {arsipA.length ? activeData.arsip.map(a => (<span key={a}><a target="_blank" href={`http://${window.location.hostname}/static/arsip/${a}`}>{a}</a><br /></span>)) : null}</div>
+                        Arsip: {arsipA.length ? activeData.arsip.map(a => (<span key={a}><a target="_blank" href={`http://${window.location.hostname}/static/arsip/${a}`}>{a}</a><br /></span>)) : null}
                     </Col>
                 </Row> : null}
             </Col>}
         </Row>
-    }
-    onChangeDropdown = (data) => this.setState(data)
-    getDataTable = (props, _idKec, activeRecord, cb) => {
-        this.setState({ activeData: undefined, loadingData: true, activeRecord }, () => {
-            let data = { _idKec, _idTable: activeRecord._id }
-            props.socket.emit('api.master_tabel.kec/getDataTable', data, (response) => {
-                if (response.type === 'ok') {
-                    this.setState({ activeData: response.data, loadingData: false }, cb)
-                } else {
-                    props.showErrorMessage(response.additionalMsg)
-                }
-            })
-        })
-    }
-    componentDidMount() {
-        if (this.props.socket) {
-            !this.state.years && this.getAllYearsBab(this.props)
-            !this.props.all_table.length && this.props.dispatch(getTable(this.props.socket))
-            !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
-            !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket))
-            !this.props.all_deskel.length && this.props.dispatch(getDeskel(this.props.socket))
-            !this.props.all_bab.length && this.props.dispatch(getBab(this.props.socket))
-            !this.props.all_variable.length && this.props.dispatch(getVariable(this.props.socket))
-            if (this.props.all_kab.length) {
-                this.setState({ kab: this.props.all_kab[0]._id })
-            }
-        }
-    }
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.socket !== prevProps.socket) {
-            this.getAllYearsBab(this.props)
-            this.props.dispatch(getTable(this.props.socket))
-            this.props.dispatch(getKab(this.props.socket))
-            this.props.dispatch(getKec(this.props.socket))
-            this.props.dispatch(getDeskel(this.props.socket))
-            this.props.dispatch(getBab(this.props.socket))
-            this.props.dispatch(getVariable(this.props.socket))
-        }
-        if (this.props.all_kab !== prevProps.all_kab && this.props.all_kab.length) {
-            this.setState({ kab: this.props.all_kab[0]._id })
-        }
-        if (this.props.all_kec !== prevProps.all_kec && this.props.all_kec.length && this.state.kab) {
-            this.props.all_kec.filter(kec => this.state.kab === kec.kab).length && this.setState({ kec: this.props.all_kec.filter(kec => this.state.kab === kec.kab)[0]._id })
-        }
-        if (this.state.kab !== prevState.kab && this.state.kab) {
-            this.props.all_kec.filter(kec => this.state.kab === kec.kab).length && this.setState({ kec: this.props.all_kec.filter(kec => this.state.kab === kec.kab)[0]._id })
-        }
-    }
-
-    render() {
-        const { activePage, loadingData, activeEditingtitle, activeRecord, activeData, bab, selectedYear, years, kab, kec } = this.state
-        return (
-            <PageHeader
-                className="site-page-header"
-                title="Entri Data"
-                subTitle={activePage === 'list' ? "Daftar tabel" : `${activeEditingtitle}`}
-                onBack={activePage === 'list' ? undefined : this.onBack}
-            >
-                {activePage === 'list' ?
-                    <Row gutter={[16, 0]}>
-                        <LihatEntri {...this.props} setExpandLoading={this.setExpandLoading} activeRecord={activeRecord} loadingData={loadingData} getDataTable={this.getDataTable} activeData={activeData} years={years} kab={kab} kec={kec} bab={bab} selectedYear={selectedYear} onChangeDropdown={this.onChangeDropdown} onClickEntri={this.onClickEntri} getDynamicTable={this.getDynamicTable} />
-                    </Row> :
-                    <Row gutter={[16, 0]}>
-                        <EditorEntri {...this.props} getDataTable={this.getDataTable} activeData={activeData} kec={kec} activeRecord={activeRecord} onBack={this.onBack} />
-                    </Row>}
-            </PageHeader>
-        )
     }
 }

@@ -60,7 +60,6 @@ export default (
           }
         });
       }
-      console.log(all_kec_table_obj);
       return {
         ...state,
         all_kec: action.all_kec,
