@@ -8,6 +8,6 @@ module.exports = {
         { key: "/sikece/entri_data", name: "Entri Data", user_type: ['pengentri'] },
         { key: "/sikece/persetujuan", name: "Persetujuan Data", user_type: ['peny_data'] },
         { key: "/sikece/master_pengguna", name: "Master Pengguna", user_type: ['admin'] },
-        { key: "/sikece/buku_panduan", name: "Buku Panduan", user_type: ['ka_bps', 'admin', 'supervisor', 'editor', 'pengentri', 'peny_data', undefined] }
+        { key: "/sikece/buku_panduan", name: "Buku Panduan", user_type: ['ka_bps', 'admin', 'supervisor', 'editor', 'pengentri', 'peny_data', undefined], comp: false }
     ]
 }

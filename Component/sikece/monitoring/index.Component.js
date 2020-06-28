@@ -46,71 +46,71 @@ export default class IndexMonitoring extends React.Component {
         data: [...data.kab],
         levelApprove: 'kab',
         levelEntri: 'kab',
-        activities: [
-            {
-                key: "1",
-                title: "Puskesmas Lasalimu Selatan",
-                status: "Disetujui",
-                description: "Tabel 2.3.4 Realisasi Program Imunisasi Bayi dan Ibu Hamil Menurut Jenisnya, 2015-2019",
-                time: "14.22 31/05/2020"
-            },
-            {
-                key: "2",
-                title: "Kecamatan Pasar Wajo",
-                status: "Blm Disetujui",
-                description: "Tabel 1.1.1 Luas Daerah dan Jumlah Pulau Menurut Kelurahan/Desa, 2019",
-                time: "09.45 11/06/2020"
-            },
-            {
-                key: "3",
-                title: "Kecamatan Pasar Wajo",
-                status: "Disetujui",
-                description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-                time: "09.57 11/06/2020"
-            },
-            {
-                key: "4",
-                title: "Kecamatan Lasalimu",
-                status: "Disetujui",
-                description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-                time: "08.11 11/06/2020"
-            },
-            {
-                key: "5",
-                title: "Kecamatan Lasalimu Selatan",
-                status: "Disetujui",
-                description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-                time: "13.32 11/06/2020"
-            },
-            {
-                key: "6",
-                title: "Kecamatan Siotapina",
-                status: "Disetujui",
-                description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-                time: "09.57 11/06/2020"
-            },
-            {
-                key: "7",
-                title: "Kecamatan Pasar Wajo",
-                status: "Disetujui",
-                description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-                time: "14.54 11/06/2020"
-            },
-            {
-                key: "8",
-                title: "Kecamatan Pasar Wajo",
-                status: "Disetujui",
-                description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-                time: "09.57 11/06/2020"
-            },
-            {
-                key: "9",
-                title: "Kecamatan Wolowa",
-                status: "Disetujui",
-                description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-                time: "12.59 11/06/2020"
-            }
-        ],
+        // activities: [
+        //     {
+        //         key: "1",
+        //         title: "Puskesmas Lasalimu Selatan",
+        //         status: "Disetujui",
+        //         description: "Tabel 2.3.4 Realisasi Program Imunisasi Bayi dan Ibu Hamil Menurut Jenisnya, 2015-2019",
+        //         time: "14.22 31/05/2020"
+        //     },
+        //     {
+        //         key: "2",
+        //         title: "Kecamatan Pasar Wajo",
+        //         status: "Blm Disetujui",
+        //         description: "Tabel 1.1.1 Luas Daerah dan Jumlah Pulau Menurut Kelurahan/Desa, 2019",
+        //         time: "09.45 11/06/2020"
+        //     },
+        //     {
+        //         key: "3",
+        //         title: "Kecamatan Pasar Wajo",
+        //         status: "Disetujui",
+        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
+        //         time: "09.57 11/06/2020"
+        //     },
+        //     {
+        //         key: "4",
+        //         title: "Kecamatan Lasalimu",
+        //         status: "Disetujui",
+        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
+        //         time: "08.11 11/06/2020"
+        //     },
+        //     {
+        //         key: "5",
+        //         title: "Kecamatan Lasalimu Selatan",
+        //         status: "Disetujui",
+        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
+        //         time: "13.32 11/06/2020"
+        //     },
+        //     {
+        //         key: "6",
+        //         title: "Kecamatan Siotapina",
+        //         status: "Disetujui",
+        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
+        //         time: "09.57 11/06/2020"
+        //     },
+        //     {
+        //         key: "7",
+        //         title: "Kecamatan Pasar Wajo",
+        //         status: "Disetujui",
+        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
+        //         time: "14.54 11/06/2020"
+        //     },
+        //     {
+        //         key: "8",
+        //         title: "Kecamatan Pasar Wajo",
+        //         status: "Disetujui",
+        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
+        //         time: "09.57 11/06/2020"
+        //     },
+        //     {
+        //         key: "9",
+        //         title: "Kecamatan Wolowa",
+        //         status: "Disetujui",
+        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
+        //         time: "12.59 11/06/2020"
+        //     }
+        // ],
         total_tabel: undefined,
         total_entri: undefined,
         total_disetujui: undefined,
@@ -216,8 +216,8 @@ export default class IndexMonitoring extends React.Component {
         const total_entri = all_kec_table_arr.length
         const total_blm_entri = total_tabel - total_entri
         const total_disetujui = all_kec_table_arr.length ? all_kec_table_arr.filter(data => (data.isApproved === true)).length : 0
-        const total_blm_ditanggapi = all_kec_table_arr.length ? all_kec_table_arr.filter(data => (data.isApproved === undefined)).length : 0
-        const total_blm_disetujui = total_tabel - total_disetujui - total_blm_ditanggapi
+        const total_blm_disetujui = all_kec_table_arr.length ? all_kec_table_arr.filter(data => (data.isApproved === false)).length : 0
+        const total_blm_ditanggapi = total_tabel - total_disetujui - total_blm_disetujui
 
         const allData = {
             total_tabel,

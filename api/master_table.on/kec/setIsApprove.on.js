@@ -12,7 +12,7 @@ module.exports = ({_idKec, _idTable, isApproved}, cb, client) => {
         if (err) {
             cb({ 'type': 'error', 'data': err })
         } else {
-            cb({ 'type': 'ok', 'data': 'Berhasil disetujui' })
+            cb({ 'type': 'ok', 'data': isApproved?'Berhasil disetujui':'Belum disetujui' })
         }
     })
 }

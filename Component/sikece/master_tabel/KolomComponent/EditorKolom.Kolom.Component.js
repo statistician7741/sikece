@@ -21,8 +21,8 @@ export default class EditorVariabel_Variabel extends React.Component {
     state = {
         ...func.getFormVar(variableFields, null, true),
         nestedHeaders: [
-            ['Nama', 'Kelompok', 'Satuan', 'Jenis', 'Desimal', 'Agregat', 'Grafik'],
-            ['(1)', '(2)', '(3)', '(4)', '(5)', '(6)', '(7)', '(8)']
+            ['Nama', 'Kelompok', 'Satuan'],//, 'Jenis', 'Desimal', 'Agregat', 'Grafik'],
+            ['(1)', '(2)', '(3)']//, '(4)', '(5)', '(6)', '(7)', '(8)']
         ],
         data: [],
         view_as: 'Kolom',
@@ -53,8 +53,8 @@ export default class EditorVariabel_Variabel extends React.Component {
         if (this.state.data.length === 1) return this.state.data[0].name && this.state.subject
         let isValid = true;
         this.state.data.forEach((variable, i) => {
-            const { name, kelompok, satuan, jenis, desimal, jenis_agregat, jenis_grafik } = variable;
-            if (name || kelompok || satuan || jenis || desimal || jenis_agregat || jenis_grafik) {
+            const { name, kelompok, satuan } = variable;//, jenis, desimal, jenis_agregat, jenis_grafik } = variable;
+            if (name || kelompok || satuan) {// || jenis || desimal || jenis_agregat || jenis_grafik) {
                 if (!name || !this.state.subject) isValid = false
             }
         })
@@ -161,10 +161,10 @@ export default class EditorVariabel_Variabel extends React.Component {
                                         name: null,
                                         kelompok: null,
                                         satuan: "Tidak ada",
-                                        jenis: "Tidak ada",
-                                        desimal: "Tidak ada",
-                                        jenis_agregat: "Tidak ada",
-                                        jenis_grafik: "Tidak ada",
+                                        // jenis: "Tidak ada",
+                                        // desimal: "Tidak ada",
+                                        // jenis_agregat: "Tidak ada",
+                                        // jenis_grafik: "Tidak ada",
                                     }}
                                     nestedHeaders={nestedHeaders}
                                     rowHeaders
@@ -178,30 +178,30 @@ export default class EditorVariabel_Variabel extends React.Component {
                                             type: "dropdown",
                                             source: ["Tidak ada", ...all_satuan.map(s => (s.name))]
                                         },
-                                        {
-                                            width: 86,
-                                            data: 'jenis',
-                                            type: "dropdown",
-                                            source: ["Tidak ada", "Angka", "Teks"]
-                                        },
-                                        {
-                                            width: 86,
-                                            data: 'desimal',
-                                            type: "dropdown",
-                                            source: ["Tidak ada", "0", "1", "2", "3", "4"]
-                                        },
-                                        {
-                                            width: 86,
-                                            data: 'jenis_agregat',
-                                            type: "dropdown",
-                                            source: ["Tidak ada", "Jumlah", "Rata-rata"]
-                                        },
-                                        {
-                                            width: 86,
-                                            data: 'jenis_grafik',
-                                            type: "dropdown",
-                                            source: ["Tidak ada", "Bar", "Pie", "Line"]
-                                        },
+                                        // {
+                                        //     width: 86,
+                                        //     data: 'jenis',
+                                        //     type: "dropdown",
+                                        //     source: ["Tidak ada", "Angka", "Teks"]
+                                        // },
+                                        // {
+                                        //     width: 86,
+                                        //     data: 'desimal',
+                                        //     type: "dropdown",
+                                        //     source: ["Tidak ada", "0", "1", "2", "3", "4"]
+                                        // },
+                                        // {
+                                        //     width: 86,
+                                        //     data: 'jenis_agregat',
+                                        //     type: "dropdown",
+                                        //     source: ["Tidak ada", "Jumlah", "Rata-rata"]
+                                        // },
+                                        // {
+                                        //     width: 86,
+                                        //     data: 'jenis_grafik',
+                                        //     type: "dropdown",
+                                        //     source: ["Tidak ada", "Bar", "Pie", "Line"]
+                                        // },
                                     ]}
                                     beforeChange={this.onChangeMultiple}
                                     beforeRemoveRow={(i, a, rowsIndex, s) => this.removeRowMultipleEdit(rowsIndex)}

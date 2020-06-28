@@ -4,9 +4,9 @@ module.exports = [
     ['subject'],
     ['kelompok'],
     ['satuan'],
-    ['jenis'],
-    ['desimal'],
-    ['jenis_agregat'],
-    ['jenis_grafik'],
+    // ['jenis'],
+    // ['desimal'],
+    // ['jenis_agregat'],
+    // ['jenis_grafik'],
     ['ket'],
 ]

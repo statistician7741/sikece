@@ -13,10 +13,10 @@ var VariabelSchema = new Schema({
     },
     "kelompok": String,
     "satuan": String,
-    "jenis": String,
-    "desimal": String,
-    "jenis_agregat": String,
-    "jenis_grafik": String,
+    // "jenis": String,
+    // "desimal": String,
+    // "jenis_agregat": String,
+    // "jenis_grafik": String,
     "ket": String,
 }, { collection: 'variable' });
 

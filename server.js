@@ -48,6 +48,7 @@ let runServer = () => {
       server.use('/sikece/other', require("./api/other.api"));
       console.log(`${__dirname}/public/static/arsip`);
       server.use('/view/arsip', express.static(`${__dirname}/public/static/arsip`))
+      server.use('/view', express.static(`${__dirname}/public/static`))
 
       let login_check = function (req, res, next) {
         if (/^\/sikece\/login$/.test(req.url)) {
