@@ -132,10 +132,8 @@ export default class IndexMonitoring extends React.Component {
             !this.props.all_table.length && this.props.dispatch(getTable(this.props.socket))
             !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
             !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket))
-            if (this.props.all_kec !== prevProps.all_kec) {
-                if (this.props.all_kec.length && this.props.all_kab.length) {
-                    this.getKabDataChart()
-                }
+            if (this.props.all_kec.length && this.props.all_kab.length) {
+                this.getKabDataChart()
             }
         }
     }
