@@ -5,6 +5,9 @@ const tabs = [{
     name: "Monitoring",
     Component: dynamic(() => import("./Components/Monitoring.Comp"))
 }, {
+    name: "Tabel Final",
+    Component: dynamic(() => import("./Components/TabelFinal.Comp"))
+}, {
     name: "Master Tabel",
     Component: dynamic(() => import("./Components/MasterTabel.Comp"))
 }, {
@@ -32,7 +35,7 @@ export default class IndexMasterTabel extends React.Component {
                 >
                     <Tabs size="small" tabPosition="left" style={{ height: '100vh' }}>
                         {tabs.map(t => <TabPane tab={t.name} key={t.name}>
-                            {<t.Component menuName={t.name} />}
+                            {<t.Component menuName={t.name} closing="Berikut merupakan panduan bagaimana menggunakan menu tersebut" />}
                         </TabPane>)}
                     </Tabs>
                 </PageHeader>

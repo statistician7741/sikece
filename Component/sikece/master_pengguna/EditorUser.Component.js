@@ -374,7 +374,7 @@ export default class EditorUser_User extends React.Component {
                                             showSearch
                                             allowClear
                                         >
-                                            {years.length ? years.map(y => (<Option value={y} key={y}>{y}</Option>)) : <Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Option>}
+                                            {years.length ? years.map(y => (<Select.Option value={y} key={y}>{y}</Select.Option>)) : <Select.Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Select.Option>}
                                         </Select>
                                     </Form.Item>
                                     <Form.Item

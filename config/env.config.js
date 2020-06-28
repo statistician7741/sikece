@@ -3,6 +3,7 @@ module.exports = {
     alamat: 'Jl. Protokol Kel. Saragi Kec. Pasarwajo Kab. Buton; e-Mail: bps7401@bps.go.id',
     menu: [
         { key: "/sikece/monitoring", name: "Monitoring", user_type: ['ka_bps', 'admin', 'supervisor', 'editor', 'pengentri', 'peny_data'] },
+        { key: "/sikece/tabel_final", name: "Tabel Final", user_type: ['ka_bps', 'admin', 'supervisor'] },
         { key: "/sikece/master_tabel", name: "Master Tabel", user_type: ['admin', 'editor'] },
         { key: "/sikece/entri_data", name: "Entri Data", user_type: ['pengentri'] },
         { key: "/sikece/persetujuan", name: "Persetujuan Data", user_type: ['peny_data'] },
