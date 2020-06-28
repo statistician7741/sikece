@@ -400,7 +400,6 @@ export default class EditorUser_User extends React.Component {
                                             rowKey={item => item._id}
                                             leftColumns={leftTableColumns}
                                             rightColumns={rightTableColumns('Kec')}
-                                            oneWay
                                             pagination
                                         />
                                     </Form.Item><Form.Item
@@ -426,7 +425,6 @@ export default class EditorUser_User extends React.Component {
                                             rowKey={item => item._id}
                                             leftColumns={leftTableColumnsTable}
                                             rightColumns={rightTableColumnsTable('Table')}
-                                            oneWay
                                             pagination
                                         />
                                     </Form.Item>

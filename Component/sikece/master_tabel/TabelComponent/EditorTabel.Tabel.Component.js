@@ -347,7 +347,6 @@ export default class EditorTabel_Tabel extends React.Component {
                             rowKey={item => item._id}
                             leftColumns={leftTableColumns}
                             rightColumns={rightTableColumns('Baris')}
-                            oneWay
                             pagination
                         />
                     </Form.Item>
@@ -374,7 +373,6 @@ export default class EditorTabel_Tabel extends React.Component {
                             rowKey={item => item._id}
                             leftColumns={leftTableColumns}
                             rightColumns={rightTableColumns('Kolom')}
-                            oneWay
                             pagination
                         />
                     </Form.Item>
