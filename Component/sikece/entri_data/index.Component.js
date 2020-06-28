@@ -85,6 +85,10 @@ export default class IndexEntri extends React.Component {
             arsipA = activeData.arsip ? activeData.arsip : undefined
             ketA = activeData.ket !== undefined ? activeData.ket : undefined
         }
+        const xlPre = 5 + 3 * kolom.length
+        const xxlPre = 5 + 2 * kolom.length
+        const xl = xlPre < 25 ? xlPre : 24
+        const xxl = xxlPre < 25 ? xxlPre : 24
         return <Row>
             {this.state.expandLoading ? <LoadingOutlined /> : <Col xs={24}>
                 <Row justify="center" style={{ textAlign: "center" }}>
@@ -97,12 +101,12 @@ export default class IndexEntri extends React.Component {
                         <strong>{judul ? judul.replace('{nama}', all_kec_obj[kec] ? all_kec_obj[kec].name : 'A') : '[Judul Tabel]'}</strong>
                     </Col>
                 </Row>
-                <Row gutter={[0, 8]}>
-                    <Col xs={24}>
+                <Row gutter={[0, 8]} justify="center" style={{ textAlign: "center" }}>
+                    <Col xs={24} xl={xl} xxl={xxl}>
                         {all_variable_obj !== {} && baris.length && kolom.length ? <Table
                             size="small"
                             bordered
-                            style={{ marginRight: 22, marginBottom: 8 }}
+                            style={{ marginBottom: 8 }}
                             columns={(() => {
                                 const parents = {}
                                 const cols = []
