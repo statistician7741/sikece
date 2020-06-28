@@ -167,7 +167,7 @@ export default class IndexEntri extends React.Component {
                         /> : 'Belum ada Variabel'}
                     </Col>
                 </Row>
-                {sumberA ? <Row gutter={[0, catatan ? 0 : 16]}>
+                {sumberA ? <Row>
                     <Col xs={24}>
                         <span style={{ marginLeft: 25 }}>Sumber: {sumberA}</span>
                     </Col>

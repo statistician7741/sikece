@@ -212,6 +212,7 @@ export default class EditorTabel_Tabel extends React.Component {
             catatan,
             all_data,
             sending,
+            ket
         } = this.state
         const { all_variable_obj, activeRecord: { baris, kolom } } = this.props
 
@@ -401,9 +402,14 @@ export default class EditorTabel_Tabel extends React.Component {
                             Sumber: {sumber}
                         </Col>
                     </Row>
-                    {catatan ? <Row gutter={[0, 8]}>
+                    {catatan ? <Row>
                         <Col xs={24} md={24}>
                             {`Catatan: ${catatan}`}
+                        </Col>
+                    </Row> : null}
+                    {ket ? <Row>
+                        <Col xs={24} md={24}>
+                            {`Keterangan: ${ket}`}
                         </Col>
                     </Row> : null}
                     <Row style={{ marginTop: 16 }}>
