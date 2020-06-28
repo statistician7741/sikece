@@ -24,6 +24,8 @@ var KecSchema = new Schema({
     "table": {
         'type': [{
             '_idTable': String,
+            '_idKec': String,
+            '_idKab': String,
             'sumber': String,
             'catatan': {
                 'type': String,

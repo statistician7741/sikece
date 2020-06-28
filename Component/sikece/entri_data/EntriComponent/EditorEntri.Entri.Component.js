@@ -36,10 +36,6 @@ export default class EditorTabel_Tabel extends React.Component {
         if (this.props.activeData) {
             fileToDelete = this.props.activeData.arsip
         }
-        if (!this.state.fileList.length) {
-            cb(fileToKeep, fileToDelete)
-            return
-        }
         const formData = new FormData();
         this.state.fileList.forEach(file => {
             if (file.status === 'done') {
@@ -55,6 +51,7 @@ export default class EditorTabel_Tabel extends React.Component {
         })
         formData.append('_idTable', this.props.activeRecord._id);
         formData.append('_idKec', this.props.kec);
+        formData.append('_idKab', this.props.kab);
         axios.post('/sikece/entri_data/upload', formData)
             .then((response) => {
                 if (response.data === 'ok') {
@@ -71,9 +68,9 @@ export default class EditorTabel_Tabel extends React.Component {
     onClickSimpanData = () => {
         this.setState({ sending: true }, () => {
             this.handleSubmitFile((fileToKeep, fileToDelete) => {
-                const { sumber, catatan, ket, all_data, activeKec: { _id: _idKec } } = this.state
+                const { sumber, catatan, ket, all_data, activeKec: { _id: _idKec, kab: _idKab } } = this.state
                 const { activeRecord: { _id: _idTable } } = this.props
-                this.props.dispatch(simpanData(this.props.socket, { _idKec, _idTable, sumber, catatan, ket, all_data, fileToKeep, fileToDelete }, this.props, () => {
+                this.props.dispatch(simpanData(this.props.socket, { _idKec, _idKab, _idTable, sumber, catatan, ket, all_data, fileToKeep, fileToDelete }, this.props, () => {
                     this.props.dispatch(getKec(this.props.socket, () => {
                         this.setState({ sending: false }, this.props.onBack)
                     }))
@@ -182,7 +179,7 @@ export default class EditorTabel_Tabel extends React.Component {
                 uid: i,
                 name: a,
                 status: 'done',
-                url: `http://${window.location.hostname}/static/arsip/${a}`
+                url: `http://${window.location.hostname}/sikece/other/arsip/${a}`
             })) : []
             this.formRef.current && this.formRef.current.setFieldsValue({
                 judul: replaceToKecName(judul, activeKec),

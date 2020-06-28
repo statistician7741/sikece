@@ -35,7 +35,7 @@ class BasicLayout extends React.Component {
     }
   }
   render() {
-    const { active_user: { name, jenis_pengguna } } = this.props
+    const { active_user: { name, jenis_pengguna }, router } = this.props
     return (
       <Layout className="layout" style={{ minHeight: '100vh' }}>
         <Header>
@@ -53,7 +53,8 @@ class BasicLayout extends React.Component {
           </Menu>
         </Header>
         <Content
-          className="main-content"
+          className={"main-content"}
+          style={router.pathname === "/sikece/monitoring"?{background: "none"}:undefined}
         >
           {this.props.children}
         </Content>

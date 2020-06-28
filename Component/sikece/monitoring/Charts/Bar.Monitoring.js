@@ -1,18 +1,18 @@
 import { ResponsiveBar } from '@nivo/bar'
 
-const MyResponsiveBar = ({ data, onClickKab }) => (
+const MyResponsiveBar = ({ data, onClickKab, keys }) => (
     <ResponsiveBar
         data={data}
         groupMode="stacked"
-        keys={['Disetujui', 'Belum Disetujui']}
+        keys={keys}
         minValue={0}
         maxValue={100}
         indexBy="region"
-        margin={{ top: 25, right: 10, bottom: 50, left: 25 }}
+        margin={{ top: 25, right: 10, bottom: 65, left: 25 }}
         padding={0.6}
         colors={({ id }) => {
             // let hue = (((record.value / 100)) * 120).toString(10);
-            return ["hsl(", id === 'Belum Disetujui' ? "10" : "100", ",65%,50%)"].join("")
+            return ["hsl(", id === keys[1] ? "10" : "100", ",65%,50%)"].join("")
         }}
         label={({ value }) => (`${value}%`)}
         colorBy="index"
@@ -53,9 +53,11 @@ const MyResponsiveBar = ({ data, onClickKab }) => (
         motionStiffness={90}
         motionDamping={15}
         onClick={(datum) => {
-            onClickKab()
-            console.log(datum);
+            onClickKab(datum)
         }}
+        theme={
+            {fontSize: '13px'}
+        }
     />
 )
 

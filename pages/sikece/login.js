@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
-import { Alert, Button, Form, Input, Layout } from 'antd';
+import { Alert, Button, Form, Input, Layout, Select } from 'antd';
+const { Option } = Select
 const FormItem = Form.Item;
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import axios from 'axios'
@@ -13,13 +14,24 @@ class Login extends React.Component {
         errMsg: undefined,
         loading: false,
         username: undefined,
-        password: undefined
+        password: undefined,
+        tahun_buku: new Date().getFullYear(),
+        years: [new Date().getFullYear()]
     }
 
     componentDidMount = () => {
         this.input.focus()
     }
     onChangeInput = (changedValues) => this.setState(changedValues)
+    getAllYearsBab = (props) => {
+        props.socket.emit('api.master_tabel.bab/getAllYearsBab', (response) => {
+            if (response.type === 'ok') {
+                this.setState({ years: response.data })
+            } else {
+                props.showErrorMessage(response.additionalMsg)
+            }
+        })
+    }
 
     saveInputRef = input => this.input = input
 
@@ -41,9 +53,19 @@ class Login extends React.Component {
                 });
         })
     };
+    componentDidMount() {
+        if (this.props.socket) {
+            this.getAllYearsBab(this.props)
+        }
+    }
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.socket !== prevProps.socket) {
+            this.getAllYearsBab(this.props)
+        }
+    }
 
     render() {
-        const { errMsg, loading } = this.state
+        const { errMsg, loading, years } = this.state
         return (
             <Layout style={{ background: "#fff", minHeight: '100vh' }}>
                 <div className={'login_container'}>
@@ -107,6 +129,28 @@ class Login extends React.Component {
                                         disabled={loading}
                                     />
                                 </FormItem>
+                                <Form.Item
+                                    name="tahun_buku"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Mohon pilih tahun buku',
+                                        },
+                                    ]}
+                                    initialValue={new Date().getFullYear()}
+                                >
+                                    <Select
+                                        placeholder="Pilih tahun buku"
+                                        size='large'
+                                        filterOption={(input, option) =>
+                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                        }
+                                        showSearch
+                                        allowClear
+                                    >
+                                        {years.length ? years.map(y => (<Option value={y} key={y}>{y}</Option>)) : <Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Option>}
+                                    </Select>
+                                </Form.Item>
                                 <FormItem>
                                     <Button
                                         type="primary"

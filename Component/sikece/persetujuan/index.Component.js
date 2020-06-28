@@ -23,7 +23,8 @@ export default class IndexApproval extends React.Component {
         tables_obj: {},
         tables: [],
         active_index: undefined,
-        hostname: ''
+        hostname: '',
+        onCariIndex: false
     }
     getNextIndex = (prevIndex, maxIndex, tables) => {
         const newIndex = prevIndex + 1 > maxIndex ? 0 : prevIndex + 1
@@ -31,8 +32,10 @@ export default class IndexApproval extends React.Component {
         else return this.getNextIndex(newIndex, maxIndex, tables)
     }
     onClickNext = () => {
-        const maxIndex = this.state.tables.length - 1
-        this.setState({ active_index: this.getNextIndex(this.state.active_index, maxIndex, this.state.tables) })
+        this.setState({onCariIndex: true}, ()=>{
+            const maxIndex = this.state.tables.length - 1
+            this.setState({ active_index: this.getNextIndex(this.state.active_index, maxIndex, this.state.tables), onCariIndex: false })
+        })
     }
     getPrevIndex = (prevIndex, maxIndex, tables) => {
         const newIndex = prevIndex - 1 < 0 ? maxIndex : prevIndex - 1
@@ -40,8 +43,10 @@ export default class IndexApproval extends React.Component {
         else return this.getPrevIndex(newIndex, maxIndex, tables)
     }
     onClickPrev = () => {
-        const maxIndex = this.state.tables.length - 1
-        this.setState({ active_index: this.getPrevIndex(this.state.active_index, maxIndex, this.state.tables) })
+        this.setState({onCariIndex: true}, ()=>{
+            const maxIndex = this.state.tables.length - 1
+            this.setState({ active_index: this.getPrevIndex(this.state.active_index, maxIndex, this.state.tables), onCariIndex: false })
+        })
     }
     setRefinedTable = (all_kec, all_table) => {
         let tables = []
@@ -188,7 +193,7 @@ export default class IndexApproval extends React.Component {
         }
     }
     render() {
-        const { tables_obj, tables, active_index, hostname } = this.state
+        const { tables_obj, tables, active_index, hostname, onCariIndex } = this.state
         const { active_user: { kec, table } } = this.props
         const total = kec ? kec.length * table.length : 0
         const approved = kec ? [].concat(...tables).filter(item => item.isApproved).length : 0
@@ -210,7 +215,7 @@ export default class IndexApproval extends React.Component {
             title: 'Status',
             dataIndex: 'isApproved',
             width: 65,
-            render: (isApproved, record) => (<Tag color={isApproved ? "#87d068" : (record.isSudahEntri ? (record.isApproved === undefined ? "#f50" : "#2db7f5") : undefined)}>{isApproved ? "Disetujui" : (record.isSudahEntri ? (record.isApproved === undefined ? "Belum dicek" : "Belum disetujui") : "Belum tersedia")}</Tag>)
+            render: (isApproved, record) => (<Tag color={isApproved ? "#87d068" : (record.isSudahEntri ? (record.isApproved === undefined ? "#f50" : "#2db7f5") : undefined)}>{isApproved ? "Disetujui" : (record.isSudahEntri ? (record.isApproved === undefined ? "Belum ditanggapi" : "Belum disetujui") : "Belum tersedia")}</Tag>)
         },
         {
             title: 'Sumber',
@@ -230,7 +235,7 @@ export default class IndexApproval extends React.Component {
                 className="site-page-header"
                 title="Persetujuan Data"
             >
-                <SlideShow {...this.props} tables_obj={tables_obj} tables={tables} active_index={active_index} onClickNext={this.onClickNext} onClickPrev={this.onClickPrev} />
+                <SlideShow {...this.props} onCariIndex={onCariIndex} tables_obj={tables_obj} tables={tables} active_index={active_index} onClickNext={this.onClickNext} onClickPrev={this.onClickPrev} />
                 {persentase >= 100 ? <Alert
                     message="Selesai"
                     description="Terima kasih, semua tabel telah selesai disetujui."

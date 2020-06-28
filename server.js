@@ -42,10 +42,12 @@ let runServer = () => {
       server.use(cookieParser("ID==&&%^&A&SHBJSAsjhbJGhUGkbKiUvii^%^#$%^&98G8UIugg=="));
       server.use(bodyParser.urlencoded({ extended: true }));
       server.use(bodyParser.json())
-
+      
       server.use('/sikece', require("./api/login.api"));
       server.use('/sikece/entri_data', require("./api/entri_data.api"));
       server.use('/sikece/other', require("./api/other.api"));
+      console.log(`${__dirname}/public/static/arsip`);
+      server.use('/view/arsip', express.static(`${__dirname}/public/static/arsip`))
 
       let login_check = function (req, res, next) {
         if (/^\/sikece\/login$/.test(req.url)) {

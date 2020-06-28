@@ -5,10 +5,11 @@ const router = express.Router()
 //Controller
 const User = require("../models/User.model")
 
-function loginSuccess(req, res, user) {
+function loginSuccess(req, res, user, tahun_buku_monitoring) {
   res.cookie('user_id', user._id)
   res.cookie('jenis_pengguna', user.jenis_pengguna)
   res.cookie('tahun_buku', user.tahun_buku)
+  res.cookie('tahun_buku_monitoring', tahun_buku_monitoring)
   res.cookie('name', user.name)
   res.end('ok');
 }
@@ -16,7 +17,7 @@ function loginSuccess(req, res, user) {
 function login(req, res) {
   User.findOne({ 'username': req.body.username, 'password': req.body.password }, (err, user) => {
     if (user) {
-      loginSuccess(req, res, user)
+      loginSuccess(req, res, user, req.body.tahun_buku)
     } else{
       res.end('Username atau password salah.');
     }

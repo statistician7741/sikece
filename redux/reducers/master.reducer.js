@@ -10,6 +10,7 @@ export default (
     all_kec: [],
     all_kec_obj: {},
     all_kec_table_obj: {},
+    all_kec_table_arr: [],
     all_deskel: [],
     all_variable: [],
     all_variable_obj: {},
@@ -49,6 +50,7 @@ export default (
     case actionTypes.SET_MASTER_KEC:
       let all_kec_obj = {}
       let all_kec_table_obj = {}
+      let all_kec_table_arr = []
       if (action.all_kec.length) {
         action.all_kec.forEach(v => {
           all_kec_obj[v._id] = v
@@ -56,6 +58,7 @@ export default (
           if(v.table){
             v.table.forEach(w => {
               all_kec_table_obj[v._id][w._idTable] = w
+              all_kec_table_arr.push(w)
             });
           }
         });
@@ -64,7 +67,8 @@ export default (
         ...state,
         all_kec: action.all_kec,
         all_kec_obj,
-        all_kec_table_obj
+        all_kec_table_obj,
+        all_kec_table_arr
       }
     case actionTypes.SET_MASTER_DESKEL:
       return {

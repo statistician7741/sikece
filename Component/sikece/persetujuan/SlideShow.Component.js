@@ -182,11 +182,11 @@ export default class SlideShow extends React.Component {
         if (!fileName) {
             return <span>Tidak ada arsip</span>
         } else if (fileName.match(/\.(jpeg|jpg|png)$/)) {
-            return <img alt={fileName} style={{ width: '100%' }} src={`http://${window.location.hostname}/static/arsip/${fileName}`} />
+            return <img alt={fileName} style={{ width: '100%' }} src={`http://${window.location.hostname}/view/arsip/${fileName}`} />
         } else if (fileName.match(/\.pdf$/)) {
-            return <iframe type="application/pdf" width="100%" height="690" frameBorder="0" src={this.props.url || `http://${window.location.hostname}/static/arsip/${fileName}`}></iframe>
+            return <iframe type="application/pdf" width="100%" height="690" frameBorder="0" src={this.props.url || `http://${window.location.hostname}/view/arsip/${fileName}`}></iframe>
         } else {
-            return <span>Klik untuk mengunduh file: <a target="_blank" href={`http://${window.location.hostname}/static/arsip/${fileName}`}>{fileName}</a></span>
+            return <span>Klik untuk mengunduh file: <a href={`http://${window.location.hostname}/sikece/other/arsip/${fileName}`}>{fileName}</a></span>
         }
     }
     componentDidUpdate = (prevProps, prevState) => {
@@ -195,7 +195,7 @@ export default class SlideShow extends React.Component {
         }
     }
     render() {
-        const { active_user: { kec, table }, all_variable, all_kec, tables, active_index, onClickNext, onClickPrev } = this.props
+        const { active_user: { kec, table }, all_variable, all_kec, tables, active_index, onClickNext, onClickPrev, onCariIndex } = this.props
         const { xxl, xl, loadingSetuju, loadingTdkSetuju, arsipModalVisible, index_arsip } = this.state
         const total = kec ? kec.length * table.length : 0
         const approved = kec ? [].concat(...tables).filter(item => item.isApproved).length : 0
@@ -232,7 +232,7 @@ export default class SlideShow extends React.Component {
                 </Row>
                 <Row justify="center" style={{ textAlign: "center", marginBottom: 8 }}>
                     <Col xs={24} xl={xl} xxl={xxl}>
-                        <Spin spinning={!tables.length || !all_kec.length || !all_variable.length}>
+                        <Spin spinning={!tables.length || !all_kec.length || !all_variable.length || onCariIndex}>
                             {active_index !== undefined && all_kec.length && all_variable.length ?
                                 this.getDynamicTable(
                                     tables[active_index].baris,

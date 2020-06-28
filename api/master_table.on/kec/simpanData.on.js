@@ -4,7 +4,7 @@ const err_code = require('../../../error/code.error')
 const fs = require('fs');
 
 module.exports = (input, cb, client) => {
-    const { _idKec, _idTable, sumber, catatan, ket, all_data, fileToKeep, fileToDelete } = input
+    const { _idKec, _idKab, _idTable, sumber, catatan, ket, all_data, fileToKeep, fileToDelete } = input
     async.auto({
         isExist: cb_isExist => {
             Kec.findOne({
@@ -24,7 +24,7 @@ module.exports = (input, cb, client) => {
                     _id: _idKec
                 }, {
                     $push: {
-                        'table': { _idTable, sumber, catatan, ket, all_data }
+                        'table': { _idTable, _idKec, _idKab, sumber, catatan, ket, all_data }
                     }
                 }, (err, result) => {
                     if (err) {

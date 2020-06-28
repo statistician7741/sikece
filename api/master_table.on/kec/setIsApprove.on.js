@@ -1,7 +1,6 @@
 const Kec = require('../../../models/Kec.model');
 
 module.exports = ({_idKec, _idTable, isApproved}, cb, client) => {
-    console.log(_idKec, _idTable, isApproved);
     Kec.updateOne({
         _id: _idKec,
         "table._idTable": _idTable

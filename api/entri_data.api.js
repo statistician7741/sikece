@@ -22,7 +22,7 @@ function upload(req, res) {
       return;
     }
     let photo_names = [];
-    const { _idKec, _idTable } = fields
+    const { _idKec, _idKab, _idTable } = fields
     files.forEach((photo, i) => {
       photo_names.push(`${_idKec}.${_idTable}_${Math.round(new Date().getTime() / 1000)}_${i}_${photo.name}`);
       fs.rename(photo.path, `${form.uploadDir}${photo_names[i]}`, () => { });
@@ -46,7 +46,7 @@ function upload(req, res) {
             _id: _idKec
           }, {
             $push: {
-              'table': { _idTable, 'arsip': photo_names }
+              'table': { _idTable, _idKec, _idKab, 'arsip': photo_names }
             }
           }, (err, result) => {
             if (err) {

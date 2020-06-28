@@ -180,7 +180,7 @@ export default class IndexEntri extends React.Component {
                 </Row> : null}
                 {arsipA.length ? <Row gutter={[0, catatan ? 0 : 16]}>
                     <Col xs={24}>
-                        <div style={{ marginLeft: 25 }}>Arsip: {arsipA.length ? activeData.arsip.map(a => (<span key={a}><a target="_blank" href={`http://${window.location.hostname}/static/arsip/${a}`}>{a}</a><br /></span>)) : null}</div>
+                        <div style={{ marginLeft: 25 }}>Arsip: {arsipA.length ? activeData.arsip.map(a => (<span key={a}><a href={`http://${window.location.hostname}/sikece/other/arsip/${a}`}>{a}</a><br /></span>)) : null}</div>
                     </Col>
                 </Row> : null}
             </Col>}
@@ -248,7 +248,7 @@ export default class IndexEntri extends React.Component {
                         <LihatEntri {...this.props} setExpandLoading={this.setExpandLoading} activeRecord={activeRecord} loadingData={loadingData} getDataTable={this.getDataTable} activeData={activeData} years={years} kab={kab} kec={kec} bab={bab} selectedYear={selectedYear} onChangeDropdown={this.onChangeDropdown} onClickEntri={this.onClickEntri} getDynamicTable={this.getDynamicTable} />
                     </Row> :
                     <Row gutter={[16, 0]}>
-                        <EditorEntri {...this.props} getDataTable={this.getDataTable} activeData={activeData} kec={kec} activeRecord={activeRecord} onBack={this.onBack} />
+                        <EditorEntri {...this.props} getDataTable={this.getDataTable} activeData={activeData} kab={kab} kec={kec} activeRecord={activeRecord} onBack={this.onBack} />
                     </Row>}
             </PageHeader>
         )

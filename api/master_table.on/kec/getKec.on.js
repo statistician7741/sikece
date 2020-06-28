@@ -1,9 +1,10 @@
 const Kec = require('../../../models/Kec.model');
 const User = require('../../../models/User.model');
+const Table = require('../../../models/Table.model');
 const async = require('async');
 
 module.exports = (cb, client, additionalMsg) => {
-    const { user_id, jenis_pengguna } = client.handshake.cookies
+    const { user_id, jenis_pengguna, tahun_buku_monitoring } = client.handshake.cookies
     async.auto({
         getUser: cb_getUser => {
             if (jenis_pengguna) {
@@ -43,7 +44,6 @@ module.exports = (cb, client, additionalMsg) => {
                         cb({ 'type': 'error', 'data': err })
                     } else {
                         let missing_kec = []
-                        // if (jenis_pengguna === 'pengentri') {
                         getUser.kec.forEach(_idKec => {
                             let found = false
                             result.forEach(kec => {
@@ -63,18 +63,35 @@ module.exports = (cb, client, additionalMsg) => {
                         } else {
                             cb({ 'type': 'ok', 'data': result, additionalMsg })
                         }
-                        // } else {
-                        //     cb({ 'type': 'ok', 'data': result, additionalMsg })
-                        // }
                     }
                 })
             } else {
-                Kec.find(q, '_id kode kab name ket').sort('_id').exec((err, result) => {
+                Table.find({ bab: new RegExp(tahun_buku_monitoring, "i") }).distinct('_id').exec((err, _tableIds) => {
                     if (err) {
                         console.log(err);
                         cb({ 'type': 'error', 'data': err })
                     } else {
-                        cb({ 'type': 'ok', 'data': result, additionalMsg })
+                        let aggQuery = [
+                            { $match: { "table._idTable": { '$in': _tableIds.map(_id=>(`${_id}`)) } } },
+                            { $unwind: "$table" },
+                            { $match: { "table._idTable": { '$in': _tableIds.map(_id=>(`${_id}`)) } } }
+                        ]
+                        aggQuery.push({ $group: { _id: "$_id", kode: { $first: "$kode" }, kab: { $first: "$kab" }, name: { $first: "$name" }, ket: { $first: "$ket" }, table: { $addToSet: "$table" } } })
+                        Kec.aggregate(aggQuery).exec((err, allKecWithTable) => {
+                            if (err) {
+                                console.log(err);
+                                cb({ 'type': 'error', 'data': err })
+                            } else {
+                                Kec.find({ '_id': { '$nin': allKecWithTable.map(kec=>(kec._id)) } }, '_id kode kab name ket').sort('_id').exec((err, missing_kec_result) => {
+                                    if (err) {
+                                        console.log(err);
+                                        cb({ 'type': 'error', 'data': err })
+                                    } else {
+                                        cb({ 'type': 'ok', 'data': allKecWithTable.concat(missing_kec_result).sort((a, b) => a._id.localeCompare(b._id)), additionalMsg })
+                                    }
+                                })
+                            }
+                        })
                     }
                 })
             }

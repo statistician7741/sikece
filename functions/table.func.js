@@ -125,7 +125,7 @@ module.exports = {
                 </Row> : null}
                 {arsipA.length ? <Row gutter={[0, catatan ? 0 : 16]}>
                     <Col xs={24}>
-                        Arsip: {arsipA.length ? activeData.arsip.map(a => (<span key={a}><a target="_blank" href={`http://${window.location.hostname}/static/arsip/${a}`}>{a}</a><br /></span>)) : null}
+                        Arsip: {arsipA.length ? activeData.arsip.map(a => (<span key={a}><a href={`http://${window.location.hostname}/sikece/other/arsip/${a}`}>{a}</a><br /></span>)) : null}
                     </Col>
                 </Row> : null}
             </Col>}

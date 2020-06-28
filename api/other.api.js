@@ -28,12 +28,25 @@ function download(req, res) {
         fs.writeFileSync(outputDocx, buf);
         res.download(outputDocx);
       }
-    } else{
+    } else {
       res.redirect(`/sikece/persetujuan`);
     }
   })
 }
+function downloadArsip(req, res) {
+  if (req.params.file) {
+    const outputDocx = static_path + `arsip/${req.params.file}`;
+    if (fs.existsSync(outputDocx)) {
+      res.download(outputDocx);
+    } else {
+      res.redirect('/')
+    }
+  } else {
+    res.redirect('/')
+  }
+}
 
 router.get("/template", download)
+router.get("/arsip/:file", downloadArsip)
 
 module.exports = router;

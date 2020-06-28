@@ -3,7 +3,7 @@ import * as actionTypes from "../types/user.type";
 export const setActiveUser = (socket) => dispatch => {
   socket.emit('api.master_user.user/getActiveUser', (response) => {
     if (response.type === 'ok') {
-      return dispatch({ type: actionTypes.SET_ACTIVE_USER, active_user: response.data })
+      return dispatch({ type: actionTypes.SET_ACTIVE_USER, active_user: response.data, penyDataCount: response.penyDataCount, tahun_buku_monitoring: response.tahun_buku_monitoring })
     } else {
       return dispatch({ type: actionTypes.SET_ALL_USER, active_user: {} })
     }
