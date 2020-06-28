@@ -208,7 +208,7 @@ export default class SlideShow extends React.Component {
             <Fragment>
                 <Row gutter={[0, 16]}>
                     <Col xs={22}>
-                        <Tooltip title={`${approved} dari ${total} tabel telah disetujui (${approved / total * 100}%)`}>
+                        <Tooltip title={`${approved} dari ${total} tabel telah disetujui (${Math.round(approved / total * 100)}%)`}>
                             <Progress
                                 percent={persentase} status={persentase < 100 ? "active" : undefined} strokeWidth={15}
                                 format={(percent, successPercent) => kec ?
