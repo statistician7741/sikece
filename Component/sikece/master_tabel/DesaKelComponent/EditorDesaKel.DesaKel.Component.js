@@ -108,13 +108,15 @@ export default class EditDeskel_Deskel extends React.Component {
         if (this.state.data.length < 1) return false
         if (this.state.data.length === 1) return /^\d{3}$/.test(this.state.data[0].kode) && this.state.data[0].name && this.state.data[0].klasifikasi
         let isValid = true;
+        let isExist = false
         this.state.data.forEach((deskel, i) => {
             const { kode, name, klasifikasi, ket } = deskel;
             if (kode || name || klasifikasi || ket) {
-                if (!/^\d{3}$/.test(kode) || !name || !klasifikasi) isValid = false
+                if (!/^\d{3}$/.test(kode) || !name || !['Desa', 'Kelurahan'].includes(klasifikasi)) isValid = false
+                    else isExist = true
             }
         })
-        return isValid;
+        return isValid && isExist;
     }
     componentDidMount = () => {
         this.input && this.input.focus()

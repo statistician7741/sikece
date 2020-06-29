@@ -168,7 +168,6 @@ export default class EditorTabel_Tabel extends React.Component {
             let sumberEdited = undefined;
             let catatanEdited = undefined;
             let ketEdited = undefined;
-            console.log(this.props.activeData);
             if (this.props.activeData) {
                 arsip = this.props.activeData.arsip
                 sumberEdited = this.props.activeData.sumber
@@ -335,7 +334,6 @@ export default class EditorTabel_Tabel extends React.Component {
                                 entryContextMenu
                                 dataSchema={this.getDataSchema(kolom)}
                                 nestedHeaders={(() => {
-                                    console.log('=================================');
                                     const parents = {}
                                     const cols = []
                                     let position = 0
@@ -369,7 +367,6 @@ export default class EditorTabel_Tabel extends React.Component {
                                                 cols[0].push(all_variable_obj[parents[parent].indexAnggota[0]].name)
                                                 position++ //position = 3
                                                 cols[1].push('')
-                                                console.log('no parent: ',all_variable_obj[parents[parent].indexAnggota[0]].name, cols[1]);
                                             } else {
                                                 //tambahkan parent di baris pertama col
                                                 cols[0].push({ 'label': parent, 'colspan': parents[parent].indexAnggota.length })
