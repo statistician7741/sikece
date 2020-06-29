@@ -11,8 +11,7 @@ export default ({menuName,closing}) => <Fragment>
     <Row>
         <Col sx={24}>
             <Paragraph>
-                Menu {menuName} adalah menu yang berisi informasi capaian (progress) persetujuan data. Selain itu, terdapat pula informasi terkini
-                mengenai interaksi pihak yang telah melakukan penilaian terhadap tabel yang telah diperiksa. {closing}
+                Menu {menuName} adalah menu yang berisi informasi capaian (progress) persetujuan data. Selain itu, terdapat pula informasi total tabel, dan lain-lain. {closing}
     </Paragraph>
         </Col>
     </Row>
