@@ -335,6 +335,7 @@ export default class EditorTabel_Tabel extends React.Component {
                                 entryContextMenu
                                 dataSchema={this.getDataSchema(kolom)}
                                 nestedHeaders={(() => {
+                                    console.log('=================================');
                                     const parents = {}
                                     const cols = []
                                     let position = 0
@@ -344,6 +345,7 @@ export default class EditorTabel_Tabel extends React.Component {
                                         if (all_variable_obj[_idBaris].kelompok && judul_kelompok_baris === '') judul_kelompok_baris = all_variable_obj[_idBaris].kelompok
                                     })
                                     cols.push([judul_kelompok_baris === '' ? all_variable_obj[baris[0]].name : judul_kelompok_baris])
+                                    cols.push(['']) //cols[1] = ['']
                                     position++; //position = 1
                                     kolom.forEach((_idKolom, i) => {
                                         let kelompok = all_variable_obj[_idKolom].kelompok
@@ -366,23 +368,22 @@ export default class EditorTabel_Tabel extends React.Component {
                                             if (parent.includes('no_parents')) {
                                                 cols[0].push(all_variable_obj[parents[parent].indexAnggota[0]].name)
                                                 position++ //position = 3
-                                                if (position > 0 && cols[1]) {
-                                                    cols[1].push('')
-                                                }
+                                                cols[1].push('')
+                                                console.log('no parent: ',all_variable_obj[parents[parent].indexAnggota[0]].name, cols[1]);
                                             } else {
                                                 //tambahkan parent di baris pertama col
                                                 cols[0].push({ 'label': parent, 'colspan': parents[parent].indexAnggota.length })
                                                 position++; //position = 2
-                                                !cols[1] && cols.push([])
-                                                for (let i = 1; i < position; i++) {
-                                                    cols[1].push('')
-                                                }
                                                 //buat row judul kolom utk child
                                                 parents[parent].indexAnggota.forEach(_idKolom => cols[1].push(all_variable_obj[_idKolom].name))
                                             }
                                         }
                                     }
-                                    return cols
+                                    let isRemoveRow2Header = true;
+                                    cols[1].forEach(h=>{
+                                        if(h !== '') isRemoveRow2Header = false
+                                    })
+                                    return isRemoveRow2Header?[cols[0]]:cols
                                 })()}
                                 columns={(() => {
                                     let cols = [{ 'data': 'baris_name', readOnly: true }]
