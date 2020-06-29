@@ -147,6 +147,7 @@ class Login extends React.Component {
                                         }
                                         showSearch
                                         allowClear
+                                        disabled={loading}
                                     >
                                         {years.length ? years.map(y => (<Option value={y} key={y}>{y}</Option>)) : <Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Option>}
                                     </Select>
