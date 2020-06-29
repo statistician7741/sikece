@@ -210,7 +210,6 @@ export default class IndexApproval extends React.Component {
             title: 'Judul',
             dataIndex: 'judul',
             key: '_id',
-            width: 300,
             showSorterTooltip: false,
             sorter: (a, b) => a.judul - b.judul,
             ...this.getColumnSearchProps('judul')
@@ -223,11 +222,12 @@ export default class IndexApproval extends React.Component {
         {
             title: 'Pesan Kami',
             dataIndex: 'needFenomenaQ',
-            width: 200,
+            render: (t, r, i) => (t?t:"-")
         },
         {
             title: 'Pesan Anda',
-            dataIndex: 'pesanPenyData'
+            dataIndex: 'pesanPenyData',
+            render: (t, r, i) => (t?t:"-")
         }, {
             title: 'Pilihan',
             dataIndex: 'pilihan',

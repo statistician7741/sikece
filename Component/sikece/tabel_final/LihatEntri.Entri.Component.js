@@ -113,7 +113,7 @@ export default class LihatTabel_Tabel extends React.Component {
             dataIndex: '_id',
             width: 200,
             render: (_idTable, record) => (
-                all_kec_table_obj[kec]?(all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable].pesanPenyData:"") : ""
+                all_kec_table_obj[kec]?(all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable].pesanPenyData:"-") : "-"
             )
         },
         {
