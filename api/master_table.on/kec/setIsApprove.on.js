@@ -1,12 +1,13 @@
 const Kec = require('../../../models/Kec.model');
 
-module.exports = ({_idKec, _idTable, isApproved}, cb, client) => {
+module.exports = ({_idKec, _idTable, isApproved, pesanPenyData}, cb, client) => {
     Kec.updateOne({
         _id: _idKec,
         "table._idTable": _idTable
     }, {
         $set: {
             'table.$.isApproved': isApproved,
+            'table.$.pesanPenyData': pesanPenyData,
         }
     }, (err, result) => {
         if (err) {

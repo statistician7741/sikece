@@ -1,6 +1,6 @@
-import { Row, Col, Input, AutoComplete, Upload, Space, Button, Form } from 'antd';
+import { Row, Col, Input, AutoComplete, Upload, Space, Button, Form, Checkbox, Tooltip, Alert } from 'antd';
 const { TextArea } = Input;
-import { UploadOutlined } from '@ant-design/icons'
+import { UploadOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import Hot from '../../general/Hot.Component'
 import { simpanData } from "../../../../redux/actions/master.action"
 import { replaceToKecName } from "../../../../functions/basic.func"
@@ -25,6 +25,8 @@ export default class EditorTabel_Tabel extends React.Component {
         sumber: undefined,
         catatan: undefined,
         ket: undefined,
+        needFenomena: undefined,
+        needFenomenaQ: undefined,
         all_data: [],
         activeKec: undefined,
         fileList: [],
@@ -68,9 +70,11 @@ export default class EditorTabel_Tabel extends React.Component {
     onClickSimpanData = () => {
         this.setState({ sending: true }, () => {
             this.handleSubmitFile((fileToKeep, fileToDelete) => {
-                const { sumber, catatan, ket, all_data, activeKec: { _id: _idKec, kab: _idKab } } = this.state
+                const { sumber, catatan, ket, all_data, activeKec: { _id: _idKec, kab: _idKab }, needFenomena, needFenomenaQ } = this.state
                 const { activeRecord: { _id: _idTable } } = this.props
-                this.props.dispatch(simpanData(this.props.socket, { _idKec, _idKab, _idTable, sumber, catatan, ket, all_data, fileToKeep, fileToDelete }, this.props, () => {
+                this.props.dispatch(simpanData(this.props.socket, {
+                    _idKec, _idKab, _idTable, sumber, catatan, ket, all_data, fileToKeep, fileToDelete, needFenomena, needFenomenaQ
+                }, this.props, () => {
                     this.props.dispatch(getKec(this.props.socket, () => {
                         this.setState({ sending: false }, this.props.onBack)
                     }))
@@ -80,7 +84,7 @@ export default class EditorTabel_Tabel extends React.Component {
     }
     isValid = () => {
         let isValid = true;
-        if (!this.state.sumber) {
+        if (!this.state.sumber || (this.state.needFenomena && !this.state.needFenomenaQ)) {
             return false
         }
         let i = 0
@@ -168,11 +172,15 @@ export default class EditorTabel_Tabel extends React.Component {
             let sumberEdited = undefined;
             let catatanEdited = undefined;
             let ketEdited = undefined;
+            let needFenomena = false;
+            let needFenomenaQ = undefined;
             if (this.props.activeData) {
                 arsip = this.props.activeData.arsip
                 sumberEdited = this.props.activeData.sumber
                 catatanEdited = this.props.activeData.catatan
                 ketEdited = this.props.activeData.ket
+                needFenomena = this.props.activeData.needFenomena
+                needFenomenaQ = this.props.activeData.needFenomenaQ
             }
             let fileList = arsip ? arsip.map((a, i) => ({
                 uid: i,
@@ -186,7 +194,9 @@ export default class EditorTabel_Tabel extends React.Component {
                 sumber: sumberEdited !== undefined ? sumberEdited : replaceToKecName(sumber, activeKec),
                 catatan: catatanEdited !== undefined ? catatanEdited : replaceToKecName(catatan, activeKec),
                 ket: ketEdited !== undefined ? ketEdited : replaceToKecName(ket, activeKec),
-                fileList
+                fileList,
+                needFenomena,
+                needFenomenaQ
             });
             this.setState({
                 nomor_tabel,
@@ -195,10 +205,17 @@ export default class EditorTabel_Tabel extends React.Component {
                 catatan: catatanEdited !== undefined ? catatanEdited : replaceToKecName(catatan, activeKec),
                 ket: ketEdited !== undefined ? ketEdited : replaceToKecName(ket, activeKec),
                 activeKec,
-                fileList
+                fileList,
+                needFenomena,
+                needFenomenaQ
             }, () => {
                 this.setAllData(baris, this.props.kec, this.props.all_variable_obj, this.props.all_deskel)
             })
+        }
+    }
+    componentDidUpdate = (prevProps, prevState) => {
+        if (this.state.needFenomena !== prevState.needFenomena) {
+            this.formRef.current.validateFields(['needFenomenaQ']);
         }
     }
     render() {
@@ -209,6 +226,8 @@ export default class EditorTabel_Tabel extends React.Component {
             judul,
             sumber,
             catatan,
+            needFenomena,
+            needFenomenaQ,
             all_data,
             sending,
             ket
@@ -236,9 +255,6 @@ export default class EditorTabel_Tabel extends React.Component {
             accept: ".doc,.docx, .pdf,.xls,.xlsx,.jpg,.jpeg,.png,",
             multiple: true
         };
-
-        // console.log('state: ', this.state);
-        // console.log('props: ', this.props);
 
         return (
             <Col xs={24}>
@@ -271,7 +287,7 @@ export default class EditorTabel_Tabel extends React.Component {
                                 allowClear
                                 ref={this.saveInputRef}
                                 placeholder="Sumber data"
-                                style={{ height: 50 }}
+                                autoSize={{ minRows: 2, maxRows: 6 }}
                             />
                         </AutoComplete>
                     </Form.Item>
@@ -288,7 +304,7 @@ export default class EditorTabel_Tabel extends React.Component {
                         >
                             <TextArea
                                 placeholder="Catatan data"
-                                style={{ height: 50 }}
+                                autoSize={{ minRows: 2, maxRows: 6 }}
                             />
                         </AutoComplete>
                     </Form.Item>
@@ -303,10 +319,36 @@ export default class EditorTabel_Tabel extends React.Component {
                             style={{ width: "100%" }}
                         >
                             <TextArea
-                                placeholder="Keterangan/fenomena mengenai data"
-                                style={{ height: 50 }}
+                                placeholder="Keterangan atau fenomena mengenai data"
+                                autoSize={{ minRows: 2, maxRows: 6 }}
                             />
                         </AutoComplete>
+                    </Form.Item>
+                    <Form.Item
+                        label="Fenomena"
+                        name="needFenomena"
+                        valuePropName="checked"
+                    >
+                        <Checkbox>
+                            <Tooltip title="Tanyakan Fenomena atau penjelasan ke penyedia data">Kirim pertanyaan</Tooltip>
+                        </Checkbox>
+                    </Form.Item>
+                    <Form.Item
+                        label="Pertanyaan"
+                        name="needFenomenaQ"
+                        rules={[
+                            {
+                                required: needFenomena,
+                                message: 'Mohon input pertanyaan Anda ke penyedia data',
+                            },
+                        ]}
+                    >
+                        <TextArea
+                            allowClear
+                            disabled={!needFenomena}
+                            placeholder="Pertanyaan atau keterangan ke penyedia data"
+                            autoSize={{ minRows: 2, maxRows: 6 }}
+                        />
                     </Form.Item>
                     <Form.Item
                         label="Arsip"
@@ -377,10 +419,10 @@ export default class EditorTabel_Tabel extends React.Component {
                                         }
                                     }
                                     let isRemoveRow2Header = true;
-                                    cols[1].forEach(h=>{
-                                        if(h !== '') isRemoveRow2Header = false
+                                    cols[1].forEach(h => {
+                                        if (h !== '') isRemoveRow2Header = false
                                     })
-                                    return isRemoveRow2Header?[cols[0]]:cols
+                                    return isRemoveRow2Header ? [cols[0]] : cols
                                 })()}
                                 columns={(() => {
                                     let cols = [{ 'data': 'baris_name', readOnly: true }]
@@ -408,6 +450,17 @@ export default class EditorTabel_Tabel extends React.Component {
                     {ket ? <Row>
                         <Col xs={24} md={24}>
                             {`Keterangan: ${ket}`}
+                        </Col>
+                    </Row> : null}
+                    {needFenomena ? <Row>
+                        <Col xs={24} md={13}>
+                            <Alert
+                                message="Permintaan Penjelasan"
+                                description={needFenomenaQ}
+                                type="warning"
+                                showIcon
+                                icon={<QuestionCircleOutlined />}
+                            />
                         </Col>
                     </Row> : null}
                     <Row style={{ marginTop: 16 }}>

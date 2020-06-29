@@ -99,7 +99,7 @@ export default class LihatTabel_Tabel extends React.Component {
             title: 'No.',
             dataIndex: 'nomor_tabel',
             key: '_id',
-            width: 45,
+            width: 10,
         }, {
             title: 'Judul',
             dataIndex: 'judul',
@@ -117,10 +117,18 @@ export default class LihatTabel_Tabel extends React.Component {
                 : (<LoadingOutlined />)
         },
         {
+            title: 'Pesan Penyedia Data',
+            dataIndex: '_id',
+            width: 200,
+            render: (_idTable, record) => (
+                all_kec_table_obj[kec]?(all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable].pesanPenyData:"") : ""
+            )
+        },
+        {
             title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
-            width: 140,
+            width: 110,
             render: (text, record) => all_kec_table_obj[kec] ?
                 (all_kec_table_obj[kec][record._id] ? (all_kec_table_obj[kec][record._id].isApproved ? (<DisabledOpt />) : (<EnableOpt record={record} />)) : (<EnableOpt record={record} />))
                 : (<LoadingOutlined />)

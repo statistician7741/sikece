@@ -4,7 +4,7 @@ const err_code = require('../../../error/code.error')
 const fs = require('fs');
 
 module.exports = (input, cb, client) => {
-    const { _idKec, _idKab, _idTable, sumber, catatan, ket, all_data, fileToKeep, fileToDelete } = input
+    const { _idKec, _idKab, _idTable, sumber, catatan, ket, all_data, fileToKeep, fileToDelete, needFenomena, needFenomenaQ } = input
     async.auto({
         isExist: cb_isExist => {
             Kec.findOne({
@@ -24,7 +24,7 @@ module.exports = (input, cb, client) => {
                     _id: _idKec
                 }, {
                     $push: {
-                        'table': { _idTable, _idKec, _idKab, sumber, catatan, ket, all_data }
+                        'table': { _idTable, _idKec, _idKab, sumber, catatan, ket, all_data, needFenomena, needFenomenaQ }
                     }
                 }, (err, result) => {
                     if (err) {
@@ -61,6 +61,8 @@ module.exports = (input, cb, client) => {
                                     'table.$.sumber': sumber,
                                     'table.$.catatan': catatan,
                                     'table.$.ket': ket,
+                                    'table.$.needFenomena': needFenomena,
+                                    'table.$.needFenomenaQ': needFenomenaQ,
                                     'table.$.all_data': all_data,
                                     'table.$.arsip': [...matched_kec[0].table.arsip, ...fileToKeep]
                                 }

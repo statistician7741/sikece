@@ -32,7 +32,7 @@ export default class IndexApproval extends React.Component {
         else return this.getNextIndex(newIndex, maxIndex, tables)
     }
     onClickNext = () => {
-        this.setState({onCariIndex: true}, ()=>{
+        this.setState({ onCariIndex: true }, () => {
             const maxIndex = this.state.tables.length - 1
             this.setState({ active_index: this.getNextIndex(this.state.active_index, maxIndex, this.state.tables), onCariIndex: false })
         })
@@ -43,7 +43,7 @@ export default class IndexApproval extends React.Component {
         else return this.getPrevIndex(newIndex, maxIndex, tables)
     }
     onClickPrev = () => {
-        this.setState({onCariIndex: true}, ()=>{
+        this.setState({ onCariIndex: true }, () => {
             const maxIndex = this.state.tables.length - 1
             this.setState({ active_index: this.getPrevIndex(this.state.active_index, maxIndex, this.state.tables), onCariIndex: false })
         })
@@ -69,13 +69,15 @@ export default class IndexApproval extends React.Component {
                 }
                 kec.table && kec.table.forEach(entrian_table => {
                     if (entrian_table._idTable === table._id) {
-                        const { isApproved, all_data, sumber, catatan, ket } = entrian_table
+                        const { isApproved, pesanPenyData, needFenomenaQ, sumber, catatan, ket } = entrian_table
                         tables_obj[`${kec._id}.${_id}`]['isApproved'] = isApproved
                         tables_obj[`${kec._id}.${_id}`]['all_data'] = entrian_table
                         tables_obj[`${kec._id}.${_id}`]['sumber'] = sumber
                         tables_obj[`${kec._id}.${_id}`]['catatan'] = catatan
                         tables_obj[`${kec._id}.${_id}`]['ket'] = ket
                         tables_obj[`${kec._id}.${_id}`]['isSudahEntri'] = true
+                        tables_obj[`${kec._id}.${_id}`]['pesanPenyData'] = pesanPenyData
+                        tables_obj[`${kec._id}.${_id}`]['needFenomenaQ'] = needFenomenaQ
                     }
                 })
                 tables.push(tables_obj[`${kec._id}.${_id}`])
@@ -150,7 +152,7 @@ export default class IndexApproval extends React.Component {
         this.setState({ active_index })
     }
     componentDidMount() {
-        this.setState({hostname: window.location.hostname})
+        this.setState({ hostname: window.location.hostname })
         if (this.props.socket) {
             (this.props.all_kec.length && this.props.all_table.length) && this.setRefinedTable(this.props.all_kec, this.props.all_table)
             !this.props.all_table.length && this.props.dispatch(getTable(this.props.socket))
@@ -208,6 +210,7 @@ export default class IndexApproval extends React.Component {
             title: 'Judul',
             dataIndex: 'judul',
             key: '_id',
+            width: 300,
             showSorterTooltip: false,
             sorter: (a, b) => a.judul - b.judul,
             ...this.getColumnSearchProps('judul')
@@ -218,8 +221,13 @@ export default class IndexApproval extends React.Component {
             render: (isApproved, record) => (<Tag color={isApproved ? "#87d068" : (record.isSudahEntri ? (record.isApproved === undefined ? "#f50" : "#2db7f5") : undefined)}>{isApproved ? "Disetujui" : (record.isSudahEntri ? (record.isApproved === undefined ? "Belum ditanggapi" : "Belum disetujui") : "Belum tersedia")}</Tag>)
         },
         {
-            title: 'Sumber',
-            dataIndex: 'sumber'
+            title: 'Pesan Kami',
+            dataIndex: 'needFenomenaQ',
+            width: 200,
+        },
+        {
+            title: 'Pesan Anda',
+            dataIndex: 'pesanPenyData'
         }, {
             title: 'Pilihan',
             dataIndex: 'pilihan',
