@@ -109,6 +109,14 @@ export default class LihatTabel_Tabel extends React.Component {
             render: (text) => replaceToKecName(text, all_kec_obj[kec])
         },
         {
+            title: 'Pesan Penyedia Data',
+            dataIndex: '_id',
+            width: 200,
+            render: (_idTable, record) => (
+                all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable].pesanPenyData : ""
+            )
+        },
+        {
             title: 'Status',
             dataIndex: '_id',
             width: 65,

@@ -38,7 +38,12 @@ var KecSchema = new Schema({
             'all_data': [],
             'arsip': [],
             'isApproved': Boolean,
-            'comments': []
+            'needFenomena': {
+                'type': Boolean,
+                'default': false
+            },
+            'needFenomenaQ': String,
+            'pesanPenyData': String
         }],
         'default': []
     }

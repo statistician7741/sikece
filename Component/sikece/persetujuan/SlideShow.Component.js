@@ -1,7 +1,13 @@
-import { Row, Col, Progress, Button, Space, Table, Tooltip, Spin, Modal } from 'antd';
-import { ArrowRightOutlined, ArrowLeftOutlined, LeftOutlined, RightOutlined, CheckOutlined, CloseOutlined, LoadingOutlined } from '@ant-design/icons'
+import { Row, Col, Progress, Button, Space, Table, Tooltip, Spin, Modal, Alert, Form, Input } from 'antd';
+const { TextArea } = Input
+import { ArrowRightOutlined, ArrowLeftOutlined, LeftOutlined, RightOutlined, CheckOutlined, CloseOutlined, LoadingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { Fragment } from 'react';
 import { getKec, setIsApprove } from "../../../redux/actions/master.action"
+
+const formItemLayout = {
+    labelCol: { span: 4 },
+    wrapperCol: { span: 14 },
+};
 
 export default class SlideShow extends React.Component {
     state = {
@@ -10,7 +16,9 @@ export default class SlideShow extends React.Component {
         loadingSetuju: false,
         loadingTdkSetuju: false,
         arsipModalVisible: false,
-        index_arsip: 0
+        index_arsip: 0,
+        pesanPenyData: undefined,
+        isApproved: true,
     }
     getJumlahData = (activeData, _idKolom) => {
         if (activeData) {
@@ -52,15 +60,16 @@ export default class SlideShow extends React.Component {
         }
         return judul_baris
     }
+    formRef = React.createRef();
     getDynamicTable = (baris, kolom, nomor_tabel, judul, sumber, catatan, kec, activeData) => {
         const { all_variable_obj, all_kec_obj } = this.props;
-        let sumberA, catatanA, ketA, arsipA
+        let sumberA, catatanA, ketA
         if (activeData) {
             sumberA = activeData.sumber !== undefined ? activeData.sumber : undefined
             catatanA = activeData.catatan !== undefined ? activeData.catatan : undefined
-            arsipA = activeData.arsip ? activeData.arsip : undefined
             ketA = activeData.ket !== undefined ? activeData.ket : undefined
         }
+        const { needFenomena, needFenomenaQ, pesanPenyData } = activeData
         return <Row>
             <Col xs={24}>
                 <Row justify="center" style={{ textAlign: "center" }}>
@@ -153,6 +162,44 @@ export default class SlideShow extends React.Component {
                         <span style={{ float: "left" }}>Keterangan: {ketA}</span>
                     </Col>
                 </Row> : null}
+                {needFenomena ? <Row style={{ textAlign: "left", marginTop: 8 }}>
+                    <Col xs={24}>
+                        <Alert
+                            message="Permintaan Penjelasan"
+                            description={needFenomenaQ}
+                            type="warning"
+                            showIcon
+                            icon={<QuestionCircleOutlined />}
+                        />
+                    </Col>
+                </Row> : null}
+                <Row style={{ marginTop: 8, textAlign: "left" }}>
+                    <Col xs={24}>
+                        <Form
+                            ref={this.formRef}
+                            layout="vertical"
+                            onValuesChange={(changedValues) => this.setState(changedValues)}
+                        >
+                            <Form.Item
+                                label="Kirim pesan"
+                                name="pesanPenyData"
+                                rules={[
+                                    {
+                                        required: needFenomena || !this.state.isApproved,
+                                        message: 'Mohon ketik pesan Anda jika terdapat Permintaan Penjelasan dari kami atau memilih Belum Setuju',
+                                    },
+                                ]}
+                                initialValue={pesanPenyData}
+                            >
+                                <TextArea
+                                    allowClear
+                                    placeholder="Ketikkan pesan"
+                                    autoSize={{ minRows: 2, maxRows: 6 }}
+                                />
+                            </Form.Item>
+                        </Form>
+                    </Col>
+                </Row>
             </Col>
         </Row>
     }
@@ -170,12 +217,20 @@ export default class SlideShow extends React.Component {
         this.setState({ index_arsip: newIndex })
     }
     onClickApprove = (isApproved) => {
-        this.setState({ [isApproved ? 'loadingSetuju' : 'loadingTdkSetuju']: true }, () => {
-            const { tables, active_index } = this.props
-            const { _idKec, _idTable } = tables[active_index]
-            this.props.dispatch(setIsApprove(this.props.socket, { _idKec, _idTable, isApproved }, this.props, () => this.props.dispatch(getKec(this.props.socket, () => {
-                this.setState({ [isApproved ? 'loadingSetuju' : 'loadingTdkSetuju']: false })
-            }))))
+        const { tables, active_index } = this.props
+        this.setState({ isApproved }, () => {
+            this.formRef.current.validateFields(['pesanPenyData']);
+            const { needFenomena } = tables[active_index].all_data
+            const { pesanPenyData } = this.state
+            if (pesanPenyData || ((needFenomena || !isApproved) && pesanPenyData) || (isApproved && !needFenomena)) {
+                this.setState({ [isApproved ? 'loadingSetuju' : 'loadingTdkSetuju']: true }, () => {
+                    const { tables, active_index } = this.props
+                    const { _idKec, _idTable } = tables[active_index]
+                    this.props.dispatch(setIsApprove(this.props.socket, { _idKec, _idTable, isApproved, pesanPenyData }, this.props, () => this.props.dispatch(getKec(this.props.socket, () => {
+                        this.setState({ [isApproved ? 'loadingSetuju' : 'loadingTdkSetuju']: false, pesanPenyDataCurrent: this.state.pesanPenyData })
+                    }))))
+                })
+            }
         })
     }
     getPreviewArsip = (fileName) => {
@@ -191,12 +246,21 @@ export default class SlideShow extends React.Component {
     }
     componentDidUpdate = (prevProps, prevState) => {
         if (this.props.active_index !== prevProps.active_index) {
-            this.setTableWidth(this.props.tables[this.props.active_index] ? this.props.tables[this.props.active_index].kolom.length : 2)
+            this.setState({ isApproved: true }, () => {
+                this.formRef.current&&this.formRef.current.validateFields(['pesanPenyData']);
+                this.setTableWidth(this.props.tables[this.props.active_index] ? this.props.tables[this.props.active_index].kolom.length : 2)
+                const pesanPenyData = this.props.tables[this.props.active_index] ? this.props.tables[this.props.active_index].all_data.pesanPenyData : ""
+                this.setState({ pesanPenyData, pesanPenyDataCurrent: pesanPenyData }, () => {
+                    this.formRef.current&&this.formRef.current && this.formRef.current.setFieldsValue({
+                        pesanPenyData
+                    })
+                })
+            })
         }
     }
     render() {
         const { active_user: { kec, table }, all_variable, all_kec, tables, active_index, onClickNext, onClickPrev, onCariIndex } = this.props
-        const { xxl, xl, loadingSetuju, loadingTdkSetuju, arsipModalVisible, index_arsip } = this.state
+        const { xxl, xl, loadingSetuju, loadingTdkSetuju, arsipModalVisible, index_arsip, pesanPenyData, pesanPenyDataCurrent } = this.state
         const total = kec ? kec.length * table.length : 0
         const approved = kec ? [].concat(...tables).filter(item => item.isApproved).length : 0
         const persentase = kec ? (approved / total * 100) : 0
@@ -230,7 +294,7 @@ export default class SlideShow extends React.Component {
                         </Space>
                     </Col>
                 </Row>
-                <Row justify="center" style={{ textAlign: "center", marginBottom: 8 }}>
+                <Row justify="center" style={{ textAlign: "center" }}>
                     <Col xs={24} xl={xl} xxl={xxl}>
                         <Spin spinning={!tables.length || !all_kec.length || !all_variable.length || onCariIndex}>
                             {active_index !== undefined && all_kec.length && all_variable.length ?
@@ -250,8 +314,8 @@ export default class SlideShow extends React.Component {
                 <Row gutter={[0, 32]}>
                     <Col xs={24} style={{ textAlign: "center" }}>
                         <Space align="center">
-                            <Button loading={loadingSetuju} disabled={active_index === undefined || (active_index !== undefined ? tables[active_index].isApproved === true : false)} icon={<CheckOutlined />} onClick={() => this.onClickApprove(true)}>Setujui</Button>
-                            <Button loading={loadingTdkSetuju} disabled={active_index === undefined || (active_index !== undefined ? tables[active_index].isApproved === false : false)} icon={<CloseOutlined />} onClick={() => this.onClickApprove(false)}>Belum Setuju</Button>
+                            <Button loading={loadingSetuju} disabled={ pesanPenyData===pesanPenyDataCurrent && (active_index === undefined || (active_index !== undefined ? tables[active_index].isApproved === true : false))} icon={<CheckOutlined />} onClick={() => this.onClickApprove(true)}>Setujui</Button>
+                            <Button loading={loadingTdkSetuju} disabled={ pesanPenyData===pesanPenyDataCurrent && (active_index === undefined || (active_index !== undefined ? tables[active_index].isApproved === false : false))} icon={<CloseOutlined />} onClick={() => this.onClickApprove(false)}>Belum Setuju</Button>
                             <Tooltip title={active_index !== undefined ? (tables[active_index].all_data.arsip.length ? "Lihat arsip" : "Tidak ada arsip") : "Tidak ada arsip"}>
                                 <Button disabled={active_index !== undefined ? !tables[active_index].all_data.arsip.length : true} onClick={() => this.setState({ arsipModalVisible: true })}>Lihat Arsip</Button>
                             </Tooltip>
