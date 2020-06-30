@@ -1,4 +1,4 @@
-import { Avatar, Dropdown, Layout, Menu } from "antd";
+import { Avatar, Dropdown, Layout, Menu, Spin } from "antd";
 const { Content, Footer, Header } = Layout;
 import Link from "next/link";
 import { LogoutOutlined, UserOutlined, LoadingOutlined } from '@ant-design/icons'
@@ -36,7 +36,7 @@ class BasicLayout extends React.Component {
   }
   render() {
     const { active_user: { name, jenis_pengguna }, router } = this.props
-    let myrouter = menu.filter(m=>(m.user_type.includes(jenis_pengguna))).map(m=>(m.key))
+    let myrouter = menu.filter(m => (m.user_type.includes(jenis_pengguna))).map(m => (m.key))
     return (
       <Layout className="layout" style={{ minHeight: '100vh' }}>
         <Header>
@@ -57,7 +57,9 @@ class BasicLayout extends React.Component {
           className={"main-content"}
           style={router.pathname === "/sikece/monitoring" ? { background: "none" } : undefined}
         >
-          {myrouter.includes(router.pathname) ? this.props.children:`Maaf, Anda tidak memiliki hak untuk mengakses halaman ini. Mohon hubungi Seksi IPDS BPS ${kab}.`}
+          <Spin spinning={!jenis_pengguna}>
+            {myrouter.includes(router.pathname) ? this.props.children : (jenis_pengguna?`Maaf, Anda tidak memiliki hak untuk mengakses halaman ini. Mohon hubungi Seksi IPDS BPS ${kab}.`:null)}
+          </Spin>
         </Content>
         <Footer style={{ textAlign: "center" }}>
           <div>BPS {kab} ©{new Date().getFullYear()}</div>
