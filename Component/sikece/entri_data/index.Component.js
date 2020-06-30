@@ -231,7 +231,7 @@ export default class IndexEntri extends React.Component {
             this.setState({ kab: this.props.all_kab[0]._id })
         }
         if (this.props.all_kec !== prevProps.all_kec && this.props.all_kec.length && this.state.kab) {
-            this.props.all_kec.filter(kec => this.state.kab === kec.kab).length && this.setState({ kec: this.props.all_kec.filter(kec => this.state.kab === kec.kab)[0]._id })
+            !this.state.kec&&this.props.all_kec.filter(kec => this.state.kab === kec.kab).length && this.setState({ kec: this.props.all_kec.filter(kec => this.state.kab === kec.kab)[0]._id })
         }
         if (this.state.kab !== prevState.kab && this.state.kab) {
             this.props.all_kec.filter(kec => this.state.kab === kec.kab).length && this.setState({ kec: this.props.all_kec.filter(kec => this.state.kab === kec.kab)[0]._id })
