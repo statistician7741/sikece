@@ -64,7 +64,7 @@ export default class LihatTabel_Tabel extends React.Component {
                 <Row gutter={[64, 16]}>
                     <Col xs={24} md={16}>
                         <InputForm xs={19} name='Kabupaten' isWajib={false} left>
-                            <Select defaultValue={kab} style={{ width: 200 }} onChange={kab => onChangeKabDropdown(kab)}>
+                            <Select defaultValue={kab} style={{ minWidth: 200 }} onChange={kab => onChangeKabDropdown(kab)}>
                                 <Option value="all_kab" key="all_kab">[----] Semua</Option>
                                 {all_kab.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
                             </Select>

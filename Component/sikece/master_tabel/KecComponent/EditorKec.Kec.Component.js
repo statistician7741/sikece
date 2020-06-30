@@ -133,7 +133,7 @@ export default class LihatTabel_Tabel extends React.Component {
                                 ]}
 
                             >
-                                <Select style={{ width: 200 }}>
+                                <Select style={{ minWidth: 200 }}>
                                     {all_kab.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
                                 </Select>
                             </Form.Item>

@@ -151,17 +151,17 @@ export default class LihatTabel_Tabel extends React.Component {
                             </Select>
                         </InputForm>
                         <InputForm xs={19} name='Kabupaten' isWajib={false} left>
-                            <Select defaultValue={kab} value={kab} style={{ width: 200 }} onChange={kab => onChangeDropdown({ kab })}>
+                            <Select defaultValue={kab} value={kab} style={{ minWidth: 200 }} onChange={kab => onChangeDropdown({ kab })}>
                                 {all_kab.map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
                             </Select>
                         </InputForm>
                         <InputForm xs={19} name='Kecamatan' isWajib={false} left>
-                            <Select defaultValue={kec} value={kec} style={{ width: 200 }} onChange={kec => onChangeDropdown({ kec })}>
+                            <Select defaultValue={kec} value={kec} style={{ minWidth: 200 }} onChange={kec => onChangeDropdown({ kec })}>
                                 {all_kec.filter(kec => kab === kec.kab).map(k => <Option value={k._id} key={k._id}>[{k._id}] {k.name}</Option>)}
                             </Select>
                         </InputForm>
                         <InputForm xs={19} name='Bab' isWajib={false} left>
-                            <Select defaultValue={bab} value={bab} style={{ width: 200 }} onChange={bab => onChangeDropdown({ bab })}>
+                            <Select defaultValue={bab} value={bab} style={{ minWidth: 200 }} onChange={bab => onChangeDropdown({ bab })}>
                                 <Option value="all_bab" key="all_bab">Semua Bab</Option>
                                 {all_bab.filter(bab => selectedYear == bab.tahun_buku).map(b => <Option value={b._id} key={b._id}>Bab {b.nomor}. {b.name}</Option>)}
                             </Select>

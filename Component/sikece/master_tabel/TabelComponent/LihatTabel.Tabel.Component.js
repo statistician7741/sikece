@@ -154,7 +154,7 @@ export default class LihatTabel_Tabel extends React.Component {
                             </Select>
                         </InputForm>
                         <InputForm xs={19} name='Bab' isWajib={false} left>
-                            <Select defaultValue={bab} value={bab} style={{ width: 200 }} onChange={bab => onChangeDropdown({ bab })}>
+                            <Select defaultValue={bab} value={bab} style={{ minWidth: 200 }} onChange={bab => onChangeDropdown({ bab })}>
                                 <Option value="all_bab" key="all_bab">Semua Bab</Option>
                                 {all_bab.filter(bab => selectedYear == bab.tahun_buku).map(b => <Option value={b._id} key={b._id}>Bab {b.nomor}. {b.name}</Option>)}
                             </Select>
