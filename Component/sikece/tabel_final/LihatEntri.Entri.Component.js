@@ -144,7 +144,7 @@ export default class LihatTabel_Tabel extends React.Component {
                                 onChange={(selectedYear) => onChangeDropdown({ selectedYear })}
                                 value={selectedYear}
                                 filterOption={(input, option) =>
-                                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    option.children.toString().toLowerCase().indexOf(input.toLowerCase()) >= 0
                                 }
                             >
                                 {years.length ? years.map(y => (<Option value={y} key={y}>{y}</Option>)) : <Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Option>}
