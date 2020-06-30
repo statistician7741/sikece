@@ -36,6 +36,7 @@ class BasicLayout extends React.Component {
   }
   render() {
     const { active_user: { name, jenis_pengguna }, router } = this.props
+    let myrouter = menu.filter(m=>(m.user_type.includes(jenis_pengguna))).map(m=>(m.key))
     return (
       <Layout className="layout" style={{ minHeight: '100vh' }}>
         <Header>
@@ -46,17 +47,17 @@ class BasicLayout extends React.Component {
               <Dropdown overlay={userMenu} trigger={['click']}>
                 <span className={`action account`}>
                   <Avatar className={'avatar'} icon={<UserOutlined />} />
-                  {name? name:<LoadingOutlined /> }
-              </span>
+                  {name ? name : <LoadingOutlined />}
+                </span>
               </Dropdown>
             </span>
           </Menu>
         </Header>
         <Content
           className={"main-content"}
-          style={router.pathname === "/sikece/monitoring"?{background: "none"}:undefined}
+          style={router.pathname === "/sikece/monitoring" ? { background: "none" } : undefined}
         >
-          {this.props.children}
+          {myrouter.includes(router.pathname) ? this.props.children:`Maaf, Anda tidak memiliki hak untuk mengakses halaman ini. Mohon hubungi Seksi IPDS BPS ${kab}.`}
         </Content>
         <Footer style={{ textAlign: "center" }}>
           <div>BPS {kab} ©{new Date().getFullYear()}</div>
