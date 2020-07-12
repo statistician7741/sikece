@@ -28,7 +28,7 @@ module.exports = (cb, client, additionalMsg) => {
             cb({ 'type': 'error', 'data': err })
         } else {
             const q = getUser ? { 'kec': { '$in': getUser.kec } } : {}
-            Deskel.find(q).sort('_id').exec((err, result) => {
+            Deskel.find(q).sort('kode').exec((err, result) => {
                 if (err) {
                     console.log(err);
                     cb({ 'type': 'error', 'data': err })
