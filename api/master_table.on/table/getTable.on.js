@@ -27,12 +27,17 @@ module.exports = (cb, client, additionalMsg) => {
             cb({ 'type': 'error', 'data': err })
         } else {
             const q = getUser ? { '_id': { '$in': getUser.table } } : {}
-            Table.find(q).sort('nomor_tabel').exec((err, result) => {
+            Table.find(q).exec((err, result) => {
                 if (err) {
                     console.log(err);
                     cb({ 'type': 'error', 'data': err })
                 } else {
-                    cb({ 'type': 'ok', 'data': result, additionalMsg })
+                    cb({ 
+                        'type': 'ok', 
+                        'data': result.map( a => ({ ...a._doc, nomor_tabel: a.nomor_tabel.split('.').map( n => +n+100000 ).join('.') }) ).sort((a, b) => (a.nomor_tabel > b.nomor_tabel) ? 1 : -1)
+                        .map( a => ({ ...a, nomor_tabel: a.nomor_tabel.split('.').map( n => +n-100000 ).join('.') }) ), 
+                        additionalMsg
+                     })
                 }
             })
         }

@@ -16,7 +16,7 @@ const SummaryCard = ({ tittle, data, withTabel, percent }) => {
         title={tittle}
     >
         <div style={{ textAlign: "center" }}>
-            <span><strong style={{ fontSize: 60 }}>{data}</strong>{withTabel ? ' tabel' : null}{percent ? ` (${percent}%)` : null}</span>
+            <span><strong style={{ fontSize: 60 }}>{data}</strong>{withTabel ? ' tabel' : null}{percent===false ? null : ` (${percent}%)`}</span>
         </div>
     </Card>
 }
@@ -34,7 +34,7 @@ const getCard = (posisi, jenis_pengguna, allData, props) => {
     } else {
         if (jenis_pengguna === 'pengentri') return <SummaryCard tittle="Disetujui" data={total_disetujui} percent={Math.round(total_disetujui / total_tabel * 100)} withTabel />
         if (jenis_pengguna === 'peny_data') return <SummaryCard tittle="Belum Ditanggapi" data={total_blm_ditanggapi} percent={Math.round(total_blm_ditanggapi / total_tabel * 100)} withTabel />
-        else return <SummaryCard tittle="Penyedia Data" data={props.penyDataCount} />
+        else return <SummaryCard tittle="Penyedia Data" data={props.penyDataCount} percent={false} />
     }
 }
 
@@ -234,7 +234,7 @@ export default class IndexMonitoring extends React.Component {
             <Fragment>
                 <Row gutter={[8, 16]}>
                     <Col xs={12} md={6}>
-                        <SummaryCard tittle="Total Tabel" data={total_tabel} withTabel />
+                        <SummaryCard tittle="Total Tabel" data={total_tabel} withTabel percent={false} />
                     </Col>
                     <Col xs={12} md={6}>
                         {getCard(2, jenis_pengguna, allData)}

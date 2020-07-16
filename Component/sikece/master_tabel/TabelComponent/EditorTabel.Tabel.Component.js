@@ -126,6 +126,9 @@ export default class EditorTabel_Tabel extends React.Component {
         let isValid = true;
         const { nomor_tabel, judul, bab, baris, kolom, sumber } = this.state;
         if (!nomor_tabel || !judul || !bab || !baris.length || !kolom.length || !sumber) isValid = false
+        if(nomor_tabel){
+            if(!nomor_tabel.match(/^\d+\.\d+(\.\d+)?$/)) return false
+        }
         return isValid;
     }
 
