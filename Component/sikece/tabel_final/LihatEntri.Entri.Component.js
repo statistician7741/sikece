@@ -236,7 +236,7 @@ export default class LihatTabel_Tabel extends React.Component {
             title: 'Pilihan',
             dataIndex: '_id',
             fixed: 'right',
-            width: 55,
+            width: 85,
             render: (_idTable, record) =>
                 downloadingTableId === record._id ?
                     <span><a disabled={true}>Unduh</a> <LoadingOutlined /></span>
