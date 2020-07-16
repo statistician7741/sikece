@@ -26,12 +26,15 @@ module.exports = (input, cb, client) => {
             } else{
                 input.header[0].forEach(i=>i!==0&&nomor_tabel.push(undefined))
             }
-            sheet.cell("A1").value([
+            let arr = [
                 nomor_tabel,
                 [],
                 ...input.header,
-                ...input.data
-            ])
+                ...input.data,
+                [`Sumber: ${input.activeData.sumber}`]
+            ]
+            if(input.activeData.catatan) arr.push([`Catatan: ${input.activeData.catatan}`])
+            sheet.cell("A1").value(arr)
             if (fs.existsSync(static_path + `/${file_name}`)) {
                 fs.unlinkSync(static_path + `/${file_name}`);
             }

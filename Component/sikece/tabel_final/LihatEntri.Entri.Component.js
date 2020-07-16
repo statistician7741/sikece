@@ -140,7 +140,6 @@ export default class LihatTabel_Tabel extends React.Component {
         let indexBaris = {}
         let posBaris = 0
         kolom.forEach((kolom_id, i)=>indexKolom[kolom_id] = i+1)
-        console.log(kolom, indexKolom);
         baris.forEach((_id, i) => {
             if (all_variable_obj[_id].name.match(/^Desa\s?\/?\s?(Kelurahan)?\s?$/)) {
                 const deskel = all_deskel.filter(d => (d.kec === kec))
