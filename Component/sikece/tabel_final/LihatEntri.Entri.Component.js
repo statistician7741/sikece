@@ -196,17 +196,7 @@ export default class LihatTabel_Tabel extends React.Component {
     render() {
         const { expandedRowKeys, downloadingTableId } = this.state
         const { all_table, all_bab, all_kab, all_kec, all_kec_obj, all_kec_table_obj, bab, selectedYear, years, kab, kec, activeData } = this.props
-        const { onClickEntri, onChangeDropdown, getDynamicTable, loadingData, activeRecord, getDataTable, setExpandLoading } = this.props
-        const EnableOpt = ({ record }) => (
-            <span>
-                {loadingData && record._id === activeRecord._id ? <LoadingOutlined /> :
-                    <a onClick={() => onClickEntri(`Entri Tabel ${record.nomor_tabel}`, record)}>Entri</a>}
-                <Divider type="vertical" />
-                <Popconfirm title={`Hapus entrian di tabel ini? Ini tidak akan menghapus tabel`} onConfirm={() => this.props.dispatch(deleteTableDatabyId(this.props.socket, { _idKec: kec, _idTable: record._id }, this.props, () => this.props.dispatch(getKec(this.props.socket))))}>
-                    <a>Hapus</a>
-                </Popconfirm>
-            </span>
-        )
+        const { onChangeDropdown, getDynamicTable, getDataTable, setExpandLoading } = this.props
         const tableColumns = [{
             title: 'No.',
             dataIndex: 'nomor_tabel',
@@ -250,7 +240,7 @@ export default class LihatTabel_Tabel extends React.Component {
             render: (_idTable, record) =>
                 downloadingTableId === record._id ?
                     <span><a disabled={true}>Unduh</a> <LoadingOutlined /></span>
-                    : <span><a disabled={all_kec_table_obj[kec][_idTable] ? !all_kec_table_obj[kec][_idTable].isApproved : true} onClick={() => this.unduhTable(record._id, this.props, record, kec, all_kec_obj[kec] ? all_kec_obj[kec].name : '{nama}', all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable] : {})}>Unduh</a></span>
+                    : <span><a disabled={all_kec_table_obj[kec] ? (all_kec_table_obj[kec][_idTable]?!all_kec_table_obj[kec][_idTable].isApproved:true) : true} onClick={() => this.unduhTable(record._id, this.props, record, kec, all_kec_obj[kec] ? all_kec_obj[kec].name : '{nama}', all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable] : {})}>Unduh</a></span>
         }
         ]
         return (
