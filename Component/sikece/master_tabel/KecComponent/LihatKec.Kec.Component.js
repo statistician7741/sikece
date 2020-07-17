@@ -1,14 +1,14 @@
 import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm, Select } from 'antd';
 const { Option } = Select;
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditTwoTone, DeleteTwoTone } from '@ant-design/icons'
 import InputForm from '../../general/InputForm.Component'
 import { deleteKecbyId, getKec, getKab } from "../../../../redux/actions/master.action"
 
 export default class LihatTabel_Tabel extends React.Component {
     componentDidMount() {
         if (this.props.socket) {
-            !this.props.all_kab.length&&this.props.dispatch(getKab(this.props.socket))
-            !this.props.all_kec.length&&this.props.dispatch(getKec(this.props.socket, this.props.kab))
+            !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
+            !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket, this.props.kab))
         }
     }
     componentDidUpdate(prevProps, prevState) {
@@ -26,7 +26,7 @@ export default class LihatTabel_Tabel extends React.Component {
             dataIndex: '_id',
             key: '_id',
             width: 45,
-            render: (t,r,i)=>(i+1)
+            render: (t, r, i) => (i + 1)
         }, {
             title: 'Kode',
             dataIndex: '_id',
@@ -46,15 +46,16 @@ export default class LihatTabel_Tabel extends React.Component {
             title: 'Keterangan',
             dataIndex: 'ket',
         }, {
-            title: 'pilihan',
+            title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
-            width: 140,
+            align: 'center',
+            width: 90,
             render: (text, record) => <span>
-                <a onClick={() => onClickEdit(`Edit Kecamatan ${record.name}`, record)}>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Kecamatan ${record.name}`, record)}><EditTwoTone /></a>
                 <Divider type="vertical" />
                 <Popconfirm title={`Hapus Kecamatan ini?`} onConfirm={() => this.props.dispatch(deleteKecbyId(this.props.socket, record._id, this.props))}>
-                    <a>Hapus</a>
+                    <DeleteTwoTone twoToneColor="#eb2f96" />
                 </Popconfirm>
             </span>
         }]
@@ -90,7 +91,7 @@ export default class LihatTabel_Tabel extends React.Component {
                         <Table
                             size="small"
                             columns={kecColumns}
-                            dataSource={all_kec.filter(kec=>(kab === 'all_kab' || kec.kab === kab))}
+                            dataSource={all_kec.filter(kec => (kab === 'all_kab' || kec.kab === kab))}
                             pagination={false}
                             rowKey="_id"
                         />

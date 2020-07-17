@@ -17,7 +17,7 @@ const userMenu = (
   <Menu selectedKeys={[]}>
     <Menu.Item key="userCenter">
       <Link href='logout'>
-        <a><div><LogoutOutlined /> Logout</div></a>
+        <a><div><LogoutOutlined /> Keluar</div></a>
       </Link>
     </Menu.Item>
   </Menu>
@@ -62,7 +62,7 @@ class BasicLayout extends React.Component {
           </Spin>
         </Content>
         <Footer style={{ textAlign: "center" }}>
-          <div>BPS {kab} ©{new Date().getFullYear()}</div>
+          <div>Badan Pusat Statistik {kab} ©{new Date().getFullYear()}</div>
           <div>{alamat}</div>
         </Footer>
       </Layout>

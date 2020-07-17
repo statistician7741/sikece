@@ -1,6 +1,6 @@
 import { Row, Col, Table, Divider, Popconfirm, Button, Input, Space } from 'antd';
 import Highlighter from 'react-highlight-words';
-import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined, EditTwoTone, DeleteTwoTone } from '@ant-design/icons'
 import { deleteVariablebyId } from "../../../../redux/actions/master.action"
 
 export default class LihatBab_Bab extends React.Component {
@@ -84,7 +84,7 @@ export default class LihatBab_Bab extends React.Component {
 
         const rowSelection = {
             onChange: (selectedRowKeys, selectedRows) => {
-                setActiveRecord([...selectedRows.map(v=>({...v}))], selectedRowKeys)
+                setActiveRecord([...selectedRows.map(v => ({ ...v }))], selectedRowKeys)
             },
             selectedRowKeys
         }
@@ -125,15 +125,16 @@ export default class LihatBab_Bab extends React.Component {
             dataIndex: 'ket',
             ...this.getColumnSearchProps('ket')
         }, {
-            title: 'pilihan',
+            title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
-            width: 140,
+            align: 'center',
+            width: 90,
             render: (text, record) => <span>
-                <a onClick={() => onClickEdit(`Edit Variabel ${record.name}`, record)}>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Variabel ${record.name}`, record)}><EditTwoTone /></a>
                 <Divider type="vertical" />
                 <Popconfirm title={`Hapus Variabel ini?`} onConfirm={() => this.props.dispatch(deleteVariablebyId(this.props.socket, record._id, this.props))}>
-                    <a>Hapus</a>
+                    <DeleteTwoTone twoToneColor="#eb2f96" />
                 </Popconfirm>
             </span>
         }]

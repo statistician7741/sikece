@@ -67,16 +67,18 @@ class Login extends React.Component {
     render() {
         const { errMsg, loading, years } = this.state
         return (
-            <Layout style={{ background: "#fff", minHeight: '100vh' }}>
-                <div className={'login_container'}>
+            <Layout style={{ minHeight: '100vh' }} className={'login_container'}>
+                <Layout.Content>
                     <div className={'login_content'}>
                         <div className={'login_top'}>
                             <div className={'login_header'}>
                                 <div>
-                                    <img src={`/static/sikece.png`} className={'login_logo'} />
+                                    <img src={`/static/logo2.png`} className={'login_logo'} />
                                 </div>
                             </div>
-                            <div className={'login_desc'}>Sistem Informasi Kecamatan Dalam Angka</div>
+                            <div className={'welcome'}>SELAMAT DATANG DI</div>
+                            <img src={`/static/logo3.png`} className={'login_logo2'} />
+                            <div className={'login_desc'}>SISTEM INFORMASI KECAMATAN DALAM ANGKA</div>
                         </div>
                         <div className={'login_main'}>
                             {errMsg ? (
@@ -167,9 +169,9 @@ class Login extends React.Component {
                             </Form>
                         </div>
                     </div>
-                </div>
-                <Layout.Footer style={{ textAlign: "center", background: "#fff" }}>
-                    <div>BPS {kab} ©{new Date().getFullYear()}</div>
+                </Layout.Content>
+                <Layout.Footer className="dt" style={{ textAlign: "center", backgroundColor: "transparent" }}>
+                    <div>Badan Pusat Statistik {kab} ©{new Date().getFullYear()}</div>
                 </Layout.Footer>
             </Layout>
         )

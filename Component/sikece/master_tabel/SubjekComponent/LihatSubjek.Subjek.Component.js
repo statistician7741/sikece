@@ -1,11 +1,11 @@
 import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm } from 'antd';
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditTwoTone, DeleteTwoTone } from '@ant-design/icons'
 import { deleteSubjectbyId, getSubject } from "../../../../redux/actions/master.action"
 
 export default class LihatSubjek_Subjek extends React.Component {
     componentDidMount() {
         if (this.props.socket) {
-            !this.props.all_subject.length&&this.props.dispatch(getSubject(this.props.socket))
+            !this.props.all_subject.length && this.props.dispatch(getSubject(this.props.socket))
         }
     }
     componentDidUpdate(prevProps) {
@@ -22,7 +22,7 @@ export default class LihatSubjek_Subjek extends React.Component {
             dataIndex: '_id',
             key: '_id',
             width: 45,
-            render: (t,r,i)=>(i+1)
+            render: (t, r, i) => (i + 1)
         }, {
             title: 'Subjek',
             dataIndex: 'name',
@@ -33,15 +33,16 @@ export default class LihatSubjek_Subjek extends React.Component {
             title: 'Keterangan',
             dataIndex: 'ket',
         }, {
-            title: 'pilihan',
+            title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
-            width: 140,
+            align: 'center',
+            width: 90,
             render: (text, record) => <span>
-                <a onClick={() => onClickEdit(`Edit Subjek ${record.name}`, record)}>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Subjek ${record.name}`, record)}><EditTwoTone /></a>
                 <Divider type="vertical" />
                 <Popconfirm title={`Hapus Subjek ini?`} onConfirm={() => this.props.dispatch(deleteSubjectbyId(this.props.socket, record._id))}>
-                    <a>Hapus</a>
+                    <DeleteTwoTone twoToneColor="#eb2f96" />
                 </Popconfirm>
             </span>
         }]

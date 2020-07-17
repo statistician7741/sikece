@@ -1,17 +1,17 @@
 import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm } from 'antd';
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditTwoTone, DeleteTwoTone } from '@ant-design/icons'
 import { deleteKabbyId, getKab } from "../../../../redux/actions/master.action"
 
 export default class LihatTabel_Tabel extends React.Component {
     componentDidMount() {
-      if (this.props.socket && !this.props.all_kab.length) {
-        this.props.dispatch(getKab(this.props.socket))
-      }
+        if (this.props.socket && !this.props.all_kab.length) {
+            this.props.dispatch(getKab(this.props.socket))
+        }
     }
     componentDidUpdate(prevProps) {
-      if (this.props.socket !== prevProps.socket) {
-        this.props.dispatch(getKab(this.props.socket))
-      }
+        if (this.props.socket !== prevProps.socket) {
+            this.props.dispatch(getKab(this.props.socket))
+        }
     }
     render() {
         const { all_kab } = this.props
@@ -22,7 +22,7 @@ export default class LihatTabel_Tabel extends React.Component {
             dataIndex: '_id',
             key: '_id',
             width: 45,
-            render: (t,r,i)=>(i+1)
+            render: (t, r, i) => (i + 1)
         }, {
             title: 'Kode',
             dataIndex: '_id',
@@ -41,15 +41,16 @@ export default class LihatTabel_Tabel extends React.Component {
             title: 'Keterangan',
             dataIndex: 'ket',
         }, {
-            title: 'pilihan',
+            title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
-            width: 140,
+            align: 'center',
+            width: 90,
             render: (text, record) => <span>
-                <a onClick={() => onClickEdit(`Edit Kabupaten ${record.name}`, record)}>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Kabupaten ${record.name}`, record)}><EditTwoTone /></a>
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus Kabupaten ini?`} onConfirm={()=>this.props.dispatch(deleteKabbyId(this.props.socket, record._id, this.props))}>
-                    <a>Hapus</a>
+                <Popconfirm title={`Hapus Kabupaten ini?`} onConfirm={() => this.props.dispatch(deleteKabbyId(this.props.socket, record._id, this.props))}>
+                    <DeleteTwoTone twoToneColor="#eb2f96" />
                 </Popconfirm>
             </span>
         }]

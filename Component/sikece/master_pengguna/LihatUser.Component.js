@@ -1,5 +1,5 @@
 import { Row, Col, Table, Divider, Popconfirm, Input, Space, Button } from 'antd';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined, EditTwoTone, DeleteTwoTone } from '@ant-design/icons'
 import { deleteUserbyId, getUser } from "../../../redux/actions/user.action"
 import Highlighter from 'react-highlight-words';
 
@@ -122,21 +122,22 @@ export default class LihatTabel_Tabel extends React.Component {
             sorter: (a, b) => {
                 return a.jenis_pengguna.localeCompare(b.jenis_pengguna)
             },
-            render: (text)=>jenisPengguna[text]
+            render: (text) => jenisPengguna[text]
         }, {
             title: 'Keterangan',
             dataIndex: 'ket',
             ...this.getColumnSearchProps('username')
         }, {
-            title: 'pilihan',
+            title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
-            width: 140,
+            align: 'center',
+            width: 90,
             render: (text, record) => <span>
-                <a onClick={() => onClickEdit(`Edit Pengguna ${record.name}`, record)}>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Pengguna ${record.name}`, record)}><EditTwoTone /></a>
                 <Divider type="vertical" />
                 <Popconfirm title={`Hapus Pengguna ini?`} onConfirm={() => this.props.dispatch(deleteUserbyId(this.props.socket, record._id, this.props))}>
-                    <a>Hapus</a>
+                    <DeleteTwoTone twoToneColor="#eb2f96" />
                 </Popconfirm>
             </span>
         }]

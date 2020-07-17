@@ -2,22 +2,27 @@
 // @import "localFont.less";
 
 .login_main {
-  width: 328px;
+  width : 328px;
   margin: 0 auto;
 }
 
 .login_content {
   padding: 32px 0;
-  flex: 1;
+  flex   : 1;
+}
+
+.dt {
+  color: rgba(0, 0, 0, 0.7)
+}
+
+.login_container {
+  background         : url('/static/bg.jpg'); //url('/static/login-bg.svg');
+  background-repeat  : no-repeat;
+  background-position: 0% 0%;
+  background-size    : 100% 100%;
 }
 
 @media (min-width: @screen-md-min) {
-  .login_container {
-    background-image: url('/static/login-bg.svg');
-    background-repeat: no-repeat;
-    background-position: center 110px;
-    min-height: 88vh;
-  }
   .login_content {
     padding: 112px 0 24px 0;
   }
@@ -28,15 +33,21 @@
 }
 
 .login_header {
-  height: 44px;
+  height     : 44px;
   line-height: 44px;
+
   a {
     text-decoration: none;
   }
 }
 
 .login_logo {
-  height: 40px;
+  height         : 40px;
+  // margin-right: 16px;
+}
+
+.login_logo2 {
+  height         : 45px;
   // margin-right: 16px;
 }
 
@@ -53,16 +64,16 @@
 }
 
 .login_title {
-  color: @heading-color;
+  color      : @heading-color;
   font-family: 'Myriad Pro', 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-weight: 600;
-  position: relative;
-  top: 2px;
+  position   : relative;
+  top        : 2px;
 }
 
 .login_prefixIcon {
   font-size: @font-size-base;
-  color: @disabled-color;
+  color    : @disabled-color;
 }
 
 .login_submit {
@@ -70,10 +81,18 @@
 }
 
 .login_desc {
-  font-size: @font-size-base;
-  color: @text-color-secondary;
-  margin-top: 12px;
+  font-size    : @font-size-base;
+  color        : rgba(0, 0, 0, 1);
+  font-weight  : bold;
+  margin-top   : 12px;
   margin-bottom: 12px;
+}
+
+.welcome {
+  font-size    : @font-size-base;
+  color        : rgba(0, 0, 0, 0.7);
+  margin-top   : 2px;
+  margin-bottom: 8px;
 }
 
 :global {

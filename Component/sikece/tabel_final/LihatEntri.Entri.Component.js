@@ -1,7 +1,7 @@
-import { Row, Col, Select, Input, Button, Table, Space, Divider, Popconfirm, Tag, Typography, Tooltip } from 'antd';
+import { Row, Col, Select, Input, Button, Table, Space, Divider, Tag, Typography, Tooltip } from 'antd';
 const { Option } = Select
 const { Text } = Typography;
-import { SearchOutlined, LoadingOutlined } from '@ant-design/icons'
+import { SearchOutlined, LoadingOutlined, DownloadOutlined } from '@ant-design/icons'
 import Highlighter from 'react-highlight-words';
 import InputForm from '../general/InputForm.Component'
 import { replaceToKecName } from '../../../functions/basic.func'
@@ -139,7 +139,7 @@ export default class LihatTabel_Tabel extends React.Component {
         let indexKolom = {}
         let indexBaris = {}
         let posBaris = 0
-        kolom.forEach((kolom_id, i)=>indexKolom[kolom_id] = i+1)
+        kolom.forEach((kolom_id, i) => indexKolom[kolom_id] = i + 1)
         baris.forEach((_id, i) => {
             if (all_variable_obj[_id].name.match(/^Desa\s?\/?\s?(Kelurahan)?\s?$/)) {
                 const deskel = all_deskel.filter(d => (d.kec === kec))
@@ -169,8 +169,8 @@ export default class LihatTabel_Tabel extends React.Component {
                 activeData.all_data.forEach(row => {
                     if (activeBaris._id === row._idBaris) {
                         judul_baris[i] = { ...data, ...row }
-                        kolom.forEach((kolom_id, i)=>{
-                            data[indexBaris[activeBaris._id]][indexKolom[kolom_id]] = isNaN(row[kolom_id])?row[kolom_id]:+row[kolom_id]
+                        kolom.forEach((kolom_id, i) => {
+                            data[indexBaris[activeBaris._id]][indexKolom[kolom_id]] = isNaN(row[kolom_id]) ? row[kolom_id] : +row[kolom_id]
                         })
                     }
                 })
@@ -181,9 +181,9 @@ export default class LihatTabel_Tabel extends React.Component {
     unduhTable = (id, props, record, kec, nama, activeData) => {
         this.setState({ downloadingTableId: id }, () => {
             const { baris, kolom, nomor_tabel, judul, catatan } = record
-            props.socket.emit('api.general.unduh/unduhTable', { baris, kolom, header: this.getHeader(baris, kolom), data: this.getBarisDataSource(baris,kolom,kec,activeData), nomor_tabel, judul, catatan, kec, nama, activeData }, (response) => {
+            props.socket.emit('api.general.unduh/unduhTable', { baris, kolom, header: this.getHeader(baris, kolom), data: this.getBarisDataSource(baris, kolom, kec, activeData), nomor_tabel, judul, catatan, kec, nama, activeData }, (response) => {
                 if (response.type === 'ok') {
-                    this.setState({ downloadingTableId: undefined }, ()=>{
+                    this.setState({ downloadingTableId: undefined }, () => {
                         window.open(`/view/${response.data}`, "_top")
                     })
                 } else {
@@ -235,11 +235,14 @@ export default class LihatTabel_Tabel extends React.Component {
             title: 'Pilihan',
             dataIndex: '_id',
             fixed: 'right',
-            width: 85,
+            align: 'center',
+            width: 55,
             render: (_idTable, record) =>
                 downloadingTableId === record._id ?
-                    <span><a disabled={true}>Unduh</a> <LoadingOutlined /></span>
-                    : <span><a disabled={all_kec_table_obj[kec] ? (all_kec_table_obj[kec][_idTable]?!all_kec_table_obj[kec][_idTable].isApproved:true) : true} onClick={() => this.unduhTable(record._id, this.props, record, kec, all_kec_obj[kec] ? all_kec_obj[kec].name : '{nama}', all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable] : {})}>Unduh</a></span>
+                    <Tooltip title="Unduh tabel" >
+                        <span><LoadingOutlined /></span>
+                    </Tooltip>
+                    : <Tooltip title="Unduh tabel" ><span><a disabled={all_kec_table_obj[kec] ? (all_kec_table_obj[kec][_idTable] ? !all_kec_table_obj[kec][_idTable].isApproved : true) : true} onClick={() => this.unduhTable(record._id, this.props, record, kec, all_kec_obj[kec] ? all_kec_obj[kec].name : '{nama}', all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable] : {})}><DownloadOutlined /></a></span></Tooltip>
         }
         ]
         return (

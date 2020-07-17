@@ -1,12 +1,12 @@
-import { Row, Col, PageHeader, Button, Space, Table, Tag, Typography, Input, Alert } from 'antd';
+import { Row, Col, PageHeader, Button, Space, Table, Tag, Typography, Input, Alert, Tooltip } from 'antd';
 const { Text } = Typography;
 import Highlighter from 'react-highlight-words';
-import { SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined, EyeTwoTone, EyeOutlined } from '@ant-design/icons'
 import { getKec, getTable, getVariable, getDeskel } from "../../../redux/actions/master.action"
 import { replaceToKecName } from '../../../functions/basic.func'
 import SlideShow from './SlideShow.Component'
 
-const DisabledOpt = () => <Text disabled>Lihat</Text>
+const DisabledOpt = () => <Tooltip title="Lihat tabel"><Text disabled><EyeOutlined /></Text></Tooltip>
 
 const scrollToTop = () => {
     const c = document.documentElement.scrollTop || document.body.scrollTop;
@@ -232,9 +232,10 @@ export default class IndexApproval extends React.Component {
             title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
+            align: 'center',
             width: 65,
             render: (text, record, i) => <span>
-                {record.isSudahEntri ? <a onClick={() => this.onClickLihat(i)}>Lihat</a> : <DisabledOpt />}
+                {record.isSudahEntri ? <Tooltip title="Lihat tabel"><a onClick={() => this.onClickLihat(i)}><EyeTwoTone /></a></Tooltip> : <DisabledOpt />}
             </span>
         }]
 

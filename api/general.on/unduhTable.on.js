@@ -31,9 +31,9 @@ module.exports = (input, cb, client) => {
                 [],
                 ...input.header,
                 ...input.data,
-                [`Sumber: ${input.activeData.sumber}`]
+                [`Sumber: ${input.activeData.sumber||''}`]
             ]
-            if(input.activeData.catatan) arr.push([`Catatan: ${input.activeData.catatan}`])
+            if(input.activeData.catatan) arr.push([`Catatan: ${input.activeData.catatan||''}`])
             sheet.cell("A1").value(arr)
             if (fs.existsSync(static_path + `/${file_name}`)) {
                 fs.unlinkSync(static_path + `/${file_name}`);

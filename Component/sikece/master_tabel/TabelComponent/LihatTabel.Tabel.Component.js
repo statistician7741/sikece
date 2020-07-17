@@ -1,7 +1,7 @@
 import { Row, Col, Input, Space, Table, Divider, Popconfirm, Select, Button, Tag } from 'antd';
 import Highlighter from 'react-highlight-words';
 const { Option } = Select;
-import { PlusOutlined, LoadingOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, LoadingOutlined, SearchOutlined, EditTwoTone, DeleteTwoTone } from '@ant-design/icons'
 import InputForm from '../../general/InputForm.Component'
 import { deleteTablebyId, getBab, getTable, getVariable, getKec, getDeskel } from "../../../../redux/actions/master.action"
 
@@ -122,15 +122,16 @@ export default class LihatTabel_Tabel extends React.Component {
             dataIndex: 'ket',
             ...this.getColumnSearchProps('ket')
         }, {
-            title: 'pilihan',
+            title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
-            width: 140,
+            align: 'center',
+            width: 90,
             render: (text, record) => <span>
-                <a onClick={() => onClickEdit(`Edit tabel ${record.judul}`, record)}>Edit</a>
+                <a onClick={() => onClickEdit(`Edit tabel ${record.judul}`, record)}><EditTwoTone /></a>
                 <Divider type="vertical" />
                 <Popconfirm title={`Hapus tabel ini?`} onConfirm={() => this.props.dispatch(deleteTablebyId(this.props.socket, record._id, this.props))}>
-                    <a>Hapus</a>
+                    <DeleteTwoTone twoToneColor="#eb2f96" />
                 </Popconfirm>
             </span>
         }]
@@ -175,10 +176,10 @@ export default class LihatTabel_Tabel extends React.Component {
                             scroll={{ x: 1200 }}
                             size="small"
                             columns={tableColumns}
-                            dataSource={all_table.filter(t => ((bab === 'all_bab' && t.bab.match(new RegExp(selectedYear,'i')) ) || bab === t.bab))}
+                            dataSource={all_table.filter(t => ((bab === 'all_bab' && t.bab.match(new RegExp(selectedYear, 'i'))) || bab === t.bab))}
                             rowKey="_id"
                             expandable={{
-                                expandedRowRender: ({baris, kolom, nomor_tabel, judul, sumber, catatan}) => getDynamicTable(baris, kolom, nomor_tabel, judul, sumber, catatan),
+                                expandedRowRender: ({ baris, kolom, nomor_tabel, judul, sumber, catatan }) => getDynamicTable(baris, kolom, nomor_tabel, judul, sumber, catatan),
                             }}
                             pagination={{ defaultPageSize: 15, showSizeChanger: true, position: 'top', pageSizeOptions: ['15', '30', '50', '100', '200', '500'], showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total} tabel` }}
                         />

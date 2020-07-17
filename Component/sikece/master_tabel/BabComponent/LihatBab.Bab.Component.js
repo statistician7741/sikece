@@ -1,7 +1,7 @@
 import { Row, Col, Dropdown, Menu, Table, Divider, Popconfirm, Select, Typography, Input } from 'antd';
 const { Option } = Select;
 const { Text } = Typography;
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditTwoTone, DeleteTwoTone } from '@ant-design/icons'
 import InputForm from '../../general/InputForm.Component'
 import { deleteBabbyId, getBab } from "../../../../redux/actions/master.action"
 
@@ -13,7 +13,7 @@ export default class LihatBab_Bab extends React.Component {
     getAllYearsBab = (props) => {
         props.socket.emit('api.master_tabel.bab/getAllYearsBab', (response) => {
             if (response.type === 'ok') {
-                this.setState({years: response.data})
+                this.setState({ years: response.data })
             } else {
                 props.showErrorMessage(response.additionalMsg)
             }
@@ -60,15 +60,16 @@ export default class LihatBab_Bab extends React.Component {
             title: 'Keterangan',
             dataIndex: 'ket',
         }, {
-            title: 'pilihan',
+            title: 'Pilihan',
             dataIndex: 'pilihan',
             fixed: 'right',
-            width: 140,
+            align: 'center',
+            width: 90,
             render: (text, record) => <span>
-                <a onClick={() => onClickEdit(`Edit Bab ${record.nomor}. ${record.name}`, record)}>Edit</a>
+                <a onClick={() => onClickEdit(`Edit Bab ${record.nomor}. ${record.name}`, record)}><EditTwoTone /></a>
                 <Divider type="vertical" />
                 <Popconfirm title={`Hapus Bab ini?`} onConfirm={() => this.props.dispatch(deleteBabbyId(this.props.socket, { _id: record._id, tahun_buku: record.tahun_buku }))}>
-                    <a>Hapus</a>
+                    <DeleteTwoTone twoToneColor="#eb2f96" />
                 </Popconfirm>
             </span>
         }]
@@ -83,7 +84,7 @@ export default class LihatBab_Bab extends React.Component {
                                 style={{ width: 120 }}
                                 placeholder="Tahun buku"
                                 optionFilterProp="children"
-                                onChange={(selectedYear)=>this.setState({selectedYear})}
+                                onChange={(selectedYear) => this.setState({ selectedYear })}
                                 value={selectedYear}
                                 filterOption={(input, option) =>
                                     option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -114,7 +115,7 @@ export default class LihatBab_Bab extends React.Component {
                         <Table
                             size="small"
                             columns={kabColumns}
-                            dataSource={all_bab.filter(b=>(selectedYear === 'all_year'||selectedYear == b.tahun_buku))}
+                            dataSource={all_bab.filter(b => (selectedYear === 'all_year' || selectedYear == b.tahun_buku))}
                             pagination={false}
                             rowKey="_id"
                         />

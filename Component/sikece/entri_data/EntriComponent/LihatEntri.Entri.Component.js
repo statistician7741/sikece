@@ -1,23 +1,18 @@
-import { Row, Col, Select, Input, Button, Table, Space, Divider, Popconfirm, Tag, Typography } from 'antd';
+import { Row, Col, Select, Input, Button, Table, Space, Divider, Popconfirm, Tag, Typography, Tooltip } from 'antd';
 const { Option } = Select
 const { Text } = Typography;
-import { SearchOutlined, LoadingOutlined } from '@ant-design/icons'
+import { SearchOutlined, LoadingOutlined, EditTwoTone, EditOutlined, DeleteTwoTone, DeleteOutlined, DownloadOutlined } from '@ant-design/icons'
 import Highlighter from 'react-highlight-words';
 import InputForm from '../../general/InputForm.Component'
 import { replaceToKecName } from '../../../../functions/basic.func'
 import { deleteTableDatabyId, getKec } from '../../../../redux/actions/master.action'
 
-const DisabledOpt = () => <span>
-    <Text disabled>Entri</Text>
-    <Divider type="vertical" />
-    <Text disabled>Hapus</Text>
-</span>
-
 export default class LihatTabel_Tabel extends React.Component {
     state = {
         searchText: '',
         searchedColumn: '',
-        expandedRowKeys: []
+        expandedRowKeys: [],
+        downloadingTableId: undefined
     }
     getColumnSearchProps = dataIndex => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -81,20 +76,147 @@ export default class LihatTabel_Tabel extends React.Component {
         clearFilters();
         this.setState({ searchText: '' });
     };
+    getHeader = (baris, kolom) => {
+        const parents = {}
+        const cols = []
+        const { all_variable_obj } = this.props
+        let position = 0
+        //add kolom baris + kolom baris pertama
+        let judul_kelompok_baris = ''
+        baris.forEach((_idBaris, i) => {
+            if (all_variable_obj[_idBaris].kelompok && judul_kelompok_baris === '') judul_kelompok_baris = all_variable_obj[_idBaris].kelompok
+        })
+        cols.push([judul_kelompok_baris === '' ? all_variable_obj[baris[0]].name : judul_kelompok_baris])
+        cols.push(['']) //cols[1] = ['']
+        position++; //position = 1
+        kolom.forEach((_idKolom, i) => {
+            let kelompok = all_variable_obj[_idKolom].kelompok
+            if (kelompok !== "-" && kelompok !== "" && kelompok) {
+                if (!parents[kelompok]) {
+                    parents[kelompok] = {};
+                    parents[kelompok].indexAnggota = [];
+                }
+                parents[kelompok].indexAnggota.push(_idKolom)
+            } else {
+                if (!parents[`no_parents_${i}`]) {
+                    parents[`no_parents_${i}`] = {};
+                    parents[`no_parents_${i}`].indexAnggota = [];
+                }
+                parents[`no_parents_${i}`].indexAnggota.push(_idKolom)
+            }
+        })
+        for (var parent in parents) {
+            if (parents.hasOwnProperty(parent)) {
+                if (parent.includes('no_parents')) {
+                    cols[0].push(all_variable_obj[parents[parent].indexAnggota[0]].name)
+                    position++ //position = 3
+                    cols[1].push('')
+                } else {
+                    //tambahkan parent di baris pertama col
+                    cols[0].push({ 'label': parent, 'colspan': parents[parent].indexAnggota.length })
+                    position++; //position = 2
+                    //buat row judul kolom utk child
+                    parents[parent].indexAnggota.forEach(_idKolom => cols[1].push(all_variable_obj[_idKolom].name))
+                }
+            }
+        }
+        let isRemoveRow2Header = true;
+        cols[1].forEach(h => {
+            if (h !== '') isRemoveRow2Header = false
+        })
+        return isRemoveRow2Header ? [cols[0]] : cols
+    }
+    getBarisDataSource = (baris, kolom, kec, activeData) => {
+        const { all_variable_obj, all_deskel } = this.props;
+        let judul_baris = [];
+        let data = [];
+        let indexKolom = {}
+        let indexBaris = {}
+        let posBaris = 0
+        kolom.forEach((kolom_id, i) => indexKolom[kolom_id] = i + 1)
+        baris.forEach((_id, i) => {
+            if (all_variable_obj[_id].name.match(/^Desa\s?\/?\s?(Kelurahan)?\s?$/)) {
+                const deskel = all_deskel.filter(d => (d.kec === kec))
+                if (deskel.length) {
+                    deskel.forEach((d, i) => {
+                        judul_baris.push({ '_id': d._id })
+                        data.push([`${d.kode} ${d.name}`])
+                        indexBaris[d._id] = posBaris++
+                    })
+                } else {
+                    judul_baris.push({ '_id': _id })
+                    data.push([all_variable_obj[_id].name])
+                    indexBaris[_id] = posBaris++
+                }
+            } else if (all_variable_obj[_id].name.match(/^Jumlah|Total\s?$/) && i === baris.length - 1) {
+                judul_baris.push({ '_id': _id })
+                data.push([all_variable_obj[_id].name])
+                indexBaris[_id] = posBaris++
+            } else {
+                judul_baris.push({ '_id': _id })
+                data.push([all_variable_obj[_id].name])
+                indexBaris[_id] = posBaris++
+            }
+        })
+        if (activeData) {
+            activeData.all_data && judul_baris.forEach((activeBaris, i) => {
+                activeData.all_data.forEach(row => {
+                    if (activeBaris._id === row._idBaris) {
+                        judul_baris[i] = { ...data, ...row }
+                        kolom.forEach((kolom_id, i) => {
+                            data[indexBaris[activeBaris._id]][indexKolom[kolom_id]] = isNaN(row[kolom_id]) ? row[kolom_id] : +row[kolom_id]
+                        })
+                    }
+                })
+            })
+        }
+        return data;//judul_baris
+    }
+    unduhTable = (id, props, record, kec, nama, activeData) => {
+        this.setState({ downloadingTableId: id }, () => {
+            const { baris, kolom, nomor_tabel, judul, catatan } = record
+            props.socket.emit('api.general.unduh/unduhTable', { baris, kolom, header: this.getHeader(baris, kolom), data: this.getBarisDataSource(baris, kolom, kec, activeData), nomor_tabel, judul, catatan, kec, nama, activeData }, (response) => {
+                if (response.type === 'ok') {
+                    this.setState({ downloadingTableId: undefined }, () => {
+                        window.open(`/view/${response.data}`, "_top")
+                    })
+                } else {
+                    props.showErrorMessage(response.additionalMsg)
+                }
+            })
+        })
+    }
     render() {
-        const { expandedRowKeys } = this.state
+        const { expandedRowKeys, downloadingTableId } = this.state
         const { all_table, all_bab, all_kab, all_kec, all_kec_obj, all_kec_table_obj, bab, selectedYear, years, kab, kec, activeData } = this.props
         const { onClickEntri, onChangeDropdown, getDynamicTable, loadingData, activeRecord, getDataTable, setExpandLoading } = this.props
-        const EnableOpt = ({ record }) => (
+        const EnableOpt = ({ record, _idTable }) => (
             <span>
                 {loadingData && record._id === activeRecord._id ? <LoadingOutlined /> :
-                    <a onClick={() => onClickEntri(`Entri Tabel ${record.nomor_tabel}`, record)}>Entri</a>}
+                    <a onClick={() => onClickEntri(`Entri Tabel ${record.nomor_tabel}`, record)}><EditTwoTone /></a>}
                 <Divider type="vertical" />
-                <Popconfirm title={`Hapus entrian di tabel ini? Ini tidak akan menghapus tabel`} onConfirm={() => this.props.dispatch(deleteTableDatabyId(this.props.socket, { _idKec: kec, _idTable: record._id }, this.props, ()=>this.props.dispatch(getKec(this.props.socket))))}>
-                    <a>Hapus</a>
+                <Tooltip title="Unduh template tabel" >
+                    {downloadingTableId === record._id ?
+                        <span><LoadingOutlined /></span>
+                        : <span><a onClick={() => this.unduhTable(record._id, this.props, record, kec, all_kec_obj[kec] ? all_kec_obj[kec].name : '{nama}', all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable] : {})}><DownloadOutlined /></a></span>}
+                </Tooltip>
+                <Divider type="vertical" />
+                <Popconfirm title={`Hapus entrian di tabel ini? Ini tidak akan menghapus tabel`} onConfirm={() => this.props.dispatch(deleteTableDatabyId(this.props.socket, { _idKec: kec, _idTable: record._id }, this.props, () => this.props.dispatch(getKec(this.props.socket))))}>
+                    <a><DeleteTwoTone twoToneColor="#eb2f96" /></a>
                 </Popconfirm>
             </span>
         )
+        const DisabledOpt = ({ record, _idTable }) => <span>
+            <Text disabled><EditOutlined /></Text>
+            <Divider type="vertical" />
+            <Tooltip title="Unduh template tabel" >
+                {downloadingTableId === record._id ?
+                    <span><LoadingOutlined /></span>
+                    : <span><a onClick={() => this.unduhTable(record._id, this.props, record, kec, all_kec_obj[kec] ? all_kec_obj[kec].name : '{nama}', all_kec_table_obj[kec][_idTable] ? all_kec_table_obj[kec][_idTable] : {})}><DownloadOutlined /></a></span>}
+            </Tooltip>
+            <Divider type="vertical" />
+            <Text disabled><DeleteOutlined /></Text>
+        </span>
         const tableColumns = [{
             title: 'No.',
             dataIndex: 'nomor_tabel',
@@ -122,17 +244,17 @@ export default class LihatTabel_Tabel extends React.Component {
             width: 200,
             render: (_idTable, record) => {
                 return (
-                    all_kec_table_obj[kec]?(all_kec_table_obj[kec][_idTable] ? (all_kec_table_obj[kec][_idTable].pesanPenyData?all_kec_table_obj[kec][_idTable].pesanPenyData:"-"):"-") : "-"
+                    all_kec_table_obj[kec] ? (all_kec_table_obj[kec][_idTable] ? (all_kec_table_obj[kec][_idTable].pesanPenyData ? all_kec_table_obj[kec][_idTable].pesanPenyData : "-") : "-") : "-"
                 )
             }
         },
         {
             title: 'Pilihan',
-            dataIndex: 'pilihan',
+            dataIndex: '_id',
             fixed: 'right',
             width: 110,
-            render: (text, record) => all_kec_table_obj[kec] ?
-                (all_kec_table_obj[kec][record._id] ? (all_kec_table_obj[kec][record._id].isApproved ? (<DisabledOpt />) : (<EnableOpt record={record} />)) : (<EnableOpt record={record} />))
+            render: (_idTable, record) => all_kec_table_obj[kec] ?
+                (all_kec_table_obj[kec][record._id] ? (all_kec_table_obj[kec][record._id].isApproved ? (<DisabledOpt record={record} _idTable={_idTable} />) : (<EnableOpt record={record} _idTable={_idTable} />)) : (<EnableOpt record={record} _idTable={_idTable} />))
                 : (<LoadingOutlined />)
         }
         ]
