@@ -46,7 +46,6 @@ let runServer = () => {
       server.use('/sikece', require("./api/login.api"));
       server.use('/sikece/entri_data', require("./api/entri_data.api"));
       server.use('/sikece/other', require("./api/other.api"));
-      console.log(`${__dirname}/public/static/arsip`);
       server.use('/view/arsip', express.static(`${__dirname}/public/static/arsip`))
       server.use('/view', express.static(`${__dirname}/public/static`))
 

@@ -17,7 +17,7 @@ module.exports = (input, cb, client) => {
                     if(typeof parent === 'string') newIndex0.push(parent)
                         else {
                             for (let pos = 0; pos < parent.colspan; pos++) {
-                                newIndex0.push(pos === 0?parent.label:'')
+                                newIndex0.push(pos === 0?parent.label:undefined)
                             }
                         }
                 })

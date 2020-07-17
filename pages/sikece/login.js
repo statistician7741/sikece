@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { Alert, Button, Form, Input, Layout, Select } from 'antd';
+import { Alert, Button, Form, Input, Layout, Select, Card } from 'antd';
 const { Option } = Select
 const FormItem = Form.Item;
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
@@ -68,8 +68,8 @@ class Login extends React.Component {
         const { errMsg, loading, years } = this.state
         return (
             <Layout style={{ minHeight: '100vh' }} className={'login_container'}>
-                <Layout.Content>
-                    <div className={'login_content'}>
+                <Layout.Content >
+                    <Card bodyStyle={{padding: 0}} style={{ width: 400, margin: '50px auto 0 auto', backgroundColor: 'rgba(169, 190, 217, 0.8)' }} bordered={false}>
                         <div className={'login_top'}>
                             <div className={'login_header'}>
                                 <div>
@@ -77,7 +77,7 @@ class Login extends React.Component {
                                 </div>
                             </div>
                             <div className={'welcome'}>SELAMAT DATANG DI</div>
-                            <img src={`/static/logo3.png`} className={'login_logo2'} />
+                            <img src={`/static/logo4.png`} className={'login_logo2'} />
                             <div className={'login_desc'}>SISTEM INFORMASI KECAMATAN DALAM ANGKA</div>
                         </div>
                         <div className={'login_main'}>
@@ -154,7 +154,7 @@ class Login extends React.Component {
                                         {years.length ? years.map(y => (<Option value={y} key={y}>{y}</Option>)) : <Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Option>}
                                     </Select>
                                 </Form.Item>
-                                <FormItem>
+                                <FormItem style={{marginBottom: 0}}>
                                     <Button
                                         type="primary"
                                         htmlType="submit"
@@ -168,7 +168,10 @@ class Login extends React.Component {
                                 </FormItem>
                             </Form>
                         </div>
-                    </div>
+                        <div style={{textAlign: 'center', marginBottom: 16}}>
+                            <div>Lupa password? Silahkan email ke <span style={{color: '#FEFE07', fontWeight: 'bold'}} >bps7401@bps.go.id</span></div>
+                        </div>
+                    </Card>
                 </Layout.Content>
                 <Layout.Footer className="dt" style={{ textAlign: "center", backgroundColor: "transparent" }}>
                     <div>Badan Pusat Statistik {kab} ©{new Date().getFullYear()}</div>

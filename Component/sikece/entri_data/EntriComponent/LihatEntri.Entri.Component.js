@@ -252,6 +252,7 @@ export default class LihatTabel_Tabel extends React.Component {
             title: 'Pilihan',
             dataIndex: '_id',
             fixed: 'right',
+            align: 'center',
             width: 110,
             render: (_idTable, record) => all_kec_table_obj[kec] ?
                 (all_kec_table_obj[kec][record._id] ? (all_kec_table_obj[kec][record._id].isApproved ? (<DisabledOpt record={record} _idTable={_idTable} />) : (<EnableOpt record={record} _idTable={_idTable} />)) : (<EnableOpt record={record} _idTable={_idTable} />))
