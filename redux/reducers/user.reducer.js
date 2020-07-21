@@ -5,7 +5,8 @@ export default (
     active_user: {},
     penyDataCount: undefined,
     tahun_buku_monitoring: undefined,
-    all_user: []
+    all_user: [],
+    isMenuCollapsed: false
   },
   action
 ) => {
@@ -21,6 +22,11 @@ export default (
       return {
         ...state,
         all_user: action.all_user
+      }
+    case actionTypes.TOGGLE_MENU_COLLAPSED:
+      return {
+        ...state,
+        isMenuCollapsed: action.isMenuCollapsed
       }
     default: return state
   }

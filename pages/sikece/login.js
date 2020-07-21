@@ -71,13 +71,13 @@ class Login extends React.Component {
                 <Layout.Content >
                     <Card bodyStyle={{padding: 0}} style={{ width: 400, margin: '50px auto 0 auto', backgroundColor: 'rgba(169, 190, 217, 0.8)' }} bordered={false}>
                         <div className={'login_top'}>
-                            <div className={'login_header'}>
+                            {/* <div className={'login_header'}>
                                 <div>
                                     <img src={`/static/logo2.png`} className={'login_logo'} />
                                 </div>
-                            </div>
+                            </div> */}
                             <div className={'welcome'}>SELAMAT DATANG DI</div>
-                            <img src={`/static/logo4.png`} className={'login_logo2'} />
+                            <img src={`/static/logo.png`} className={'login_logo2'} />
                             <div className={'login_desc'}>SISTEM INFORMASI KECAMATAN DALAM ANGKA</div>
                         </div>
                         <div className={'login_main'}>

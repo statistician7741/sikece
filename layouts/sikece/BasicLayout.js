@@ -1,16 +1,16 @@
-import { Avatar, Dropdown, Layout, Menu, Spin } from "antd";
-const { Content, Footer, Header } = Layout;
+import { Dropdown, Layout, Menu, Spin } from "antd";
+const { Content, Footer, Header, Sider } = Layout;
 import Link from "next/link";
-import { LogoutOutlined, UserOutlined, LoadingOutlined } from '@ant-design/icons'
+import { LogoutOutlined, UserOutlined, LoadingOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import { connect } from 'react-redux';
 
-import { menu, kab, alamat } from '../../config/env.config'
-import { setActiveUser } from "../../redux/actions/user.action"
+import { menu, kab, alamat, jenisPengguna } from '../../config/env.config'
+import { setActiveUser, toggleMenuCollapsed } from "../../redux/actions/user.action"
 
 import "./BasicLayout.less"
 
 const LinkTo = ({ url, name }) => (
-  <Link href={`${url}`}><a>{name}</a></Link>
+  <Link href={`${url}`}><a style={{ color: "inherit" }}>{name}</a></Link>
 );
 
 const userMenu = (
@@ -35,44 +35,67 @@ class BasicLayout extends React.Component {
     }
   }
   render() {
-    const { active_user: { name, jenis_pengguna }, router } = this.props
+    const { active_user: { name, jenis_pengguna }, isMenuCollapsed, router } = this.props
     let myrouter = menu.filter(m => (m.user_type.includes(jenis_pengguna))).map(m => (m.key))
     return (
       <Layout className="layout" style={{ minHeight: '100vh' }}>
-        <Header>
+        <Sider
+          breakpoint="xs"
+          trigger={null}
+          collapsible
+          collapsed={isMenuCollapsed}//this.props.sideMenuCollapsed}
+        // collapsedWidth={0}
+        >
           <Link href="/"><a><img className="logo" src={`/static/logo.png`} /></a></Link>
-          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={[this.props.router.asPath]}>
-            {menu.map(m => m.user_type.includes(jenis_pengguna) ? <Menu.Item key={m.key}><LinkTo url={m.key} name={m.name} /></Menu.Item> : null)}
-            <span className="right">
+          <div style={{ textAlign: 'center' }}>
+            <img src={`/static/profile-man.png`} className={`user-profile${!isMenuCollapsed ? '':'-collapsed'}`} />
+            {name && !isMenuCollapsed ? <div className="user-name">{name}</div> : <LoadingOutlined />}
+            {jenis_pengguna && !isMenuCollapsed ? <div className="jenis-pengguna">{jenisPengguna[jenis_pengguna]}</div> : <LoadingOutlined />}
+          </div>
+          <Menu theme="dark" mode="inline" defaultSelectedKeys={[this.props.router.asPath]}>
+            {menu.map(m => m.user_type.includes(jenis_pengguna) ? <Menu.Item key={m.key} icon={<m.icon />}><LinkTo url={m.key} name={m.name} /></Menu.Item> : null)}
+          </Menu>
+        </Sider>
+        <Layout>
+          <Header>
+            {isMenuCollapsed ? <MenuUnfoldOutlined
+              className="trigger"
+              onClick={() => this.props.dispatch(toggleMenuCollapsed(!isMenuCollapsed))}
+            /> : <MenuFoldOutlined
+                className="trigger"
+                onClick={() => this.props.dispatch(toggleMenuCollapsed(!isMenuCollapsed))}
+              />}
+            {/* <span className="right">
               <Dropdown overlay={userMenu} trigger={['click']}>
-                <span className={`action account`}>
-                  <Avatar className={'avatar'} icon={<UserOutlined />} />
+                <span className={`action account`} style={{ color: 'white' }}> */}
+            {/* <Avatar className={'avatar'} icon={<UserOutlined />} /> */}
+            {/* <img src={`/static/profile-man.png`} className={'avatar'} />
                   {name ? name : <LoadingOutlined />}
                 </span>
               </Dropdown>
-            </span>
-          </Menu>
-        </Header>
-        <Content
-          className={"main-content"}
-          style={router.pathname === "/sikece/monitoring" ? { background: "none" } : undefined}
-        >
-          <Spin spinning={!jenis_pengguna}>
-            {myrouter.includes(router.pathname) ? this.props.children : (jenis_pengguna?`Maaf, Anda tidak memiliki hak untuk mengakses halaman ini. Mohon hubungi Seksi IPDS BPS ${kab}.`:null)}
-          </Spin>
-        </Content>
-        <Footer style={{ textAlign: "center" }}>
-          <div>Badan Pusat Statistik {kab} ©{new Date().getFullYear()}</div>
-          <div>{alamat}</div>
-        </Footer>
+            </span> */}
+          </Header>
+          <Content
+            className={"main-content"}
+            style={router.pathname === "/sikece/monitoring" ? { background: "none" } : undefined}
+          >
+            <Spin spinning={!jenis_pengguna}>
+              {myrouter.includes(router.pathname) ? this.props.children : (jenis_pengguna ? `Maaf, Anda tidak memiliki hak untuk mengakses halaman ini. Mohon hubungi Seksi IPDS BPS ${kab}.` : null)}
+            </Spin>
+          </Content>
+          <Footer style={{ textAlign: "center" }}>
+            <div>Badan Pusat Statistik {kab} ©{new Date().getFullYear()}</div>
+            <div>{alamat}</div>
+          </Footer>
+        </Layout>
       </Layout>
     );
   }
 }
 
 function mapStateToProps(state) {
-  const { socket: { socket }, user: { active_user } } = state
-  return { socket, active_user }
+  const { socket: { socket }, user: { active_user, isMenuCollapsed } } = state
+  return { socket, active_user, isMenuCollapsed }
 }
 
 export default connect(mapStateToProps)(BasicLayout)

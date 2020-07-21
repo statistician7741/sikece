@@ -12,6 +12,9 @@ export const setActiveUser = (socket) => dispatch => {
 export const resetActiveUser = () => dispatch => {
   return dispatch({ type: actionTypes.SET_ACTIVE_USER, active_user: {} })
 }
+export const toggleMenuCollapsed = (isMenuCollapsed) => dispatch => {
+  return dispatch({ type: actionTypes.TOGGLE_MENU_COLLAPSED, isMenuCollapsed })
+}
 export const getUser = (socket) => dispatch => {
   socket.emit('api.master_user.user/getUser', (response) => {
     if (response.type === 'ok') {
