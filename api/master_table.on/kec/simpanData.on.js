@@ -24,7 +24,7 @@ module.exports = (input, cb, client) => {
                     _id: _idKec
                 }, {
                     $push: {
-                        'table': { _idTable, _idKec, _idKab, sumber, catatan, ket, all_data, needFenomena, needFenomenaQ }
+                        'table': { _idTable, _idKec, _idKab, sumber, catatan, ket, all_data, needFenomena, needFenomenaQ, entryDate: new Date() }
                     }
                 }, (err, result) => {
                     if (err) {
@@ -64,6 +64,7 @@ module.exports = (input, cb, client) => {
                                     'table.$.needFenomena': needFenomena,
                                     'table.$.needFenomenaQ': needFenomenaQ,
                                     'table.$.all_data': all_data,
+                                    'table.$.entryDate': new Date(),
                                     'table.$.arsip': [...matched_kec[0].table.arsip, ...fileToKeep]
                                 }
                             }, (err, result) => {

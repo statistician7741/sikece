@@ -6,6 +6,7 @@ module.exports = ({_idKec, _idTable, isApproved, pesanPenyData}, cb, client) => 
         "table._idTable": _idTable
     }, {
         $set: {
+            'table.$.approvedDate': new Date(),
             'table.$.isApproved': isApproved,
             'table.$.pesanPenyData': pesanPenyData,
         }

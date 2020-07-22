@@ -7,7 +7,8 @@ import { Fragment } from 'react';
 import { getTable, getKec, getKab } from "../../../redux/actions/master.action"
 import TextyAnim from 'rc-texty'
 import Router from 'next/router'
-import { ResponsiveStream } from '@nivo/stream'
+import { ResponsiveLine } from '@nivo/line'
+import moment from 'moment'
 
 const SummaryCard = ({ tittle, data, withTabel, percent }) => {
     return <Card
@@ -174,6 +175,40 @@ export default class IndexMonitoring extends React.Component {
         const total_disetujui = all_kec_table_arr.length ? all_kec_table_arr.filter(data => (data.isApproved === true)).length : 0
         const total_blm_disetujui = all_kec_table_arr.length ? all_kec_table_arr.filter(data => (data.isApproved === false)).length : 0
         const total_blm_ditanggapi = total_tabel - total_disetujui - total_blm_disetujui
+        const disetujui = {}
+        const entri = {}
+        all_kec_table_arr.forEach(t => {
+            const { entryDate, isApproved, approvedDate } = t
+            if (entryDate) {
+                if (!entri[moment(entryDate).format('DD/MM')]) entri[moment(entryDate).format('DD/MM')] = { count: 0, unix: moment(entryDate).valueOf() }
+                if (!disetujui[moment(entryDate).format('DD/MM')]) disetujui[moment(entryDate).format('DD/MM')] = { count: 0, unix: moment(entryDate).valueOf() }
+                entri[moment(entryDate).format('DD/MM')]['count'] += 1
+            }
+            if (isApproved && approvedDate) {
+                if (!disetujui[moment(approvedDate).format('DD/MM')]) disetujui[moment(approvedDate).format('DD/MM')] = { count: 0, unix: moment(approvedDate).valueOf() }
+                if (!entri[moment(approvedDate).format('DD/MM')]) entri[moment(approvedDate).format('DD/MM')] = { count: 0, unix: moment(approvedDate).valueOf() }
+                disetujui[moment(approvedDate).format('DD/MM')]['count'] += 1
+            }
+        })
+        let entryDataDate = []
+        let disetujuiDataDate = []
+        for (let d in entri) {
+            if (entri.hasOwnProperty(d)) {
+                entryDataDate.push({x: d, y: entri[d]['count'], unix: entri[d]['unix']})
+            }
+        }
+        for (let d in disetujui) {
+            if (disetujui.hasOwnProperty(d)) {
+                disetujuiDataDate.push({x: d, y: disetujui[d]['count'], unix: disetujui[d]['unix']})
+            }
+        }
+        let aktivitas_tabel = [{
+            "id": "Disetujui",
+            "data": disetujuiDataDate.length > 5 ? disetujuiDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1).slice(Math.max(disetujuiDataDate.length - 5, 1)) : disetujuiDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1)
+        }, {
+            "id": "Entri",
+            "data": entryDataDate.length > 5 ? entryDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1).slice(Math.max(entryDataDate.length - 5, 1)) : entryDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1)
+        }]
 
         const allData = {
             total_tabel,
@@ -255,83 +290,12 @@ export default class IndexMonitoring extends React.Component {
                                 <Col xs={24} md={18}>
                                     <Card title="Aktivitas Tabel" bordered={false} style={{ height: 450 }}>
                                         <div style={{ height: 330, width: '100%' }}>
-                                            <ResponsiveStream
-                                                data={[
-                                                    {
-                                                        "Raoul": 176,
-                                                        "Josiane": 21,
-                                                        "Marcel": 27,
-                                                        "René": 19,
-                                                        "Paul": 79,
-                                                        "Jacques": 69
-                                                    },
-                                                    {
-                                                        "Raoul": 105,
-                                                        "Josiane": 74,
-                                                        "Marcel": 55,
-                                                        "René": 28,
-                                                        "Paul": 111,
-                                                        "Jacques": 117
-                                                    },
-                                                    {
-                                                        "Raoul": 62,
-                                                        "Josiane": 99,
-                                                        "Marcel": 58,
-                                                        "René": 149,
-                                                        "Paul": 32,
-                                                        "Jacques": 159
-                                                    },
-                                                    {
-                                                        "Raoul": 50,
-                                                        "Josiane": 119,
-                                                        "Marcel": 160,
-                                                        "René": 54,
-                                                        "Paul": 199,
-                                                        "Jacques": 135
-                                                    },
-                                                    {
-                                                        "Raoul": 36,
-                                                        "Josiane": 27,
-                                                        "Marcel": 162,
-                                                        "René": 144,
-                                                        "Paul": 147,
-                                                        "Jacques": 40
-                                                    },
-                                                    {
-                                                        "Raoul": 131,
-                                                        "Josiane": 182,
-                                                        "Marcel": 66,
-                                                        "René": 163,
-                                                        "Paul": 74,
-                                                        "Jacques": 181
-                                                    },
-                                                    {
-                                                        "Raoul": 66,
-                                                        "Josiane": 119,
-                                                        "Marcel": 127,
-                                                        "René": 166,
-                                                        "Paul": 84,
-                                                        "Jacques": 24
-                                                    },
-                                                    {
-                                                        "Raoul": 26,
-                                                        "Josiane": 147,
-                                                        "Marcel": 17,
-                                                        "René": 43,
-                                                        "Paul": 28,
-                                                        "Jacques": 193
-                                                    },
-                                                    {
-                                                        "Raoul": 193,
-                                                        "Josiane": 119,
-                                                        "Marcel": 75,
-                                                        "René": 22,
-                                                        "Paul": 199,
-                                                        "Jacques": 166
-                                                    }
-                                                ]}
-                                                keys={['Raoul', 'Josiane', 'Marcel', 'René', 'Paul', 'Jacques']}
-                                                margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+                                            <ResponsiveLine
+                                                data={aktivitas_tabel}
+                                                margin={{ top: 35, right: 25, bottom: 55, left: 60 }}
+                                                xScale={{ type: 'point' }}
+                                                yScale={{ type: 'linear', min: '0', max: 'auto', stacked: false, reverse: false }}
+                                                curve="natural"
                                                 axisTop={null}
                                                 axisRight={null}
                                                 axisBottom={{
@@ -339,75 +303,57 @@ export default class IndexMonitoring extends React.Component {
                                                     tickSize: 5,
                                                     tickPadding: 5,
                                                     tickRotation: 0,
-                                                    legend: '',
-                                                    legendOffset: 36
+                                                    legend: 'Tanggal',
+                                                    legendOffset: 45,
+                                                    legendPosition: 'middle'
                                                 }}
-                                                axisLeft={{ orient: 'left', tickSize: 5, tickPadding: 5, tickRotation: 0, legend: '', legendOffset: -40 }}
-                                                offsetType="silhouette"
-                                                colors={{ scheme: 'nivo' }}
-                                                fillOpacity={0.85}
-                                                borderColor={{ theme: 'background' }}
-                                                defs={[
-                                                    {
-                                                        id: 'dots',
-                                                        type: 'patternDots',
-                                                        background: 'inherit',
-                                                        color: '#2c998f',
-                                                        size: 4,
-                                                        padding: 2,
-                                                        stagger: true
-                                                    },
-                                                    {
-                                                        id: 'squares',
-                                                        type: 'patternSquares',
-                                                        background: 'inherit',
-                                                        color: '#e4c912',
-                                                        size: 6,
-                                                        padding: 2,
-                                                        stagger: true
-                                                    }
-                                                ]}
-                                                fill={[
-                                                    {
-                                                        match: {
-                                                            id: 'Paul'
-                                                        },
-                                                        id: 'dots'
-                                                    },
-                                                    {
-                                                        match: {
-                                                            id: 'Marcel'
-                                                        },
-                                                        id: 'squares'
-                                                    }
-                                                ]}
-                                                dotSize={8}
-                                                dotColor={{ from: 'color' }}
-                                                dotBorderWidth={2}
-                                                dotBorderColor={{ from: 'color', modifiers: [['darker', 0.7]] }}
-                                                animate={true}
-                                                motionStiffness={90}
-                                                motionDamping={15}
+                                                axisLeft={{
+                                                    orient: 'left',
+                                                    tickSize: 5,
+                                                    tickPadding: 5,
+                                                    tickRotation: 0,
+                                                    legend: 'Jumlah Tabel',
+                                                    legendOffset: -50,
+                                                    legendPosition: 'middle'
+                                                }}
+                                                colors={{ scheme: 'set2' }}
+                                                lineWidth={4}
+                                                enablePoints={false}
+                                                enableArea={true}
+                                                areaOpacity={0.35}
+                                                crosshairType="bottom-left"
+                                                useMesh={true}
                                                 legends={[
                                                     {
-                                                        anchor: 'bottom-right',
-                                                        direction: 'column',
-                                                        translateX: 100,
-                                                        itemWidth: 80,
-                                                        itemHeight: 20,
-                                                        itemTextColor: '#999999',
-                                                        symbolSize: 12,
+                                                        anchor: 'top',
+                                                        direction: 'row',
+                                                        justify: false,
+                                                        translateX: 0,
+                                                        translateY: -40,
+                                                        itemsSpacing: 0,
+                                                        itemDirection: 'left-to-right',
+                                                        itemWidth: 87,
+                                                        itemHeight: 34,
+                                                        itemOpacity: 0.75,
+                                                        symbolSize: 16,
                                                         symbolShape: 'circle',
+                                                        symbolBorderColor: 'rgba(0, 0, 0, .5)',
                                                         effects: [
                                                             {
                                                                 on: 'hover',
                                                                 style: {
-                                                                    itemTextColor: '#000000'
+                                                                    itemBackground: 'rgba(0, 0, 0, .03)',
+                                                                    itemOpacity: 1
                                                                 }
                                                             }
                                                         ]
                                                     }
                                                 ]}
+                                                motionStiffness={230}
+                                                motionDamping={24}
+                                                theme={
+                                                    { fontSize: '13px' }
+                                                }
                                             />
                                         </div>
                                     </Card>

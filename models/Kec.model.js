@@ -36,8 +36,10 @@ var KecSchema = new Schema({
                 default: ""
             },
             'all_data': [],
+            'entryDate': Date,
             'arsip': [],
             'isApproved': Boolean,
+            'approvedDate': Date,
             'needFenomena': {
                 'type': Boolean,
                 'default': false
