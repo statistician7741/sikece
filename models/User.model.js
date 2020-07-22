@@ -34,6 +34,10 @@ var UserSchema = new Schema({
         'default': []
     },
     "ket": String,
+    "visit_count": {
+        'type': Number,
+        'default': 0
+    },
 }, { collection: 'user' });
 
 module.exports = mongoose.model('User', UserSchema);

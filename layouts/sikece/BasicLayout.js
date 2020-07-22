@@ -46,11 +46,11 @@ class BasicLayout extends React.Component {
           collapsed={isMenuCollapsed}//this.props.sideMenuCollapsed}
         // collapsedWidth={0}
         >
-          <Link href="/"><a><img className="logo" src={`/static/logo.png`} /></a></Link>
+          <Link href="/"><a><img className="logo" src={`/static/logo${!isMenuCollapsed?'':'5'}.png`} /></a></Link>
           <div style={{ textAlign: 'center' }}>
             <img src={`/static/profile-man.png`} className={`user-profile${!isMenuCollapsed ? '':'-collapsed'}`} />
-            {name && !isMenuCollapsed ? <div className="user-name">{name}</div> : <LoadingOutlined />}
-            {jenis_pengguna && !isMenuCollapsed ? <div className="jenis-pengguna">{jenisPengguna[jenis_pengguna]}</div> : <LoadingOutlined />}
+            {name ? (!isMenuCollapsed?<div className="user-name">{name}</div>:null) : <LoadingOutlined />}
+            {jenis_pengguna ? (!isMenuCollapsed?<div className="jenis-pengguna">{jenisPengguna[jenis_pengguna]}</div>:null) : <LoadingOutlined />}
           </div>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={[this.props.router.asPath]}>
             {menu.map(m => m.user_type.includes(jenis_pengguna) ? <Menu.Item key={m.key} icon={<m.icon />}><LinkTo url={m.key} name={m.name} /></Menu.Item> : null)}

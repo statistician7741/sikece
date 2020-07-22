@@ -42,7 +42,7 @@ let runServer = () => {
       server.use(cookieParser("ID==&&%^&A&SHBJSAsjhbJGhUGkbKiUvii^%^#$%^&98G8UIugg=="));
       server.use(bodyParser.urlencoded({ extended: true }));
       server.use(bodyParser.json())
-      
+
       server.use('/sikece', require("./api/login.api"));
       server.use('/sikece/entri_data', require("./api/entri_data.api"));
       server.use('/sikece/other', require("./api/other.api"));
@@ -91,16 +91,35 @@ let runServer = () => {
       })
 
       const io = socketServer(serve);
+      let onlineUser = []
+      const pushOnlineUser = (name) => {
+        let isExist = false
+        onlineUser.forEach(u => {
+          if (u === name) isExist = true
+        })
+        if (!isExist) onlineUser = [...onlineUser, name]
+      }
+      const removeOnlineUser = (name) => {
+        onlineUser = [...onlineUser.filter(n => n !== name)]
+      }
       io.use(sharedsession(sessionWithMongo, cookieParser("ID==&&%^&A&SHBJSAsjhbJGhUGkbKiUvii^%^#$%^&98G8UIugg==")));
       io.on('connection', function (client) {
         const { name, jenis_pengguna } = client.handshake.cookies
-        console.log(`${name} (${jenis_pengguna}) connected`);
         require('./api/master_table.api')(client)
         require('./api/master_user.api')(client)
         require('./api/general.api')(client)
         client.on('disconnect', () => {
-          console.log(`${name} (${jenis_pengguna}) disconnected`);
+          removeOnlineUser(name)
+          io.emit('refreshOnlineUser', onlineUser);
         })
+        client.on('getOnlineUser', () => {
+          client.emit('refreshOnlineUser', onlineUser);
+        })
+        if(jenis_pengguna){
+          pushOnlineUser(name)
+          io.emit('refreshTopVisitor');
+          io.emit('refreshOnlineUser', onlineUser);
+        }
       })
     })
 }

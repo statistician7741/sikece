@@ -17,7 +17,9 @@ function loginSuccess(req, res, user, tahun_buku_monitoring) {
 function login(req, res) {
   User.findOne({ 'username': req.body.username, 'password': req.body.password }, (err, user) => {
     if (user) {
-      loginSuccess(req, res, user, req.body.tahun_buku)
+      User.updateOne({_id: user._id}, {visit_count: user.visit_count+1}, (e,s)=>{
+        loginSuccess(req, res, user, req.body.tahun_buku)
+      })
     } else{
       res.end('Username atau password salah.');
     }

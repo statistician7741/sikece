@@ -1,8 +1,7 @@
 import Bar from './Charts/Bar.Monitoring'
-import { List, Row, Col, Card, Skeleton, Typography, Tag, Spin, Button, Tabs } from 'antd';
+import { List, Row, Col, Card, Typography, Badge, Spin, Button, Tabs, Skeleton, Avatar } from 'antd';
 const { Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
-import InfiniteScroll from 'react-infinite-scroller';
 import data from './Charts/data'
 import { Fragment } from 'react';
 import { getTable, getKec, getKab } from "../../../redux/actions/master.action"
@@ -16,7 +15,7 @@ const SummaryCard = ({ tittle, data, withTabel, percent }) => {
         title={tittle}
     >
         <div style={{ textAlign: "center" }}>
-            <span><strong style={{ fontSize: 60 }}>{data}</strong>{withTabel ? ' tabel' : null}{percent===false ? null : ` (${percent}%)`}</span>
+            <span><strong style={{ fontSize: 60 }}>{data}</strong>{withTabel ? ' tabel' : null}{percent === false ? null : ` (${percent}%)`}</span>
         </div>
     </Card>
 }
@@ -46,71 +45,6 @@ export default class IndexMonitoring extends React.Component {
         data: [...data.kab],
         levelApprove: 'kab',
         levelEntri: 'kab',
-        // activities: [
-        //     {
-        //         key: "1",
-        //         title: "Puskesmas Lasalimu Selatan",
-        //         status: "Disetujui",
-        //         description: "Tabel 2.3.4 Realisasi Program Imunisasi Bayi dan Ibu Hamil Menurut Jenisnya, 2015-2019",
-        //         time: "14.22 31/05/2020"
-        //     },
-        //     {
-        //         key: "2",
-        //         title: "Kecamatan Pasar Wajo",
-        //         status: "Blm Disetujui",
-        //         description: "Tabel 1.1.1 Luas Daerah dan Jumlah Pulau Menurut Kelurahan/Desa, 2019",
-        //         time: "09.45 11/06/2020"
-        //     },
-        //     {
-        //         key: "3",
-        //         title: "Kecamatan Pasar Wajo",
-        //         status: "Disetujui",
-        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-        //         time: "09.57 11/06/2020"
-        //     },
-        //     {
-        //         key: "4",
-        //         title: "Kecamatan Lasalimu",
-        //         status: "Disetujui",
-        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-        //         time: "08.11 11/06/2020"
-        //     },
-        //     {
-        //         key: "5",
-        //         title: "Kecamatan Lasalimu Selatan",
-        //         status: "Disetujui",
-        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-        //         time: "13.32 11/06/2020"
-        //     },
-        //     {
-        //         key: "6",
-        //         title: "Kecamatan Siotapina",
-        //         status: "Disetujui",
-        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-        //         time: "09.57 11/06/2020"
-        //     },
-        //     {
-        //         key: "7",
-        //         title: "Kecamatan Pasar Wajo",
-        //         status: "Disetujui",
-        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-        //         time: "14.54 11/06/2020"
-        //     },
-        //     {
-        //         key: "8",
-        //         title: "Kecamatan Pasar Wajo",
-        //         status: "Disetujui",
-        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-        //         time: "09.57 11/06/2020"
-        //     },
-        //     {
-        //         key: "9",
-        //         title: "Kecamatan Wolowa",
-        //         status: "Disetujui",
-        //         description: "Tabel 1.1.2 Jarak dari Ibukota Kecamatan dan Ibukota Kabupaten Menurut Kelurahan/Desa, 2019",
-        //         time: "12.59 11/06/2020"
-        //     }
-        // ],
         total_tabel: undefined,
         total_entri: undefined,
         total_disetujui: undefined,
@@ -119,7 +53,9 @@ export default class IndexMonitoring extends React.Component {
         kab: [],
         kec: [],
         active_kabPersetujuan: undefined,
-        active_kabEntri: undefined
+        active_kabEntri: undefined,
+        topVisitor: [],
+        onlineUser: [],
     }
     onClickKab = (datum) => {
         this.setState({ levelApprove: this.state.levelApprove === 'kec' ? 'kab' : 'kec', active_kabPersetujuan: datum.indexValue.substring(1, 5) })
@@ -128,12 +64,19 @@ export default class IndexMonitoring extends React.Component {
         this.setState({ levelEntri: this.state.levelEntri === 'kec' ? 'kab' : 'kec', active_kabEntri: datum.indexValue.substring(1, 5) })
     }
     componentDidMount() {
-        if (this.props.socket) {
-            !this.props.all_table.length && this.props.dispatch(getTable(this.props.socket))
-            !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
-            !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket))
-            if (this.props.all_kec.length && this.props.all_kab.length) {
+        const { active_user: { jenis_pengguna }, socket, all_table, all_kab, all_kec, dispatch } = this.props
+        if (socket) {
+            !all_table.length && dispatch(getTable(socket))
+            !all_kab.length && dispatch(getKab(socket))
+            !all_kec.length && dispatch(getKec(socket))
+            if (all_kec.length && all_kab.length) {
                 this.getKabDataChart()
+            }
+            this.getTopVisitor(this.props)
+            if (!['peny_data', 'pengentri'].includes(jenis_pengguna)) {
+                socket.on('refreshTopVisitor', () => this.getTopVisitor(this.props))
+                socket.on('refreshOnlineUser', (onlineUser) => this.setState({ onlineUser }))
+                socket.emit('getOnlineUser')
             }
         }
     }
@@ -208,8 +151,17 @@ export default class IndexMonitoring extends React.Component {
             this.setState({ kab, kec })
         }
     }
+    getTopVisitor = (props) => {
+        props.socket.emit('api.master_user.user/getTopVisitor', (response) => {
+            if (response.type === 'ok') {
+                this.setState({ topVisitor: response.data })
+            } else {
+                props.showErrorMessage(response.additionalMsg)
+            }
+        })
+    }
     render() {
-        const { data, activities, loading, hasMore, activeKey, levelApprove, levelEntri, kab, kec, active_kabPersetujuan, active_kabEntri } = this.state
+        const { levelApprove, levelEntri, kab, kec, active_kabPersetujuan, active_kabEntri, topVisitor, onlineUser } = this.state
         const { active_user: { jenis_pengguna, name }, all_table, all_kec, all_kec_table_arr, tahun_buku_monitoring } = this.props
 
         const total_tabel = all_table.length && all_kec.length ? all_table.filter(t => (tahun_buku_monitoring == t.bab.substring(0, 4))).length * all_kec.length : 0
@@ -259,9 +211,9 @@ export default class IndexMonitoring extends React.Component {
                             <Spin />
                         </Col>
                     </Row> : <Fragment>
-                            <Row gutter={[8, 16]}>
-                                <Col xs={24}>
-                                    <Tabs defaultActiveKey="persetujuan" onChange={this.onChangeTab} style={{ background: "#fff", padding: "16px 24px" }}>
+                            <Row gutter={[8, 0]}>
+                                <Col xs={18}>
+                                    <Tabs defaultActiveKey="persetujuan" onChange={this.onChangeTab} style={{ background: "#fff", padding: "16px 24px", height: 450 }}>
                                         <TabPane tab={"Progress Persetujuan"} key="persetujuan">
                                             <div style={{ height: 330, width: '100%' }}>
                                                 <Bar data={dataBarApprove} keys={['Disetujui', 'Belum Disetujui']} onClickKab={this.onClickKab} />
@@ -274,57 +226,51 @@ export default class IndexMonitoring extends React.Component {
                                         </TabPane>
                                     </Tabs>
                                 </Col>
-                                {/* <Col xs={24} md={8}>
-                                    <Card title="Persetujuan Data Terkini">
-                                        <div className="demo-infinite-container">
-                                            <InfiniteScroll
-                                                initialLoad={false}
-                                                pageStart={0}
-                                                loadMore={this.handleInfiniteOnLoad}
-                                                hasMore={!this.state.loading && this.state.hasMore}
-                                                useWindow={false}
-                                            >
-
-                                                <List
-                                                    loading={false}
-                                                    size="small"
-                                                    locale={{ emptyText: 'Tidak ada data' }}
-                                                    itemLayout="horizontal"
-                                                    dataSource={activities}
-                                                    renderItem={activity => (
-                                                        <List.Item>
-                                                            <Skeleton title={false} loading={false} active>
-                                                                <List.Item.Meta
-                                                                    title={activity.title}
-                                                                    description={
-                                                                        <span>
-                                                                            <Paragraph
-                                                                                ellipsis={{
-                                                                                    rows: 1,
-                                                                                    expandable: true,
-                                                                                }}
-                                                                                style={{ marginRight: 8 }}
-                                                                            >
-                                                                                <Tag color={activity.status === 'Disetujui' ? '#87d068' : '#f50'}>{activity.status}</Tag>{activity.description}
-                                                                            </Paragraph>
-                                                                        </span>
-                                                                    }
-                                                                />
-                                                            </Skeleton>
-                                                            <Text type="secondary" style={{ fontSize: 12 }}>{activity.time}</Text>
-                                                        </List.Item>)
-                                                    }
-                                                >
-                                                    {loading && hasMore && (
-                                                        <div className="demo-loading-container">
-                                                            <Spin />
-                                                        </div>
-                                                    )}
-                                                </List>
-                                            </InfiniteScroll>
-                                        </div>
+                                <Col xs={6}>
+                                    <Card title="Top Visitor" bordered={false} style={{ height: 450 }}>
+                                        <List
+                                            loading={!topVisitor.length}
+                                            size="small"
+                                            locale={{ emptyText: 'Tidak ada data' }}
+                                            itemLayout="horizontal"
+                                            dataSource={topVisitor}
+                                            renderItem={user => (
+                                                <List.Item>
+                                                    <List.Item.Meta
+                                                        avatar={<Avatar src="/static/profile-man.png" />}
+                                                        title={user.name}
+                                                    />
+                                                    <Text type="secondary" style={{ fontSize: 12 }}>{user.visit_count}</Text>
+                                                </List.Item>)
+                                            }
+                                        />
                                     </Card>
-                                </Col> */}
+                                </Col>
+                            </Row>
+                            <Row gutter={[8, 0]} style={{ marginTop: 16 }}>
+                                <Col xs={18}>
+                                    <Card title="Aktivitas Tabel" bordered={false} style={{ height: 450 }}>
+
+                                    </Card>
+                                </Col>
+                                <Col xs={6}>
+                                    <Card title="Pengguna Online" bordered={false} style={{ height: 450 }}>
+                                        <List
+                                            size="small"
+                                            locale={{ emptyText: 'Tidak ada pengguna online' }}
+                                            itemLayout="horizontal"
+                                            dataSource={onlineUser}
+                                            renderItem={name => (
+                                                <List.Item>
+                                                    <List.Item.Meta
+                                                        avatar={<Avatar src="/static/profile-man.png" />}
+                                                        title={<Badge status='processing' text={name} />}
+                                                    />
+                                                </List.Item>)
+                                            }
+                                        />
+                                    </Card>
+                                </Col>
                             </Row>
                         </Fragment>)
                 }
