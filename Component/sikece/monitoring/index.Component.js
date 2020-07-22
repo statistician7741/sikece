@@ -1,5 +1,5 @@
 import Bar from './Charts/Bar.Monitoring'
-import { List, Row, Col, Card, Typography, Badge, Spin, Button, Tabs, Skeleton, Avatar } from 'antd';
+import { List, Row, Col, Card, Typography, Badge, Spin, Button, Tabs, Avatar } from 'antd';
 const { Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
 import data from './Charts/data'
@@ -7,6 +7,7 @@ import { Fragment } from 'react';
 import { getTable, getKec, getKab } from "../../../redux/actions/master.action"
 import TextyAnim from 'rc-texty'
 import Router from 'next/router'
+import { ResponsiveStream } from '@nivo/stream'
 
 const SummaryCard = ({ tittle, data, withTabel, percent }) => {
     return <Card
@@ -64,7 +65,7 @@ export default class IndexMonitoring extends React.Component {
         this.setState({ levelEntri: this.state.levelEntri === 'kec' ? 'kab' : 'kec', active_kabEntri: datum.indexValue.substring(1, 5) })
     }
     componentDidMount() {
-        const { active_user: { jenis_pengguna }, socket, all_table, all_kab, all_kec, dispatch } = this.props
+        const { active_user: { jenis_pengguna, name }, socket, all_table, all_kab, all_kec, dispatch } = this.props
         if (socket) {
             !all_table.length && dispatch(getTable(socket))
             !all_kab.length && dispatch(getKab(socket))
@@ -76,6 +77,9 @@ export default class IndexMonitoring extends React.Component {
             if (!['peny_data', 'pengentri'].includes(jenis_pengguna)) {
                 socket.on('refreshTopVisitor', () => this.getTopVisitor(this.props))
                 socket.on('refreshOnlineUser', (onlineUser) => this.setState({ onlineUser }))
+                socket.on('isYouStillOnline', (nameTarget) => {
+                    if (nameTarget === name) socket.emit('imStillOnline', name)
+                })
                 socket.emit('getOnlineUser')
             }
         }
@@ -185,16 +189,16 @@ export default class IndexMonitoring extends React.Component {
         return (
             <Fragment>
                 <Row gutter={[8, 16]}>
-                    <Col xs={12} md={6}>
+                    <Col xs={24} md={6}>
                         <SummaryCard tittle="Total Tabel" data={total_tabel} withTabel percent={false} />
                     </Col>
-                    <Col xs={12} md={6}>
+                    <Col xs={24} md={6}>
                         {getCard(2, jenis_pengguna, allData)}
                     </Col>
-                    <Col xs={12} md={6}>
+                    <Col xs={24} md={6}>
                         {getCard(3, jenis_pengguna, allData)}
                     </Col>
-                    <Col xs={12} md={6}>
+                    <Col xs={24} md={6}>
                         {getCard(4, jenis_pengguna, allData, this.props)}
                     </Col>
                 </Row>
@@ -206,13 +210,13 @@ export default class IndexMonitoring extends React.Component {
                                 <Button onClick={() => Router.push(`/sikece/${jenis_pengguna === 'peny_data' ? 'persetujuan' : 'entri_data'}`)} style={{ margin: '16px 0' }} type="primary" size="large">Mulai {jenis_pengguna === 'peny_data' ? 'mengecek tabel' : 'Mengentri'}</Button>
                             </Card>
                         </Col>
-                    </Row> : (!jenis_pengguna ? <Row style={{ textAlign: "center" }}>
-                        <Col xs={24}>
+                    </Row> : (!jenis_pengguna ? <Row>
+                        <Col xs={24} style={{ textAlign: "center" }}>
                             <Spin />
                         </Col>
                     </Row> : <Fragment>
                             <Row gutter={[8, 0]}>
-                                <Col xs={18}>
+                                <Col xs={24} md={18}>
                                     <Tabs defaultActiveKey="persetujuan" onChange={this.onChangeTab} style={{ background: "#fff", padding: "16px 24px", height: 450 }}>
                                         <TabPane tab={"Progress Persetujuan"} key="persetujuan">
                                             <div style={{ height: 330, width: '100%' }}>
@@ -226,7 +230,7 @@ export default class IndexMonitoring extends React.Component {
                                         </TabPane>
                                     </Tabs>
                                 </Col>
-                                <Col xs={6}>
+                                <Col xs={24} md={6}>
                                     <Card title="Top Visitor" bordered={false} style={{ height: 450 }}>
                                         <List
                                             loading={!topVisitor.length}
@@ -248,12 +252,167 @@ export default class IndexMonitoring extends React.Component {
                                 </Col>
                             </Row>
                             <Row gutter={[8, 0]} style={{ marginTop: 16 }}>
-                                <Col xs={18}>
+                                <Col xs={24} md={18}>
                                     <Card title="Aktivitas Tabel" bordered={false} style={{ height: 450 }}>
-
+                                        <div style={{ height: 330, width: '100%' }}>
+                                            <ResponsiveStream
+                                                data={[
+                                                    {
+                                                        "Raoul": 176,
+                                                        "Josiane": 21,
+                                                        "Marcel": 27,
+                                                        "René": 19,
+                                                        "Paul": 79,
+                                                        "Jacques": 69
+                                                    },
+                                                    {
+                                                        "Raoul": 105,
+                                                        "Josiane": 74,
+                                                        "Marcel": 55,
+                                                        "René": 28,
+                                                        "Paul": 111,
+                                                        "Jacques": 117
+                                                    },
+                                                    {
+                                                        "Raoul": 62,
+                                                        "Josiane": 99,
+                                                        "Marcel": 58,
+                                                        "René": 149,
+                                                        "Paul": 32,
+                                                        "Jacques": 159
+                                                    },
+                                                    {
+                                                        "Raoul": 50,
+                                                        "Josiane": 119,
+                                                        "Marcel": 160,
+                                                        "René": 54,
+                                                        "Paul": 199,
+                                                        "Jacques": 135
+                                                    },
+                                                    {
+                                                        "Raoul": 36,
+                                                        "Josiane": 27,
+                                                        "Marcel": 162,
+                                                        "René": 144,
+                                                        "Paul": 147,
+                                                        "Jacques": 40
+                                                    },
+                                                    {
+                                                        "Raoul": 131,
+                                                        "Josiane": 182,
+                                                        "Marcel": 66,
+                                                        "René": 163,
+                                                        "Paul": 74,
+                                                        "Jacques": 181
+                                                    },
+                                                    {
+                                                        "Raoul": 66,
+                                                        "Josiane": 119,
+                                                        "Marcel": 127,
+                                                        "René": 166,
+                                                        "Paul": 84,
+                                                        "Jacques": 24
+                                                    },
+                                                    {
+                                                        "Raoul": 26,
+                                                        "Josiane": 147,
+                                                        "Marcel": 17,
+                                                        "René": 43,
+                                                        "Paul": 28,
+                                                        "Jacques": 193
+                                                    },
+                                                    {
+                                                        "Raoul": 193,
+                                                        "Josiane": 119,
+                                                        "Marcel": 75,
+                                                        "René": 22,
+                                                        "Paul": 199,
+                                                        "Jacques": 166
+                                                    }
+                                                ]}
+                                                keys={['Raoul', 'Josiane', 'Marcel', 'René', 'Paul', 'Jacques']}
+                                                margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+                                                axisTop={null}
+                                                axisRight={null}
+                                                axisBottom={{
+                                                    orient: 'bottom',
+                                                    tickSize: 5,
+                                                    tickPadding: 5,
+                                                    tickRotation: 0,
+                                                    legend: '',
+                                                    legendOffset: 36
+                                                }}
+                                                axisLeft={{ orient: 'left', tickSize: 5, tickPadding: 5, tickRotation: 0, legend: '', legendOffset: -40 }}
+                                                offsetType="silhouette"
+                                                colors={{ scheme: 'nivo' }}
+                                                fillOpacity={0.85}
+                                                borderColor={{ theme: 'background' }}
+                                                defs={[
+                                                    {
+                                                        id: 'dots',
+                                                        type: 'patternDots',
+                                                        background: 'inherit',
+                                                        color: '#2c998f',
+                                                        size: 4,
+                                                        padding: 2,
+                                                        stagger: true
+                                                    },
+                                                    {
+                                                        id: 'squares',
+                                                        type: 'patternSquares',
+                                                        background: 'inherit',
+                                                        color: '#e4c912',
+                                                        size: 6,
+                                                        padding: 2,
+                                                        stagger: true
+                                                    }
+                                                ]}
+                                                fill={[
+                                                    {
+                                                        match: {
+                                                            id: 'Paul'
+                                                        },
+                                                        id: 'dots'
+                                                    },
+                                                    {
+                                                        match: {
+                                                            id: 'Marcel'
+                                                        },
+                                                        id: 'squares'
+                                                    }
+                                                ]}
+                                                dotSize={8}
+                                                dotColor={{ from: 'color' }}
+                                                dotBorderWidth={2}
+                                                dotBorderColor={{ from: 'color', modifiers: [['darker', 0.7]] }}
+                                                animate={true}
+                                                motionStiffness={90}
+                                                motionDamping={15}
+                                                legends={[
+                                                    {
+                                                        anchor: 'bottom-right',
+                                                        direction: 'column',
+                                                        translateX: 100,
+                                                        itemWidth: 80,
+                                                        itemHeight: 20,
+                                                        itemTextColor: '#999999',
+                                                        symbolSize: 12,
+                                                        symbolShape: 'circle',
+                                                        effects: [
+                                                            {
+                                                                on: 'hover',
+                                                                style: {
+                                                                    itemTextColor: '#000000'
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]}
+                                            />
+                                        </div>
                                     </Card>
                                 </Col>
-                                <Col xs={6}>
+                                <Col xs={24} md={6}>
                                     <Card title="Pengguna Online" bordered={false} style={{ height: 450 }}>
                                         <List
                                             size="small"

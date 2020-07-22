@@ -109,13 +109,20 @@ let runServer = () => {
         require('./api/master_user.api')(client)
         require('./api/general.api')(client)
         client.on('disconnect', () => {
-          removeOnlineUser(name)
+          if (jenis_pengguna) {
+            removeOnlineUser(name)
+            io.emit('refreshOnlineUser', onlineUser);
+            setTimeout(() => io.emit('isYouStillOnline', name), 3000)
+          }
+        })
+        client.on('imStillOnline', (myName) => {
+          pushOnlineUser(myName)
           io.emit('refreshOnlineUser', onlineUser);
         })
         client.on('getOnlineUser', () => {
           client.emit('refreshOnlineUser', onlineUser);
         })
-        if(jenis_pengguna){
+        if (jenis_pengguna) {
           pushOnlineUser(name)
           io.emit('refreshTopVisitor');
           io.emit('refreshOnlineUser', onlineUser);
