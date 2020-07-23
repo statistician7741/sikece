@@ -177,12 +177,14 @@ export default class IndexMonitoring extends React.Component {
         const total_blm_ditanggapi = total_tabel - total_disetujui - total_blm_disetujui
         const disetujui = {}
         const entri = {}
+        let max_count = 0
         all_kec_table_arr.forEach(t => {
             const { entryDate, isApproved, approvedDate } = t
             if (entryDate) {
                 if (!entri[moment(entryDate).format('DD/MM')]) entri[moment(entryDate).format('DD/MM')] = { count: 0, unix: moment(entryDate).valueOf() }
                 if (!disetujui[moment(entryDate).format('DD/MM')]) disetujui[moment(entryDate).format('DD/MM')] = { count: 0, unix: moment(entryDate).valueOf() }
                 entri[moment(entryDate).format('DD/MM')]['count'] += 1
+                max_count = entri[moment(entryDate).format('DD/MM')]['count'] > max_count ? entri[moment(entryDate).format('DD/MM')]['count'] : max_count
             }
             if (isApproved && approvedDate) {
                 if (!disetujui[moment(approvedDate).format('DD/MM')]) disetujui[moment(approvedDate).format('DD/MM')] = { count: 0, unix: moment(approvedDate).valueOf() }
@@ -295,7 +297,7 @@ export default class IndexMonitoring extends React.Component {
                                                 margin={{ top: 35, right: 25, bottom: 55, left: 60 }}
                                                 enableSlices="x"
                                                 xScale={{ type: 'point' }}
-                                                yScale={{ type: 'linear', min: '0', max: 'auto', stacked: false, reverse: false }}
+                                                yScale={{ type: 'linear', min: '0', max: max_count + 5, stacked: false, reverse: false }}
                                                 curve="natural"
                                                 axisTop={null}
                                                 axisRight={null}
