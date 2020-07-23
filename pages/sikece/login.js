@@ -68,8 +68,17 @@ class Login extends React.Component {
         const { errMsg, loading, years } = this.state
         return (
             <Layout style={{ minHeight: '100vh' }} className={'login_container'}>
+                <div class="crossfade">
+                    <figure></figure>
+                    <figure></figure>
+                    <figure></figure>
+                    <figure></figure>
+                    <figure></figure>
+                    <figure></figure>
+                    <figure></figure>
+                </div>
                 <Layout.Content >
-                    <Card bodyStyle={{padding: 0}} style={{ width: 400, margin: '50px auto 0 auto', backgroundColor: 'rgba(169, 190, 217, 0.8)' }} bordered={false}>
+                    <Card bodyStyle={{ padding: 0 }} style={{ width: 400, margin: '50px auto 0 auto', backgroundColor: 'rgba(169, 190, 217, 0.8)' }} bordered={false}>
                         <div className={'login_top'}>
                             {/* <div className={'login_header'}>
                                 <div>
@@ -154,7 +163,7 @@ class Login extends React.Component {
                                         {years.length ? years.map(y => (<Option value={y} key={y}>{y}</Option>)) : <Option value={new Date().getFullYear()} key="1">{new Date().getFullYear()}</Option>}
                                     </Select>
                                 </Form.Item>
-                                <FormItem style={{marginBottom: 0}}>
+                                <FormItem style={{ marginBottom: 0 }}>
                                     <Button
                                         type="primary"
                                         htmlType="submit"
@@ -168,12 +177,12 @@ class Login extends React.Component {
                                 </FormItem>
                             </Form>
                         </div>
-                        <div style={{textAlign: 'center', marginBottom: 16}}>
-                            <div>Lupa password? Silahkan email ke <span style={{color: '#FEFE07', fontWeight: 'bold'}} >bps7401@bps.go.id</span></div>
+                        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                            <div>Lupa password? Silahkan email ke <span style={{ color: '#FEFE07', fontWeight: 'bold' }} >bps7401@bps.go.id</span></div>
                         </div>
                     </Card>
                 </Layout.Content>
-                <Layout.Footer className="dt" style={{ textAlign: "center", backgroundColor: "transparent" }}>
+                <Layout.Footer className="dt" style={{ textAlign: "center", backgroundColor: "transparent", zIndex: 9999 }}>
                     <div>Badan Pusat Statistik {kab} ©{new Date().getFullYear()}</div>
                 </Layout.Footer>
             </Layout>

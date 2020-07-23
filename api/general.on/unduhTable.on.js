@@ -1,5 +1,4 @@
 const getModel = require('./getModel')
-const xlsx = require("node-xlsx").default;
 const XlsxPopulate = require('xlsx-populate');
 const fs = require('fs')
 const static_path = __dirname + "/../../public/static/"

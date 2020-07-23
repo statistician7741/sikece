@@ -46,7 +46,7 @@ class BasicLayout extends React.Component {
           collapsed={isMenuCollapsed}//this.props.sideMenuCollapsed}
         // collapsedWidth={0}
         >
-          <Link href="/"><a><img className="logo" src={`/static/logo${!isMenuCollapsed?'':'5'}.png`} /></a></Link>
+          <Link href="/sikece/monitoring"><a><img className="logo" src={`/static/logo${!isMenuCollapsed?'':'5'}.png`} /></a></Link>
           <div style={{ textAlign: 'center' }}>
             <img src={`/static/profile-man.png`} className={`user-profile${!isMenuCollapsed ? '':'-collapsed'}`} />
             {name ? (!isMenuCollapsed?<div className="user-name">{name}</div>:null) : <LoadingOutlined />}

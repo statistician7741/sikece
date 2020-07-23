@@ -254,15 +254,15 @@ export default class IndexMonitoring extends React.Component {
                     </Row> : <Fragment>
                             <Row gutter={[8, 0]}>
                                 <Col xs={24} md={18}>
-                                    <Tabs defaultActiveKey="persetujuan" onChange={this.onChangeTab} style={{ background: "#fff", padding: "16px 24px", height: 450 }}>
-                                        <TabPane tab={"Progress Persetujuan"} key="persetujuan">
-                                            <div style={{ height: 330, width: '100%' }}>
-                                                <Bar data={dataBarApprove} keys={['Disetujui', 'Belum Disetujui']} onClickKab={this.onClickKab} />
-                                            </div>
-                                        </TabPane>
+                                    <Tabs defaultActiveKey="entri" onChange={this.onChangeTab} style={{ background: "#fff", padding: "16px 24px", height: 450 }}>
                                         <TabPane tab={"Progress Entri"} key="entri">
                                             <div style={{ height: 330, width: '100%' }}>
                                                 <Bar data={dataBarEntri} keys={['Telah Dientri', 'Belum Dientri']} onClickKab={this.onClickKabEntri} />
+                                            </div>
+                                        </TabPane>
+                                        <TabPane tab={"Progress Persetujuan"} key="persetujuan">
+                                            <div style={{ height: 330, width: '100%' }}>
+                                                <Bar data={dataBarApprove} keys={['Disetujui', 'Belum Disetujui']} onClickKab={this.onClickKab} />
                                             </div>
                                         </TabPane>
                                     </Tabs>

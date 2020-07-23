@@ -7,6 +7,7 @@ import { replaceToKecName } from "../../../../functions/basic.func"
 import axios from 'axios'
 import _ from 'lodash'
 import { getKec } from "../../../../redux/actions/master.action"
+import XLSX from 'xlsx'
 
 const formItemLayout = {
     labelCol: {
@@ -30,6 +31,7 @@ export default class EditorTabel_Tabel extends React.Component {
         all_data: [],
         activeKec: undefined,
         fileList: [],
+        fileListXlsx: [],
         sending: false,
     }
     handleSubmitFile = (cb) => {
@@ -218,9 +220,114 @@ export default class EditorTabel_Tabel extends React.Component {
             this.formRef.current.validateFields(['needFenomenaQ']);
         }
     }
+    handleImportXlsx = (file, baris, kolom, all_variable_obj) => {
+        this.setState({ fileListXlsx: file });
+        this.formRef.current.setFieldsValue({
+            fileListXlsx: file
+        });
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            let dataXlsx = new Uint8Array(e.target.result);
+            let workbook = XLSX.read(dataXlsx, { type: 'array' });
+            let data = []
+            let cellChar = {}
+            let firstSheet = true
+            for (let sheet in workbook.Sheets) {
+                if (workbook.Sheets.hasOwnProperty(sheet) && firstSheet) {
+                    firstSheet = false
+                    for (let cell in workbook.Sheets[sheet]) {
+                        if (workbook.Sheets[sheet].hasOwnProperty(cell) && cell.match(/\d{1,2}$/)) {
+                            let prefix = cell.match(/\d{1,2}$/)[0]
+                            if (!cellChar[prefix]) cellChar[prefix] = []
+                            cellChar[prefix].push(workbook.Sheets[sheet][cell].v)
+                        }
+                    }
+                }
+            }
+            for (let pos in cellChar) {
+                if (cellChar.hasOwnProperty(pos)) {
+                    data.push(cellChar[pos])
+                }
+            }
+            let is2Headers = this.getHeader(baris, kolom, all_variable_obj).is2
+            let all_data = [...this.state.all_data.map(d => ({ ...d }))]
+            data.forEach((row, i)=>{
+                if(is2Headers){
+                    if(i>2){
+                        row.forEach((col,j)=>{
+                            if(j>0){
+                                if(all_data[i-3]) all_data[i-3][kolom[j-1]] = col
+                            }
+                        })
+                    }
+                } else{
+                    if(i>1){
+                        row.forEach((col,j)=>{
+                            if(j>0){
+                                if(all_data[i-2]) all_data[i-2][kolom[j-1]] = col
+                            }
+                        })
+                    }
+                }
+            })
+            this.setState({ all_data })
+        };
+        reader.readAsArrayBuffer(file);
+        return false;
+    }
+    getHeader = (baris, kolom, all_variable_obj) => {
+        const parents = {}
+        const cols = []
+        let position = 0
+        //add kolom baris + kolom baris pertama
+        let judul_kelompok_baris = ''
+        baris.forEach((_idBaris, i) => {
+            if (all_variable_obj[_idBaris].kelompok && judul_kelompok_baris === '') judul_kelompok_baris = all_variable_obj[_idBaris].kelompok
+        })
+        cols.push([judul_kelompok_baris === '' ? all_variable_obj[baris[0]].name : judul_kelompok_baris])
+        cols.push(['']) //cols[1] = ['']
+        position++; //position = 1
+        kolom.forEach((_idKolom, i) => {
+            let kelompok = all_variable_obj[_idKolom].kelompok
+            if (kelompok !== "-" && kelompok !== "" && kelompok) {
+                if (!parents[kelompok]) {
+                    parents[kelompok] = {};
+                    parents[kelompok].indexAnggota = [];
+                }
+                parents[kelompok].indexAnggota.push(_idKolom)
+            } else {
+                if (!parents[`no_parents_${i}`]) {
+                    parents[`no_parents_${i}`] = {};
+                    parents[`no_parents_${i}`].indexAnggota = [];
+                }
+                parents[`no_parents_${i}`].indexAnggota.push(_idKolom)
+            }
+        })
+        for (var parent in parents) {
+            if (parents.hasOwnProperty(parent)) {
+                if (parent.includes('no_parents')) {
+                    cols[0].push(all_variable_obj[parents[parent].indexAnggota[0]].name)
+                    position++ //position = 3
+                    cols[1].push('')
+                } else {
+                    //tambahkan parent di baris pertama col
+                    cols[0].push({ 'label': parent, 'colspan': parents[parent].indexAnggota.length })
+                    position++; //position = 2
+                    //buat row judul kolom utk child
+                    parents[parent].indexAnggota.forEach(_idKolom => cols[1].push(all_variable_obj[_idKolom].name))
+                }
+            }
+        }
+        let isRemoveRow2Header = true;
+        cols[1].forEach(h => {
+            if (h !== '') isRemoveRow2Header = false
+        })
+        return isRemoveRow2Header ? { header: [cols[0]], is2: false } : { header: cols, is2: true }
+    }
     render() {
         const {
             fileList,
+            fileListXlsx,
             autoCompleteDataSource,
             nomor_tabel,
             judul,
@@ -254,6 +361,14 @@ export default class EditorTabel_Tabel extends React.Component {
             fileList,
             accept: ".doc,.docx, .pdf,.xls,.xlsx,.jpg,.jpeg,.png,",
             multiple: true
+        };
+
+        const propsXlsx = {
+            onRemove: file => {
+                this.setState({ fileListXlsx: [] });
+            },
+            beforeUpload: file => this.handleImportXlsx(file, baris, kolom, all_variable_obj),
+            accept: ".xlsx"
         };
 
         return (
@@ -360,6 +475,16 @@ export default class EditorTabel_Tabel extends React.Component {
                 </Button>
                         </Upload>
                     </Form.Item>
+                    <Form.Item
+                        label="Import Data"
+                        name="fileListXlsx"
+                    >
+                        <Upload  {...propsXlsx}>
+                            <Button>
+                                <UploadOutlined /> Pilih file (xlsx)
+                </Button>
+                        </Upload>
+                    </Form.Item>
                     <Row justify="center" style={{ textAlign: "center" }}>
                         <Col xs={24}>
                             <strong> Tabel {nomor_tabel}</strong>
@@ -375,55 +500,7 @@ export default class EditorTabel_Tabel extends React.Component {
                             <Hot
                                 entryContextMenu
                                 dataSchema={this.getDataSchema(kolom)}
-                                nestedHeaders={(() => {
-                                    const parents = {}
-                                    const cols = []
-                                    let position = 0
-                                    //add kolom baris + kolom baris pertama
-                                    let judul_kelompok_baris = ''
-                                    baris.forEach((_idBaris, i) => {
-                                        if (all_variable_obj[_idBaris].kelompok && judul_kelompok_baris === '') judul_kelompok_baris = all_variable_obj[_idBaris].kelompok
-                                    })
-                                    cols.push([judul_kelompok_baris === '' ? all_variable_obj[baris[0]].name : judul_kelompok_baris])
-                                    cols.push(['']) //cols[1] = ['']
-                                    position++; //position = 1
-                                    kolom.forEach((_idKolom, i) => {
-                                        let kelompok = all_variable_obj[_idKolom].kelompok
-                                        if (kelompok !== "-" && kelompok !== "" && kelompok) {
-                                            if (!parents[kelompok]) {
-                                                parents[kelompok] = {};
-                                                parents[kelompok].indexAnggota = [];
-                                            }
-                                            parents[kelompok].indexAnggota.push(_idKolom)
-                                        } else {
-                                            if (!parents[`no_parents_${i}`]) {
-                                                parents[`no_parents_${i}`] = {};
-                                                parents[`no_parents_${i}`].indexAnggota = [];
-                                            }
-                                            parents[`no_parents_${i}`].indexAnggota.push(_idKolom)
-                                        }
-                                    })
-                                    for (var parent in parents) {
-                                        if (parents.hasOwnProperty(parent)) {
-                                            if (parent.includes('no_parents')) {
-                                                cols[0].push(all_variable_obj[parents[parent].indexAnggota[0]].name)
-                                                position++ //position = 3
-                                                cols[1].push('')
-                                            } else {
-                                                //tambahkan parent di baris pertama col
-                                                cols[0].push({ 'label': parent, 'colspan': parents[parent].indexAnggota.length })
-                                                position++; //position = 2
-                                                //buat row judul kolom utk child
-                                                parents[parent].indexAnggota.forEach(_idKolom => cols[1].push(all_variable_obj[_idKolom].name))
-                                            }
-                                        }
-                                    }
-                                    let isRemoveRow2Header = true;
-                                    cols[1].forEach(h => {
-                                        if (h !== '') isRemoveRow2Header = false
-                                    })
-                                    return isRemoveRow2Header ? [cols[0]] : cols
-                                })()}
+                                nestedHeaders={this.getHeader(baris, kolom, all_variable_obj).header}
                                 columns={(() => {
                                     let cols = [{ 'data': 'baris_name', readOnly: true }]
                                     kolom.forEach((_idKolom, i) => {
