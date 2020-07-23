@@ -293,6 +293,7 @@ export default class IndexMonitoring extends React.Component {
                                             <ResponsiveLine
                                                 data={aktivitas_tabel}
                                                 margin={{ top: 35, right: 25, bottom: 55, left: 60 }}
+                                                enableSlices="x"
                                                 xScale={{ type: 'point' }}
                                                 yScale={{ type: 'linear', min: '0', max: 'auto', stacked: false, reverse: false }}
                                                 curve="natural"
