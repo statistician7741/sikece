@@ -66,7 +66,7 @@ export default class IndexMonitoring extends React.Component {
         this.setState({ levelEntri: this.state.levelEntri === 'kec' ? 'kab' : 'kec', active_kabEntri: datum.indexValue.substring(1, 5) })
     }
     componentDidMount() {
-        const { active_user: { jenis_pengguna, name }, socket, all_table, all_kab, all_kec, dispatch } = this.props
+        const { active_user: { jenis_pengguna, name, profil }, socket, all_table, all_kab, all_kec, dispatch } = this.props
         if (socket) {
             !all_table.length && dispatch(getTable(socket))
             !all_kab.length && dispatch(getKab(socket))
@@ -79,7 +79,7 @@ export default class IndexMonitoring extends React.Component {
                 socket.on('refreshTopVisitor', () => this.getTopVisitor(this.props))
                 socket.on('refreshOnlineUser', (onlineUser) => this.setState({ onlineUser }))
                 socket.on('isYouStillOnline', (nameTarget) => {
-                    if (nameTarget === name) socket.emit('imStillOnline', name)
+                    if (nameTarget === name) socket.emit('imStillOnline', {name, profil})
                 })
                 socket.emit('getOnlineUser')
             }
@@ -278,7 +278,7 @@ export default class IndexMonitoring extends React.Component {
                                             renderItem={user => (
                                                 <List.Item>
                                                     <List.Item.Meta
-                                                        avatar={<Avatar src="/static/profile-man.png" />}
+                                                        avatar={<Avatar src={`/static/${user.profil?user.profil:'institusi'}.png`} />}
                                                         title={user.name}
                                                     />
                                                     <Text type="secondary" style={{ fontSize: 12 }}>{user.visit_count}</Text>
@@ -368,11 +368,11 @@ export default class IndexMonitoring extends React.Component {
                                             locale={{ emptyText: 'Tidak ada pengguna online' }}
                                             itemLayout="horizontal"
                                             dataSource={onlineUser}
-                                            renderItem={name => (
+                                            renderItem={user => (
                                                 <List.Item>
                                                     <List.Item.Meta
-                                                        avatar={<Avatar src="/static/profile-man.png" />}
-                                                        title={<Badge status='processing' text={name} />}
+                                                        avatar={<Avatar src={`/static/${user.profil?user.profil:'institusi'}.png`} />}
+                                                        title={<Badge status='processing' text={user.name} />}
                                                     />
                                                 </List.Item>)
                                             }

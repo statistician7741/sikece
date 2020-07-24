@@ -3,6 +3,7 @@ module.exports = [
     ['username'],
     ['password'],
     ['name'],
+    ['profil'],
     ['jenis_pengguna'],
     ['tahun_buku'],
     ['kec',[]],

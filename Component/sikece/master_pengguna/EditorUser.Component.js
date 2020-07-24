@@ -111,7 +111,8 @@ export default class EditorUser_User extends React.Component {
         selectedKecKeys: [],
         targetKecKeys: [],
         selectedTableKeys: [],
-        targetTableKeys: []
+        targetTableKeys: [],
+        profil: 'lk'
 
     }
     filterOption = (inputValue, { name, kab }) => (name ? lc(name).indexOf(inputValue) > -1 : false) || (this.props.all_kab_obj[kab].name ? lc(this.props.all_kab_obj[kab].name).indexOf(lc(inputValue)) > -1 : false);
@@ -280,7 +281,7 @@ export default class EditorUser_User extends React.Component {
                             {...formItemLayout}
                             onValuesChange={(changedValues) => this.onChangeInput(changedValues)}
                             initialValues={{
-                                _id: undefined, name: undefined, ket: undefined
+                                _id: undefined, name: undefined, ket: undefined, profil: 'lk'
                             }}
                         >
                             <Form.Item
@@ -340,6 +341,16 @@ export default class EditorUser_User extends React.Component {
                                         placeholder="Nama pengguna"
                                     />
                                 </AutoComplete>
+                            </Form.Item>
+                            <Form.Item
+                                label="Profil"
+                                name="profil"
+                            >
+                                <Radio.Group>
+                                    <Radio.Button value="lk">Laki-laki</Radio.Button>
+                                    <Radio.Button value="pr">Perempuan</Radio.Button>
+                                    <Radio.Button value="institusi">Kantor/Institusi</Radio.Button>
+                                </Radio.Group>
                             </Form.Item>
                             <Form.Item
                                 label="Jenis pengguna"

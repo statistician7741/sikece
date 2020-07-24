@@ -8,6 +8,7 @@ const User = require("../models/User.model")
 function loginSuccess(req, res, user, tahun_buku_monitoring) {
   res.cookie('user_id', user._id)
   res.cookie('jenis_pengguna', user.jenis_pengguna)
+  res.cookie('profil', user.profil)
   res.cookie('tahun_buku', user.tahun_buku)
   res.cookie('tahun_buku_monitoring', tahun_buku_monitoring)
   res.cookie('name', user.name)

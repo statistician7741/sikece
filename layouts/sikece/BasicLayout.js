@@ -35,7 +35,7 @@ class BasicLayout extends React.Component {
     }
   }
   render() {
-    const { active_user: { name, jenis_pengguna }, isMenuCollapsed, router } = this.props
+    const { active_user: { name, profil, jenis_pengguna }, isMenuCollapsed, router } = this.props
     let myrouter = menu.filter(m => (m.user_type.includes(jenis_pengguna))).map(m => (m.key))
     return (
       <Layout className="layout" style={{ minHeight: '100vh' }}>
@@ -48,7 +48,7 @@ class BasicLayout extends React.Component {
         >
           <Link href="/sikece/monitoring"><a><img className="logo" src={`/static/logo${!isMenuCollapsed?'':'5'}.png`} /></a></Link>
           <div style={{ textAlign: 'center' }}>
-            <img src={`/static/profile-man.png`} className={`user-profile${!isMenuCollapsed ? '':'-collapsed'}`} />
+            <img src={`/static/${profil?profil:'institusi'}.png`} className={`user-profile${!isMenuCollapsed ? '':'-collapsed'}`} />
             {name ? (!isMenuCollapsed?<div className="user-name">{name}</div>:null) : <LoadingOutlined />}
             {jenis_pengguna ? (!isMenuCollapsed?<div className="jenis-pengguna">{jenisPengguna[jenis_pengguna]}</div>:null) : <LoadingOutlined />}
           </div>

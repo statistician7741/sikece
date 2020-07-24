@@ -15,6 +15,7 @@ var UserSchema = new Schema({
         'type': String,
         'required': true
     },
+    "profil": String,
     "jenis_pengguna": {
         'type': String,
         'required': true

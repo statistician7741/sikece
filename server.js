@@ -92,19 +92,21 @@ let runServer = () => {
 
       const io = socketServer(serve);
       let onlineUser = []
-      const pushOnlineUser = (name) => {
+      const pushOnlineUser = (name, profil) => {
         let isExist = false
         onlineUser.forEach(u => {
-          if (u === name) isExist = true
+          if (u.name === name) isExist = true
         })
-        if (!isExist) onlineUser = [...onlineUser, name]
+        if (!isExist){
+          onlineUser = [...onlineUser, {name, profil}]
+        }
       }
       const removeOnlineUser = (name) => {
-        onlineUser = [...onlineUser.filter(n => n !== name)]
+        onlineUser = [...onlineUser.filter(n => n.name !== name)]
       }
       io.use(sharedsession(sessionWithMongo, cookieParser("ID==&&%^&A&SHBJSAsjhbJGhUGkbKiUvii^%^#$%^&98G8UIugg==")));
       io.on('connection', function (client) {
-        const { name, jenis_pengguna } = client.handshake.cookies
+        const { name, jenis_pengguna, profil } = client.handshake.cookies
         require('./api/master_table.api')(client)
         require('./api/master_user.api')(client)
         require('./api/general.api')(client)
@@ -115,15 +117,15 @@ let runServer = () => {
             setTimeout(() => io.emit('isYouStillOnline', name), 3000)
           }
         })
-        client.on('imStillOnline', (myName) => {
-          pushOnlineUser(myName)
+        client.on('imStillOnline', (data) => {
+          pushOnlineUser(data.name, data.profil)
           io.emit('refreshOnlineUser', onlineUser);
         })
         client.on('getOnlineUser', () => {
           client.emit('refreshOnlineUser', onlineUser);
         })
         if (jenis_pengguna) {
-          pushOnlineUser(name)
+          pushOnlineUser(name, profil)
           io.emit('refreshTopVisitor');
           io.emit('refreshOnlineUser', onlineUser);
         }
