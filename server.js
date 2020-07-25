@@ -124,6 +124,9 @@ let runServer = () => {
         client.on('getOnlineUser', () => {
           client.emit('refreshOnlineUser', onlineUser);
         })
+        client.on('sendChat', ({msg, from}) => {
+          client.broadcast.emit('newChat', {msg, from});
+        })
         if (jenis_pengguna) {
           pushOnlineUser(name, profil)
           io.emit('refreshTopVisitor');

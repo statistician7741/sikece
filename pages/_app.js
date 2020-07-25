@@ -9,8 +9,14 @@ import React from 'react'
 import { setSocket } from '../redux/actions/socket.action'
 import withRedux from "next-redux-wrapper";
 import { kab } from '../config/env.config'
+import dynamic from 'next/dynamic'
 
 import style from './_app.less';
+
+const Widget = dynamic(
+  () => import('../Component/sikece/general/WidgetChat.Component'),
+  { ssr: false }
+)
 
 class MyApp extends App {
   static async getInitialProps({ Component, router, ctx }) {
@@ -54,6 +60,10 @@ class MyApp extends App {
     notification.destroy()
   };
 
+  handleNewUserMessage = (newMessage) => {
+    this.props.store.getState().socket.socket.emit('sendChat', { msg: newMessage, from: undefined });
+  }
+
   componentDidMount = () => {
     if (!this.props.store.getState().socket.socket) {
       const socket = io.connect(`http://${window.location.hostname}`, { secure: false });
@@ -80,6 +90,14 @@ class MyApp extends App {
             showInfoMessage={this.showInfoMessage}
             showWarningMessage={this.showWarningMessage}
           />
+          {/* <Widget
+            title="Chat SIKECE"
+            subtitle="Kirimkan pesan Anda ke kami"
+            senderPlaceHolder="Ketikkan pesan Anda..."
+            showCloseButton={true}
+            badge={1}
+            handleNewUserMessage={this.handleNewUserMessage}
+          /> */}
         </div>
       </Provider>
     )
