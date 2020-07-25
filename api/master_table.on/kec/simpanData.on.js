@@ -95,6 +95,7 @@ module.exports = (input, cb, client) => {
         if (err) {
             cb({ 'type': 'error', 'data': err })
         } else {
+            client.broadcast.emit('refreshGrafik', {isKec: true});
             cb({ 'type': 'ok', 'data': isExist ? updateTable : createTable })
         }
     })

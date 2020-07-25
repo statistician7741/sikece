@@ -57,6 +57,7 @@ module.exports = (_id, cb, client) => {
                     console.log(err);
                     cb({ 'type': 'error', 'data': err })
                 } else {
+                    client.broadcast.emit('refreshGrafik', {isTable: true, isKec: true});
                     getTable(cb, client)
                 }
             })

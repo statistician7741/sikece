@@ -72,18 +72,24 @@ export default class IndexMonitoring extends React.Component {
             !all_kab.length && dispatch(getKab(socket))
             !all_kec.length && dispatch(getKec(socket))
             if (all_kec.length && all_kab.length) {
-                this.getKabDataChart()
+                // this.getKabDataChart()
             }
             this.getTopVisitor(this.props)
             if (!['peny_data', 'pengentri'].includes(jenis_pengguna)) {
                 socket.on('refreshTopVisitor', () => this.getTopVisitor(this.props))
+                socket.on('refreshGrafik', ({isKab, isTable, isKec}) => this.refreshGrafik(isKab, isTable, isKec))
                 socket.on('refreshOnlineUser', (onlineUser) => this.setState({ onlineUser }))
                 socket.on('isYouStillOnline', (nameTarget) => {
-                    if (nameTarget === name) socket.emit('imStillOnline', {name, profil})
+                    if (nameTarget === name) socket.emit('imStillOnline', { name, profil })
                 })
                 socket.emit('getOnlineUser')
             }
         }
+    }
+    refreshGrafik = (isKab, isTable, isKec) => {
+        isKab&&this.props.dispatch(getKab(this.props.socket))
+        isKec&&this.props.dispatch(getKec(this.props.socket))
+        isTable&&this.props.dispatch(getTable(this.props.socket))
     }
     componentDidUpdate(prevProps, prevState) {
         if (this.props.socket !== prevProps.socket) {
@@ -93,7 +99,7 @@ export default class IndexMonitoring extends React.Component {
         }
         if (this.props.all_kec !== prevProps.all_kec) {
             if (this.props.all_kec.length && this.props.all_kab.length) {
-                this.getKabDataChart()
+                // this.getKabDataChart()
             }
         }
     }
@@ -166,9 +172,8 @@ export default class IndexMonitoring extends React.Component {
         })
     }
     render() {
-        const { levelApprove, levelEntri, kab, kec, active_kabPersetujuan, active_kabEntri, topVisitor, onlineUser } = this.state
-        const { active_user: { jenis_pengguna, name }, all_table, all_kec, all_kec_table_arr, tahun_buku_monitoring } = this.props
-
+        const { levelApprove, levelEntri, active_kabPersetujuan, active_kabEntri, topVisitor, onlineUser } = this.state
+        const { active_user: { jenis_pengguna, name }, all_kec_table_obj, all_kab_obj, all_kec_obj, all_table, all_kab, all_kec, all_kec_table_arr, tahun_buku_monitoring } = this.props
         const total_tabel = all_table.length && all_kec.length ? all_table.filter(t => (tahun_buku_monitoring == t.bab.substring(0, 4))).length * all_kec.length : 0
         const total_entri = all_kec_table_arr.length
         const total_blm_entri = total_tabel - total_entri
@@ -196,20 +201,20 @@ export default class IndexMonitoring extends React.Component {
         let disetujuiDataDate = []
         for (let d in entri) {
             if (entri.hasOwnProperty(d)) {
-                entryDataDate.push({x: d, y: entri[d]['count'], unix: entri[d]['unix']})
+                entryDataDate.push({ x: d, y: entri[d]['count'], unix: entri[d]['unix'] })
             }
         }
         for (let d in disetujui) {
             if (disetujui.hasOwnProperty(d)) {
-                disetujuiDataDate.push({x: d, y: disetujui[d]['count'], unix: disetujui[d]['unix']})
+                disetujuiDataDate.push({ x: d, y: disetujui[d]['count'], unix: disetujui[d]['unix'] })
             }
         }
         let aktivitas_tabel = [{
             "id": "Disetujui",
-            "data": disetujuiDataDate.length > 5 ? disetujuiDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1).slice(Math.max(disetujuiDataDate.length - 5, 1)) : disetujuiDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1)
+            "data": disetujuiDataDate.length > 10 ? disetujuiDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1).slice(Math.max(disetujuiDataDate.length - 10, 1)) : disetujuiDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1)
         }, {
             "id": "Entri",
-            "data": entryDataDate.length > 5 ? entryDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1).slice(Math.max(entryDataDate.length - 5, 1)) : entryDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1)
+            "data": entryDataDate.length > 10 ? entryDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1).slice(Math.max(entryDataDate.length - 10, 1)) : entryDataDate.sort((a, b) => (a.unix > b.unix) ? 1 : -1)
         }]
 
         const allData = {
@@ -219,6 +224,60 @@ export default class IndexMonitoring extends React.Component {
             total_disetujui,
             total_blm_ditanggapi,
             total_blm_disetujui
+        }
+
+        const total_tabel_perkec = all_table.length
+        let kec = []
+        let kab = []
+        let kabTemp = {}
+        if (all_kab.length && all_kec.length) {
+            if (Object.keys(all_kec_table_obj).length) {
+                Object.keys(all_kec_table_obj).forEach(_idKec => {
+                    const _idKab = all_kec_obj[_idKec].kab
+                    if (!kabTemp[_idKab]) kabTemp[_idKab] = {
+                        "region": `[${all_kab_obj[_idKab]._id}] ${all_kab_obj[_idKab].name}`,
+                        "Disetujui": 0,
+                        "Belum Disetujui": 0,
+                        "Telah Dientri": 0,
+                        "Belum Dientri": 0,
+                        "kecCount": 0
+                    }
+                    let approvedCountKec = 0
+                    let entriCountKec = Object.keys(all_kec_table_obj[_idKec]).length
+                    if (Object.keys(all_kec_table_obj[_idKec]).length) {
+                        Object.keys(all_kec_table_obj[_idKec]).forEach(_idTable => {
+                            if (all_kec_table_obj[_idKec][_idTable].isApproved) {
+                                approvedCountKec++
+                            }
+                        })
+                    }
+                    kec.push({
+                        "region": `[${all_kec_obj[_idKec].kode}] ${all_kec_obj[_idKec].name}`,
+                        "_idKec": _idKab,
+                        "Disetujui": Math.round(approvedCountKec / total_tabel_perkec * 100),
+                        "Belum Disetujui": Math.round((total_tabel_perkec - approvedCountKec) / total_tabel_perkec * 100),
+                        "Telah Dientri": Math.round(entriCountKec / total_tabel_perkec * 100),
+                        "Belum Dientri": Math.round((total_tabel_perkec - entriCountKec) / total_tabel_perkec * 100),
+                    })
+                    kabTemp[_idKab]["kecCount"]++
+                    kabTemp[_idKab]["Disetujui"] = kabTemp[_idKab]["Disetujui"] + approvedCountKec
+                    kabTemp[_idKab]["Belum Disetujui"] = kabTemp[_idKab]["Belum Disetujui"] + (total_tabel_perkec - approvedCountKec)
+                    kabTemp[_idKab]["Telah Dientri"] = kabTemp[_idKab]["Telah Dientri"] + entriCountKec
+                    kabTemp[_idKab]["Belum Dientri"] = kabTemp[_idKab]["Belum Dientri"] + (total_tabel_perkec - entriCountKec)
+                })
+            }
+            if (Object.keys(kabTemp).length) {
+                Object.keys(kabTemp).forEach(k => {
+                    kab.push({
+                        "region": kabTemp[k]['region'],
+                        "Disetujui": Math.round(kabTemp[k]["Disetujui"] / (kabTemp[k]['kecCount'] * total_tabel_perkec) * 100),
+                        "Belum Disetujui": Math.round((kabTemp[k]["Belum Disetujui"]) / (kabTemp[k]['kecCount'] * total_tabel_perkec) * 100),
+                        "Telah Dientri": Math.round(kabTemp[k]["Telah Dientri"] / (kabTemp[k]['kecCount'] * total_tabel_perkec) * 100),
+                        "Belum Dientri": Math.round((kabTemp[k]["Belum Dientri"]) / (kabTemp[k]['kecCount'] * total_tabel_perkec) * 100),
+                    })
+                })
+            }
+            // this.setState({ kab, kec })
         }
         const dataBarApprove = levelApprove === 'kab' ? kab : kec.filter(k => (active_kabPersetujuan == k._idKec))
         const dataBarEntri = levelEntri === 'kab' ? kab : kec.filter(k => (active_kabEntri == k._idKec))
@@ -278,7 +337,7 @@ export default class IndexMonitoring extends React.Component {
                                             renderItem={user => (
                                                 <List.Item>
                                                     <List.Item.Meta
-                                                        avatar={<Avatar src={`/static/${user.profil?user.profil:'institusi'}.png`} />}
+                                                        avatar={<Avatar src={`/static/${user.profil ? user.profil : 'institusi'}.png`} />}
                                                         title={user.name}
                                                     />
                                                     <Text type="secondary" style={{ fontSize: 12 }}>{user.visit_count}</Text>
@@ -371,7 +430,7 @@ export default class IndexMonitoring extends React.Component {
                                             renderItem={user => (
                                                 <List.Item>
                                                     <List.Item.Meta
-                                                        avatar={<Avatar src={`/static/${user.profil?user.profil:'institusi'}.png`} />}
+                                                        avatar={<Avatar src={`/static/${user.profil ? user.profil : 'institusi'}.png`} />}
                                                         title={<Badge status='processing' text={user.name} />}
                                                     />
                                                 </List.Item>)

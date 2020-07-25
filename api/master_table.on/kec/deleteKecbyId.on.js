@@ -24,6 +24,7 @@ module.exports = (_id, cb, client) => {
                     console.log(err);
                     cb({ 'type': 'error', 'data': err })
                 } else {
+                    client.broadcast.emit('refreshGrafik', {isKec: true});
                     getKec(cb, client)
                 }
             })

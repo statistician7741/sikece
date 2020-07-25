@@ -47,6 +47,7 @@ module.exports = ({ _idKec, _idTable }, cb, client) => {
                         console.log(err);
                         cb({ 'type': 'error', 'data': err })
                     } else {
+                        client.broadcast.emit('refreshGrafik', {isKec: true});
                         cb({ 'type': 'ok', 'data': 'Isi tabel berhasil dihapus.' })
                     }
                 })
