@@ -8,7 +8,7 @@ export default class LihatTabel_Tabel extends React.Component {
     componentDidMount() {
         if (this.props.socket) {
             !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
-            !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket, this.props.kab))
+            !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket))
         }
     }
     componentDidUpdate(prevProps, prevState) {
