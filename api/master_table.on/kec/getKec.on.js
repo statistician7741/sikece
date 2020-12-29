@@ -66,33 +66,70 @@ module.exports = (cb, client, additionalMsg) => {
                     }
                 })
             } else {
-                Table.find({ bab: new RegExp(tahun_buku_monitoring, "i") }).distinct('_id').exec((err, _tableIds) => {
-                    if (err) {
-                        console.log(err);
-                        cb({ 'type': 'error', 'data': err })
-                    } else {
-                        let aggQuery = [
-                            { $match: { "table._idTable": { '$in': _tableIds.map(_id=>(`${_id}`)) } } },
-                            { $unwind: "$table" },
-                            { $match: { "table._idTable": { '$in': _tableIds.map(_id=>(`${_id}`)) } } }
-                        ]
-                        aggQuery.push({ $group: { _id: "$_id", kode: { $first: "$kode" }, kab: { $first: "$kab" }, name: { $first: "$name" }, ket: { $first: "$ket" }, table: { $addToSet: "$table" } } })
-                        Kec.aggregate(aggQuery).exec((err, allKecWithTable) => {
+                // Table.find({ bab: new RegExp(tahun_buku_monitoring, "i") }).distinct('_id').exec((err, _tableIds) => {
+                async.auto({
+                    allYearsData: (a_cb) => {
+                        Table.find({}).distinct('_id').exec((err, _tableIds) => {
                             if (err) {
                                 console.log(err);
-                                cb({ 'type': 'error', 'data': err })
+                                a_cb(err, null)
                             } else {
-                                Kec.find({ '_id': { '$nin': allKecWithTable.map(kec=>(kec._id)) } }, '_id kode kab name ket').sort('_id').exec((err, missing_kec_result) => {
+                                let aggQuery = [
+                                    { $match: { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } },
+                                    { $unwind: "$table" },
+                                    { $match: { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } }
+                                ]
+                                aggQuery.push({ $group: { _id: "$_id", kode: { $first: "$kode" }, kab: { $first: "$kab" }, name: { $first: "$name" }, ket: { $first: "$ket" }, table: { $addToSet: "$table" } } })
+                                Kec.aggregate(aggQuery).exec((err, allKecWithTable) => {
                                     if (err) {
                                         console.log(err);
-                                        cb({ 'type': 'error', 'data': err })
+                                        a_cb(err, null)
                                     } else {
-                                        cb({ 'type': 'ok', 'data': allKecWithTable.concat(missing_kec_result).sort((a, b) => a._id.localeCompare(b._id)), additionalMsg })
+                                        Kec.find({ '_id': { '$nin': allKecWithTable.map(kec => (kec._id)) } }, '_id kode kab name ket').sort('_id').exec((err, missing_kec_result) => {
+                                            if (err) {
+                                                console.log(err);
+                                                a_cb(err, null)
+                                            } else {
+                                                a_cb(null, allKecWithTable.concat(missing_kec_result).sort((a, b) => a._id.localeCompare(b._id)))
+                                            }
+                                        })
                                     }
                                 })
                             }
                         })
-                    }
+                    },
+                    tahunBukuData: (t_cb) => {
+                        Table.find({ bab: new RegExp(tahun_buku_monitoring, "i") }).distinct('_id').exec((err, _tableIds) => {
+                            if (err) {
+                                console.log(err);
+                                t_cb(err, null)
+                            } else {
+                                let aggQuery = [
+                                    { $match: { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } },
+                                    { $unwind: "$table" },
+                                    { $match: { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } }
+                                ]
+                                aggQuery.push({ $group: { _id: "$_id", kode: { $first: "$kode" }, kab: { $first: "$kab" }, name: { $first: "$name" }, ket: { $first: "$ket" }, table: { $addToSet: "$table" } } })
+                                Kec.aggregate(aggQuery).exec((err, allKecWithTable) => {
+                                    if (err) {
+                                        console.log(err);
+                                        t_cb(err, null)
+                                    } else {
+                                        Kec.find({ '_id': { '$nin': allKecWithTable.map(kec => (kec._id)) } }, '_id kode kab name ket').sort('_id').exec((err, missing_kec_result) => {
+                                            if (err) {
+                                                console.log(err);
+                                                t_cb(err, null)
+                                            } else {
+                                                t_cb(null, allKecWithTable.concat(missing_kec_result).sort((a, b) => a._id.localeCompare(b._id)))
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                    },
+                }, (e, f) => {
+                    cb({ 'type': 'ok', 'data': f.allYearsData, 'dataForMonitoring': f.tahunBukuData, additionalMsg })
                 })
             }
         }

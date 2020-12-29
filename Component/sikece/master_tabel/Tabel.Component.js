@@ -27,7 +27,7 @@ export default class TabelComponent extends React.Component {
     getAllYearsBab = (props) => {
         props.socket.emit('api.master_tabel.bab/getAllYearsBab', (response) => {
             if (response.type === 'ok') {
-                this.setState({ years: response.data })
+                this.setState({ years: response.data, selectedYear: this.props.tahun_buku_monitoring })
             } else {
                 props.showErrorMessage(response.additionalMsg)
             }

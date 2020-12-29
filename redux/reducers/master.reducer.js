@@ -11,6 +11,8 @@ export default (
     all_kec_obj: {},
     all_kec_table_obj: {},
     all_kec_table_arr: [],
+    all_kec_table_obj_m: {},
+    all_kec_table_arr_m: [],
     all_deskel: [],
     all_variable: [],
     all_variable_obj: {},
@@ -51,6 +53,21 @@ export default (
       let all_kec_obj = {}
       let all_kec_table_obj = {}
       let all_kec_table_arr = []
+      let all_kec_table_obj_m = {}
+      let all_kec_table_arr_m = []
+      //monitoring
+      if (action.all_kec_monitoring.length) {
+        action.all_kec_monitoring.forEach(v => {
+          all_kec_table_obj_m[v._id] = {}
+          if(v.table){
+            v.table.forEach(w => {
+              all_kec_table_obj_m[v._id][w._idTable] = w
+              all_kec_table_arr_m.push(w)
+            });
+          }
+        });
+      }
+      //all
       if (action.all_kec.length) {
         action.all_kec.forEach(v => {
           all_kec_obj[v._id] = v
@@ -68,7 +85,9 @@ export default (
         all_kec: action.all_kec,
         all_kec_obj,
         all_kec_table_obj,
-        all_kec_table_arr
+        all_kec_table_arr,
+        all_kec_table_obj_m,
+        all_kec_table_arr_m
       }
     case actionTypes.SET_MASTER_DESKEL:
       return {

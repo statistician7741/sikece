@@ -1,4 +1,4 @@
-import { Dropdown, Layout, Menu, Spin } from "antd";
+import { Dropdown, Layout, Menu, Spin, Tag } from "antd";
 const { Content, Footer, Header, Sider } = Layout;
 import Link from "next/link";
 import { LogoutOutlined, UserOutlined, LoadingOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
@@ -35,7 +35,7 @@ class BasicLayout extends React.Component {
     }
   }
   render() {
-    const { active_user: { name, profil, jenis_pengguna }, isMenuCollapsed, router } = this.props
+    const { active_user: { name, profil, jenis_pengguna }, isMenuCollapsed, router, tahun_buku_monitoring } = this.props
     let myrouter = menu.filter(m => (m.user_type.includes(jenis_pengguna))).map(m => (m.key))
     return (
       <Layout className="layout" style={{ minHeight: '100vh' }}>
@@ -65,6 +65,7 @@ class BasicLayout extends React.Component {
                 className="trigger"
                 onClick={() => this.props.dispatch(toggleMenuCollapsed(!isMenuCollapsed))}
               />}
+            <span className="center" style={{marginLeft: 10}}><Tag color="#108ee9">KCDA Tahun {tahun_buku_monitoring}</Tag></span>
             {/* <span className="right">
               <Dropdown overlay={userMenu} trigger={['click']}>
                 <span className={`action account`} style={{ color: 'white' }}> */}
@@ -94,8 +95,8 @@ class BasicLayout extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { socket: { socket }, user: { active_user, isMenuCollapsed } } = state
-  return { socket, active_user, isMenuCollapsed }
+  const { socket: { socket }, user: { active_user, isMenuCollapsed, tahun_buku_monitoring } } = state
+  return { socket, active_user, isMenuCollapsed, tahun_buku_monitoring }
 }
 
 export default connect(mapStateToProps)(BasicLayout)

@@ -88,6 +88,47 @@ let runServer = () => {
             User.create(data, (err, result) => { })
           }
         })
+
+
+        //copy 2021
+        // const Tabel = require('./models/Table.model')
+        // const Bab = require('./models/Bab.model')
+
+        // Tabel.find({}, (e,r)=>{
+        //   console.log(r.length)
+        //   r.forEach(tabel=>{
+        //     const { bab, nomor_tabel, judul, baris, kolom, sumber, catatan, ket } = tabel
+        //     Tabel.create({
+        //       bab: `2021_${bab.match(/\d+$/)[0]}`,
+        //       nomor_tabel,
+        //       judul: judul.replace('2019', '2020'),
+        //       baris,
+        //       kolom,
+        //       sumber,
+        //       catatan,
+        //       ket
+        //     }, (e,t)=>{
+        //       console.log(t._id)
+        //     })
+        //   })
+        // })
+
+        // Bab.find({}, (e,r)=>{
+        //   console.log(r.length)
+        //   r.forEach(bab=>{
+        //     const { _id, tahun_buku, nomor, name, ket } = bab
+        //     Bab.create({
+        //       _id: `2021_${nomor}`,
+        //       tahun_buku: 2021,
+        //       nomor,
+        //       name,
+        //       ket
+        //     }, (e,b)=>{
+        //       console.log(b._id)
+        //     })
+        //   })
+        // })
+
       })
 
       const io = socketServer(serve);

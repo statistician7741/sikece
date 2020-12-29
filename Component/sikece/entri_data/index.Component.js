@@ -205,7 +205,7 @@ export default class IndexEntri extends React.Component {
     }
     componentDidMount() {
         if (this.props.socket) {
-            !this.state.years && this.getAllYearsBab(this.props)
+            !this.state.years.length && this.getAllYearsBab(this.props)
             !this.props.all_table.length && this.props.dispatch(getTable(this.props.socket))
             !this.props.all_kab.length && this.props.dispatch(getKab(this.props.socket))
             !this.props.all_kec.length && this.props.dispatch(getKec(this.props.socket))

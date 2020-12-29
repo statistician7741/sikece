@@ -86,11 +86,6 @@ export default class IndexMonitoring extends React.Component {
             }
         }
     }
-    refreshGrafik = (isKab, isTable, isKec) => {
-        isKab&&this.props.dispatch(getKab(this.props.socket))
-        isKec&&this.props.dispatch(getKec(this.props.socket))
-        isTable&&this.props.dispatch(getTable(this.props.socket))
-    }
     componentDidUpdate(prevProps, prevState) {
         if (this.props.socket !== prevProps.socket) {
             this.props.dispatch(getKab(this.props.socket))
@@ -103,18 +98,23 @@ export default class IndexMonitoring extends React.Component {
             }
         }
     }
+    refreshGrafik = (isKab, isTable, isKec) => {
+        isKab&&this.props.dispatch(getKab(this.props.socket))
+        isKec&&this.props.dispatch(getKec(this.props.socket))
+        isTable&&this.props.dispatch(getTable(this.props.socket))
+    }
     onChangeTab = (key) => {
         this.setState({ activeKey: key })
     }
     getKabDataChart = () => {
-        const { all_kab, all_kec, all_kab_obj, all_kec_obj, all_kec_table_obj, all_table } = this.props
+        const { all_kab, all_kec, all_kab_obj, all_kec_obj, all_kec_table_obj_m, all_table } = this.props
         const total_tabel_perkec = all_table.length
         let kec = []
         let kab = []
         let kabTemp = {}
         if (all_kab.length && all_kec.length) {
-            if (Object.keys(all_kec_table_obj).length) {
-                Object.keys(all_kec_table_obj).forEach(_idKec => {
+            if (Object.keys(all_kec_table_obj_m).length) {
+                Object.keys(all_kec_table_obj_m).forEach(_idKec => {
                     const _idKab = all_kec_obj[_idKec].kab
                     if (!kabTemp[_idKab]) kabTemp[_idKab] = {
                         "region": `[${all_kab_obj[_idKab]._id}] ${all_kab_obj[_idKab].name}`,
@@ -125,10 +125,10 @@ export default class IndexMonitoring extends React.Component {
                         "kecCount": 0
                     }
                     let approvedCountKec = 0
-                    let entriCountKec = Object.keys(all_kec_table_obj[_idKec]).length
-                    if (Object.keys(all_kec_table_obj[_idKec]).length) {
-                        Object.keys(all_kec_table_obj[_idKec]).forEach(_idTable => {
-                            if (all_kec_table_obj[_idKec][_idTable].isApproved) {
+                    let entriCountKec = Object.keys(all_kec_table_obj_m[_idKec]).length
+                    if (Object.keys(all_kec_table_obj_m[_idKec]).length) {
+                        Object.keys(all_kec_table_obj_m[_idKec]).forEach(_idTable => {
+                            if (all_kec_table_obj_m[_idKec][_idTable].isApproved) {
                                 approvedCountKec++
                             }
                         })
@@ -173,17 +173,17 @@ export default class IndexMonitoring extends React.Component {
     }
     render() {
         const { levelApprove, levelEntri, active_kabPersetujuan, active_kabEntri, topVisitor, onlineUser } = this.state
-        const { active_user: { jenis_pengguna, name }, all_kec_table_obj, all_kab_obj, all_kec_obj, all_table, all_kab, all_kec, all_kec_table_arr, tahun_buku_monitoring } = this.props
+        const { active_user: { jenis_pengguna, name }, all_kec_table_obj_m, all_kab_obj, all_kec_obj, all_table, all_kab, all_kec, all_kec_table_arr_m, tahun_buku_monitoring } = this.props
         const total_tabel = all_table.length && all_kec.length ? all_table.filter(t => (tahun_buku_monitoring == t.bab.substring(0, 4))).length * all_kec.length : 0
-        const total_entri = all_kec_table_arr.length
+        const total_entri = all_kec_table_arr_m.length
         const total_blm_entri = total_tabel - total_entri
-        const total_disetujui = all_kec_table_arr.length ? all_kec_table_arr.filter(data => (data.isApproved === true)).length : 0
-        const total_blm_disetujui = all_kec_table_arr.length ? all_kec_table_arr.filter(data => (data.isApproved === false)).length : 0
+        const total_disetujui = all_kec_table_arr_m.length ? all_kec_table_arr_m.filter(data => (data.isApproved === true)).length : 0
+        const total_blm_disetujui = all_kec_table_arr_m.length ? all_kec_table_arr_m.filter(data => (data.isApproved === false)).length : 0
         const total_blm_ditanggapi = total_tabel - total_disetujui - total_blm_disetujui
         const disetujui = {}
         const entri = {}
         let max_count = 0
-        all_kec_table_arr.forEach(t => {
+        all_kec_table_arr_m.forEach(t => {
             const { entryDate, isApproved, approvedDate } = t
             if (entryDate) {
                 if (!entri[moment(entryDate).format('DD/MM')]) entri[moment(entryDate).format('DD/MM')] = { count: 0, unix: moment(entryDate).valueOf() }
@@ -231,8 +231,8 @@ export default class IndexMonitoring extends React.Component {
         let kab = []
         let kabTemp = {}
         if (all_kab.length && all_kec.length) {
-            if (Object.keys(all_kec_table_obj).length) {
-                Object.keys(all_kec_table_obj).forEach(_idKec => {
+            if (Object.keys(all_kec_table_obj_m).length) {
+                Object.keys(all_kec_table_obj_m).forEach(_idKec => {
                     const _idKab = all_kec_obj[_idKec].kab
                     if (!kabTemp[_idKab]) kabTemp[_idKab] = {
                         "region": `[${all_kab_obj[_idKab]._id}] ${all_kab_obj[_idKab].name}`,
@@ -243,10 +243,10 @@ export default class IndexMonitoring extends React.Component {
                         "kecCount": 0
                     }
                     let approvedCountKec = 0
-                    let entriCountKec = Object.keys(all_kec_table_obj[_idKec]).length
-                    if (Object.keys(all_kec_table_obj[_idKec]).length) {
-                        Object.keys(all_kec_table_obj[_idKec]).forEach(_idTable => {
-                            if (all_kec_table_obj[_idKec][_idTable].isApproved) {
+                    let entriCountKec = Object.keys(all_kec_table_obj_m[_idKec]).length
+                    if (Object.keys(all_kec_table_obj_m[_idKec]).length) {
+                        Object.keys(all_kec_table_obj_m[_idKec]).forEach(_idTable => {
+                            if (all_kec_table_obj_m[_idKec][_idTable].isApproved) {
                                 approvedCountKec++
                             }
                         })

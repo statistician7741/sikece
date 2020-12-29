@@ -21,8 +21,8 @@ class Index extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { socket: { socket }, master: { all_kab, all_kec, all_kec_obj, all_kec_table_obj, all_deskel, all_bab, all_variable, all_variable_obj, all_table } } = state
-  return { socket, all_kab, all_kec, all_kec_obj, all_kec_table_obj, all_deskel, all_bab, all_variable, all_variable_obj, all_table }
+  const { socket: { socket }, user: { tahun_buku_monitoring }, master: { all_kab, all_kec, all_kec_obj, all_kec_table_obj, all_deskel, all_bab, all_variable, all_variable_obj, all_table } } = state
+  return { socket, tahun_buku_monitoring, all_kab, all_kec, all_kec_obj, all_kec_table_obj, all_deskel, all_bab, all_variable, all_variable_obj, all_table }
 }
 
 export default connect(mapStateToProps)(Index)
