@@ -120,7 +120,7 @@ export const getKec = (socket, cb) => dispatch => {
   socket.emit('api.master_tabel.kec/getKec',(response) => {
     if (response.type === 'ok') {
       cb&&cb()
-      return dispatch({ type: actionTypes.SET_MASTER_KEC, all_kec: response.data, all_kec_monitoring: response.dataForMonitoring })
+      return dispatch({ type: actionTypes.SET_MASTER_KEC, all_kec: response.data, all_kec_monitoring: response.dataForMonitoring?response.dataForMonitoring:[] })
     } else {
       return dispatch({ type: actionTypes.SET_MASTER_KEC, all_kec: [] })
     }
