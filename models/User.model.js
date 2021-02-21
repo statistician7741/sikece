@@ -24,6 +24,11 @@ var UserSchema = new Schema({
         'type': String,
         'default': "2020"
     },
+    "kab": {
+        'type': [String],
+        'ref': 'Kab',
+        'default': []
+    },
     "kec": {
         'type': [String],
         'ref': 'Kec',

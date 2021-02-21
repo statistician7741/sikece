@@ -6,6 +6,7 @@ module.exports = [
     ['profil'],
     ['jenis_pengguna'],
     ['tahun_buku'],
+    ['kab',[]],
     ['kec',[]],
     ['table',[]],
     ['ket'],

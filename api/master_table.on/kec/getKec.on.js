@@ -8,7 +8,7 @@ module.exports = (cb, client, additionalMsg) => {
     async.auto({
         getUser: cb_getUser => {
             if (jenis_pengguna) {
-                if (['pengentri', 'peny_data'].includes(jenis_pengguna)) {
+                if (['pengentri', 'peny_data', 'supervisor'].includes(jenis_pengguna)) {
                     User.findOne({ _id: user_id }, (err, user) => {
                         if (err) {
                             cb_getUser(err_code.ERROR_ACCESS_DB, null)
@@ -75,7 +75,7 @@ module.exports = (cb, client, additionalMsg) => {
                                 a_cb(err, null)
                             } else {
                                 let aggQuery = [
-                                    { $match: { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } },
+                                    { $match: jenis_pengguna !== 'supervisor' ? { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } : { 'kab': { '$in': getUser.kab }, "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } },
                                     { $unwind: "$table" },
                                     { $match: { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } }
                                 ]
@@ -85,7 +85,10 @@ module.exports = (cb, client, additionalMsg) => {
                                         console.log(err);
                                         a_cb(err, null)
                                     } else {
-                                        Kec.find({ '_id': { '$nin': allKecWithTable.map(kec => (kec._id)) } }, '_id kode kab name ket').sort('_id').exec((err, missing_kec_result) => {
+                                        //supervisor
+                                        const query = jenis_pengguna !== 'supervisor' ? { '_id': { '$nin': allKecWithTable.map(kec => (kec._id)) } } :
+                                            { '_id': { '$nin': allKecWithTable.map(kec => (kec._id)) }, 'kab': { '$in': getUser.kab } }
+                                        Kec.find(query, '_id kode kab name ket').sort('_id').exec((err, missing_kec_result) => {
                                             if (err) {
                                                 console.log(err);
                                                 a_cb(err, null)
@@ -105,7 +108,10 @@ module.exports = (cb, client, additionalMsg) => {
                                 t_cb(err, null)
                             } else {
                                 let aggQuery = [
-                                    { $match: { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } },
+                                    {
+                                        $match: jenis_pengguna !== 'supervisor' ? { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } :
+                                            { 'kab': { '$in': getUser.kab }, "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } }
+                                    },
                                     { $unwind: "$table" },
                                     { $match: { "table._idTable": { '$in': _tableIds.map(_id => (`${_id}`)) } } }
                                 ]
@@ -115,7 +121,9 @@ module.exports = (cb, client, additionalMsg) => {
                                         console.log(err);
                                         t_cb(err, null)
                                     } else {
-                                        Kec.find({ '_id': { '$nin': allKecWithTable.map(kec => (kec._id)) } }, '_id kode kab name ket').sort('_id').exec((err, missing_kec_result) => {
+                                        const q = jenis_pengguna !== 'supervisor' ? { '_id': { '$nin': allKecWithTable.map(kec => (kec._id)) } } :
+                                            { '_id': { '$nin': allKecWithTable.map(kec => (kec._id)) }, 'kab': { '$in': getUser.kab } }
+                                        Kec.find(q, '_id kode kab name ket').sort('_id').exec((err, missing_kec_result) => {
                                             if (err) {
                                                 console.log(err);
                                                 t_cb(err, null)

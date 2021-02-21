@@ -1,4 +1,4 @@
-import { Row, Col, Input, Space, Button, Form, AutoComplete, Radio, Transfer, Table, Select } from 'antd';
+import { Row, Col, Input, Space, Button, Form, AutoComplete, Radio, Transfer, Table, Select, Checkbox } from 'antd';
 const { TextArea } = Input;
 import difference from 'lodash/difference';
 import func from '../../../functions/basic.func'
@@ -144,9 +144,12 @@ export default class EditorUser_User extends React.Component {
         return this.state.data
     }
     onChangeInput = (changedValues) => {
+        // console.log(changedValues);
+        //kondisi fired: 1) DidMount utk setState 2) individual field
+        //cek duplikat username
         if (changedValues.username) {
             this.isDuplicate(changedValues.username, 'username', 'User')
-        } else if (changedValues.tahun_buku) {
+        } else if (changedValues.tahun_buku) { //fired jika hanya tahun buku yg diubah
             this.setState({
                 selectedTableKeys: [],
                 targetTableKeys: [],
@@ -233,11 +236,11 @@ export default class EditorUser_User extends React.Component {
             targetTableKeys,
             selectedTableKeys,
             tahun_buku,
+            kab,
             kec,
             table
         } = this.state
-        const { all_kec, all_kab_obj, all_table, years } = this.props
-
+        const { all_kec, all_kab_obj, all_kab, all_table, years } = this.props
         const leftTableColumns = [
             {
                 dataIndex: 'name',
@@ -272,6 +275,7 @@ export default class EditorUser_User extends React.Component {
                 render: (text) => all_kab_obj[text].name
             }
         ]);
+
         return (
             <Col xs={24}>
                 <Row gutter={[64, 0]}>
@@ -281,7 +285,7 @@ export default class EditorUser_User extends React.Component {
                             {...formItemLayout}
                             onValuesChange={(changedValues) => this.onChangeInput(changedValues)}
                             initialValues={{
-                                _id: undefined, name: undefined, ket: undefined, profil: 'lk'
+                                _id: undefined, name: undefined, ket: undefined, profil: 'lk', kab: [all_kab.map(k=>k._id)]
                             }}
                         >
                             <Form.Item
@@ -439,7 +443,23 @@ export default class EditorUser_User extends React.Component {
                                             pagination
                                         />
                                     </Form.Item>
-                                </Fragment> : null}
+                                </Fragment> : jenis_pengguna === 'supervisor' ?
+                                    <Fragment>
+                                        <Form.Item
+                                            label="Kabupaten"
+                                            name="kab"
+                                            rules={[
+                                                {
+                                                    required: true,
+                                                    message: 'Mohon pilih kabupaten wilayah kerja',
+                                                },
+                                            ]}
+                                        >
+                                            <Checkbox.Group options={all_kab.map(k=>({label: k.name, value: k._id}))} />
+
+                                        </Form.Item>
+                                    </Fragment> : null
+                                }
                             <Form.Item
                                 label="Keterangan"
                                 name="ket"
@@ -460,7 +480,7 @@ export default class EditorUser_User extends React.Component {
                         <Row>
                             <Col xs={24} md={24}>
                                 <Space>
-                                    <Button type="primary" disabled={(isUsernameDuplicate && username !== prevUsername) || !(username && password && name && jenis_pengguna && ((jenis_pengguna !== 'peny_data' && jenis_pengguna !== 'pengentri') || (kec.length && table.length && tahun_buku)))} onClick={this.onClickSimpanUser}>Simpan</Button>
+                                    <Button type="primary" disabled={ (jenis_pengguna === 'supervisor' && !kab.length) || (isUsernameDuplicate && username !== prevUsername) || !(username && password && name && jenis_pengguna && ((jenis_pengguna !== 'peny_data' && jenis_pengguna !== 'pengentri') || (kec.length && table.length && tahun_buku)))} onClick={this.onClickSimpanUser}>Simpan</Button>
                                 </Space>
                             </Col>
                         </Row>

@@ -8,7 +8,7 @@ module.exports = (cb, client, additionalMsg) => {
     async.auto({
         getUser: cb_getUser => {
             if (jenis_pengguna) {
-                if (['pengentri', 'peny_data'].includes(jenis_pengguna)) {
+                if (['pengentri', 'peny_data', 'supervisor'].includes(jenis_pengguna)) {
                     User.findOne({ _id: user_id }, (err, user) => {
                         if (err) {
                             cb_getUser(err_code.ERROR_ACCESS_DB, null)
@@ -25,13 +25,17 @@ module.exports = (cb, client, additionalMsg) => {
         },
         getKec: ['getUser', (result, cb_getKec) => {
             if (result.getUser) {
-                Kec.findOne({ '_id': { '$in': result.getUser.kec } }).distinct('kab').exec((err, kabs) => {
-                    if (err) {
-                        cb_getKec(err_code.ERROR_ACCESS_DB, null)
-                    } else {
-                        cb_getKec(null, kabs)
-                    }
-                })
+                if (jenis_pengguna !== 'supervisor') {
+                    Kec.findOne({ '_id': { '$in': result.getUser.kec } }).distinct('kab').exec((err, kabs) => {
+                        if (err) {
+                            cb_getKec(err_code.ERROR_ACCESS_DB, null)
+                        } else {
+                            cb_getKec(null, kabs)
+                        }
+                    })
+                } else {
+                    cb_getKec(null, result.getUser.kab)
+                }
             } else {
                 cb_getKec(null, null)
             }
