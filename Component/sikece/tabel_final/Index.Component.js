@@ -246,7 +246,22 @@ export default class IndexEntri extends React.Component {
                 onBack={activePage === 'list' ? undefined : this.onBack}
             >
                 <Row gutter={[16, 0]}>
-                    <LihatEntri {...this.props} setExpandLoading={this.setExpandLoading} activeRecord={activeRecord} loadingData={loadingData} getDataTable={this.getDataTable} activeData={activeData} years={years} kab={kab} kec={kec} bab={bab} selectedYear={selectedYear} onChangeDropdown={this.onChangeDropdown} onClickEntri={this.onClickEntri} getDynamicTable={this.getDynamicTable} />
+                    <LihatEntri
+                        {...this.props}
+                        setExpandLoading={this.setExpandLoading}
+                        activeRecord={activeRecord}
+                        loadingData={loadingData}
+                        getDataTable={this.getDataTable}
+                        activeData={activeData}
+                        years={years}
+                        kab={kab}
+                        kec={kec}
+                        bab={bab}
+                        selectedYear={selectedYear}
+                        onChangeDropdown={this.onChangeDropdown}
+                        onClickEntri={this.onClickEntri}
+                        getDynamicTable={this.getDynamicTable}
+                    />
                 </Row>
             </PageHeader>
         )

@@ -18,7 +18,8 @@ export default class LihatTabel_Tabel extends React.Component {
         searchText: '',
         searchedColumn: '',
         expandedRowKeys: [],
-        downloadingTableId: undefined
+        downloadingTableId: undefined,
+        downloadingAll: false
     }
     getColumnSearchProps = dataIndex => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -66,8 +67,8 @@ export default class LihatTabel_Tabel extends React.Component {
                     textToHighlight={text ? text.toString() : text}
                 />
             ) : (
-                    text
-                ),
+                text
+            ),
     });
 
     handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -181,7 +182,19 @@ export default class LihatTabel_Tabel extends React.Component {
     unduhTable = (id, props, record, kec, nama, activeData) => {
         this.setState({ downloadingTableId: id }, () => {
             const { baris, kolom, nomor_tabel, judul, catatan } = record
-            props.socket.emit('api.general.unduh/unduhTable', { baris, kolom, header: this.getHeader(baris, kolom), data: this.getBarisDataSource(baris, kolom, kec, activeData), nomor_tabel, judul, catatan, kec, nama, activeData }, (response) => {
+            props.socket.emit('api.general.unduh/unduhTable', { 
+                baris, 
+                kolom, 
+                header: this.getHeader(baris, kolom), 
+                data: this.getBarisDataSource(baris, kolom, kec, activeData), 
+                nomor_tabel, 
+                judul, 
+                catatan, 
+                kec,
+                nama, //nama kec
+                activeData,
+                selectedYear: this.props.selectedYear 
+             }, (response) => {
                 if (response.type === 'ok') {
                     this.setState({ downloadingTableId: undefined }, () => {
                         window.open(`/view/${response.data}`, "_top")
@@ -192,8 +205,31 @@ export default class LihatTabel_Tabel extends React.Component {
             })
         })
     }
+    onClickDownloadAll = () => {
+        this.setState({ downloadingAll: true }, () => {
+            const { selectedYear, kab, kec, bab, all_kec_obj, all_bab } = this.props
+            const bab_obj = all_bab.filter(b=>(b._id === bab))
+            this.props.socket.emit('api.general.unduh/unduhAllTable', { 
+                selectedYear, 
+                kab, 
+                kec,
+                bab,
+                bab_name: bab_obj.length?`Bab ${bab_obj[0].nomor}. ${bab_obj[0].name}`:'Semua Bab',
+                nama_kec: all_kec_obj[kec] ? all_kec_obj[kec].name : '{nama}'
+             }, (response) => {
+                if (response.type === 'ok') {
+                    this.setState({ downloadingAll: false }, () => {
+                        window.open(`/view/${response.data}`, "_top")
+                    })
+                } else {
+                    props.showErrorMessage(response.additionalMsg)
+                }
+            })
+        })
+
+    }
     render() {
-        const { expandedRowKeys, downloadingTableId } = this.state
+        const { expandedRowKeys, downloadingTableId, downloadingAll } = this.state
         const { all_table, all_bab, all_kab, all_kec, all_kec_obj, all_kec_table_obj, bab, selectedYear, years, kab, kec, activeData } = this.props
         const { onChangeDropdown, getDynamicTable, getDataTable, setExpandLoading } = this.props
         const tableColumns = [{
@@ -280,6 +316,11 @@ export default class LihatTabel_Tabel extends React.Component {
                                 {all_bab.filter(bab => selectedYear == bab.tahun_buku).map(b => <Option value={b._id} key={b._id}>Bab {b.nomor}. {b.name}</Option>)}
                             </Select>
                         </InputForm>
+                    </Col>
+                    <Col xs={24} md={8}>
+                        <Button loading={downloadingAll} type="primary" style={{ position: 'absolute', bottom: 10, right: 30 }} onClick={this.onClickDownloadAll}>
+                            <DownloadOutlined /> Unduh {bab === 'all_bab' ? 'Semua Bab' : 'Bab'}
+                        </Button>
                     </Col>
                 </Row>
                 <Row gutter={[64, 0]}>

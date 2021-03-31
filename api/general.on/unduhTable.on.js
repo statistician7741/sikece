@@ -4,7 +4,7 @@ const fs = require('fs')
 const static_path = __dirname + "/../../public/static/"
 
 module.exports = (input, cb, client) => {
-    let file_name = `[${input.kec}] Tabel ${input.nomor_tabel}.xlsx`
+    let file_name = `[${input.kec}] KCDA ${input.selectedYear} - Tabel ${input.nomor_tabel}.xlsx`
     XlsxPopulate.fromFileAsync(static_path + "/template_table.xlsx")
         .then(workbook => {
             let sheet = workbook.sheet(0);
